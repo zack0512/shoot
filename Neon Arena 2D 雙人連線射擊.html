@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NEON DUEL 2D // Firebase 雙人連線射擊</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      margin: 0;
+      background-color: #070b14;
+      color: #e2e8f0;
+      font-family: 'Noto Sans TC', sans-serif;
+      overflow-x: hidden;
+    }
+    .font-cyber {
+      font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
+    }
+    .neon-cyan {
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.35), inset 0 0 10px rgba(34, 211, 238, 0.15);
+    }
+    .neon-pink {
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.35), inset 0 0 10px rgba(244, 63, 94, 0.15);
+    }
+    .btn-cyber {
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-cyber:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.15);
+    }
+    .btn-cyber:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1000 / 650;
+      background: #090e1a;
+      border-radius: 12px;
+      cursor: crosshair;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#070b14] to-black">
+
+  <!-- Top Navigation & Firebase Status Bar -->
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-2 bg-slate-900/80 border border-slate-800 backdrop-blur-md px-4 py-2.5 rounded-xl mb-3">
+    <div class="flex items-center gap-3">
+      <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]"></div>
+      <h1 class="font-cyber text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-cyan-400 via-sky-300 to-rose-400 bg-clip-text text-transparent">
+        NEON DUEL 2D
+      </h1>
+      <span class="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+        RTDB 雙人即時對戰
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+      <!-- Firebase Status Badge -->
+      <div id="fbStatusBadge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700">
+        <span id="fbStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+        <span id="fbStatusText" class="text-slate-300 font-medium">連線至 Firebase RTDB...</span>
+        <span id="pingDisplay" class="hidden font-cyber text-xs text-cyan-400 ml-1">-- ms</span>
+      </div>
+
+      <!-- Mute Toggle -->
+      <button id="muteBtn" title="切換音效" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition">
+        🔊
+      </button>
+
+      <!-- Leave Room Button (Visible when in room) -->
+      <button id="leaveRoomBtn" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-rose-300 font-bold transition">
+        離開房間
+      </button>
+    </div>
+  </header>
+
+  <!-- Permission / Error Alert Banner (Hidden by default) -->
+  <div id="errorBanner" class="hidden w-full max-w-4xl mb-3 p-4 rounded-xl bg-rose-950/90 border border-rose-500/70 text-rose-100 shadow-lg">
+    <div class="flex items-start gap-3">
+      <span class="text-xl">⚠️</span>
+      <div class="flex-1 text-sm">
+        <p class="font-bold text-rose-300 text-base mb-1" id="errorTitle">Firebase 連線或權限錯誤</p>
+        <p id="errorMessage" class="text-rose-200/90 leading-relaxed"></p>
+        <div class="mt-2 p-2.5 rounded bg-black/50 font-mono text-xs text-amber-300 border border-rose-500/30">
+          提示：請確認 Firebase Console &gt; Realtime Database &gt; 規則 (Rules) 已設為：<br>
+          { "rules": { ".read": true, ".write": true } }
+        </div>
+      </div>
+      <button onclick="document.getElementById('errorBanner').classList.add('hidden')" class="text-rose-300 hover:text-white px-2">✕</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 px-5 py-2.5 rounded-full bg-slate-800/95 border border-cyan-400/50 text-cyan-200 text-sm font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+    訊息提示
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="w-full max-w-6xl flex-1 flex flex-col items-center justify-center">
+
+    <!-- 1. LOBBY VIEW -->
+    <section id="lobbyView" class="w-full max-w-3xl bg-slate-900/85 border border-slate-800 backdrop-blur-xl rounded-2xl p-5 sm:p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-wide mb-2">戰術競技場連線大廳</h2>
+        <p class="text-slate-400 text-sm sm:text-base">建立房間並分享 4 碼房號給好友，或開啟兩個瀏覽器分頁立即連線對戰！</p>
+      </div>
+
+      <!-- Player Nickname -->
+      <div class="mb-6 bg-slate-950/70 p-4 rounded-xl border border-slate-800">
+        <label class="block text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1.5">你的玩家代號 (Nickname)</label>
+        <div class="flex gap-2">
+          <input id="nicknameInput" type="text" maxlength="12" placeholder="輸入暱稱..."
+            class="flex-1 bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-lg px-4 py-2.5 text-white font-bold outline-none transition" />
+          <button id="randomNameBtn" class="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-sm font-bold transition" title="隨機產生暱稱">
+            🎲 隨機
+          </button>
+        </div>
+      </div>
+
+      <!-- Online Matchmaking Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- Create Room Card -->
+        <div class="bg-slate-950/70 border border-cyan-500/30 rounded-xl p-5 flex flex-col justify-between neon-cyan">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-cyan-400 font-black text-lg">建立私人房間</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold">房主 (P1 藍方)</span>
+            </div>
+            <p class="text-slate-400 text-sm mb-4">產生一組專屬 4 碼房間代碼，邀請朋友輸入代碼加入決鬥。</p>
+          </div>
+          <button id="createRoomBtn" class="btn-cyber w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-base shadow-lg">
+            ＋ 建立新房間
+          </button>
+        </div>
+
+        <!-- Join Room Card -->
+        <div class="bg-slate-950/70 border border-rose-500/30 rounded-xl p-5 flex flex-col justify-between neon-pink">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-rose-400 font-black text-lg">加入好友房間</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">挑戰者 (P2 紅方)</span>
+            </div>
+            <p class="text-slate-400 text-sm mb-3">輸入好友提供的 4 碼房間代碼立即進入戰場。</p>
+            <input id="roomCodeInput" type="text" maxlength="4" placeholder="例如：A7K9"
+              class="w-full mb-3 bg-slate-900 border border-slate-700 focus:border-rose-400 rounded-lg px-4 py-2 text-center font-cyber text-xl tracking-[0.3em] uppercase text-white font-black outline-none" />
+          </div>
+          <button id="joinRoomBtn" class="btn-cyber w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-base shadow-lg">
+            🚀 加入房間
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Match & Local 2P Test -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-slate-800">
+        <button id="quickMatchBtn" class="btn-cyber py-3 px-4 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold text-sm flex items-center justify-center gap-2">
+          <span>⚡ 快速配對 (自動尋找公開空房)</span>
+        </button>
+        <button id="localModeBtn" class="btn-cyber py-3 px-4 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-bold text-sm flex items-center justify-center gap-2">
+          <span>🎮 同機雙人測試 (Local 2P)</span>
+        </button>
+      </div>
+
+      <!-- Tip Box -->
+      <div class="mt-5 p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/70 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-300">
+        <div>
+          <span class="text-cyan-400 font-bold">💡 單人測試連線秘訣：</span>
+          點擊「建立新房間」後，複製網址並在瀏覽器<b>開新分頁</b>貼上，即可模擬雙人即時連線對戰！
+        </div>
+        <button id="copyUrlTipBtn" class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold transition">
+          複製遊戲網址
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. GAME ARENA VIEW -->
+    <section id="gameView" class="hidden w-full flex flex-col items-center">
+      <!-- Top Match HUD -->
+      <div class="w-full max-w-[1000px] grid grid-cols-3 items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 sm:px-5 py-2.5 rounded-xl mb-2.5 shadow-lg">
+        <!-- P1 Info -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="w-3.5 h-3.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee]"></div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span id="hudP1Name" class="font-bold text-cyan-300 text-xs sm:text-sm truncate">藍方玩家</span>
+              <span id="hudP1Badge" class="hidden text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">你</span>
+            </div>
+            <div class="w-24 sm:w-36 h-2 bg-slate-800 rounded-full overflow-hidden mt-1">
+              <div id="hudP1Hp" class="h-full bg-gradient-to-r from-cyan-500 to-sky-300 transition-all duration-150" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Center Score & Room Code -->
+        <div class="flex flex-col items-center justify-center">
+          <div class="flex items-center gap-2 sm:gap-4 font-cyber text-xl sm:text-3xl font-black">
+            <span id="hudP1Score" class="text-cyan-400">0</span>
+            <span class="text-slate-600 text-sm sm:text-base">VS</span>
+            <span id="hudP2Score" class="text-rose-400">0</span>
+          </div>
+          <div id="roomBadgeContainer" class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-[11px] text-slate-400">房號:</span>
+            <button id="copyRoomCodeBtn" title="點擊複製房號" class="font-cyber text-xs font-bold px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
+              <span id="hudRoomCode">----</span> 📋
+            </button>
+          </div>
+        </div>
+
+        <!-- P2 Info -->
+        <div class="flex items-center justify-end gap-2 sm:gap-3 text-right">
+          <div class="min-w-0">
+            <div class="flex items-center justify-end gap-1.5">
+              <span id="hudP2Badge" class="hidden text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">你</span>
+              <span id="hudP2Name" class="font-bold text-rose-300 text-xs sm:text-sm truncate">等待對手加入...</span>
+            </div>
+            <div class="w-24 sm:w-36 h-2 bg-slate-800 rounded-full overflow-hidden mt-1 ml-auto">
+              <div id="hudP2Hp" class="h-full bg-gradient-to-l from-rose-500 to-pink-400 transition-all duration-150" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e]"></div>
+        </div>
+      </div>
+
+      <!-- Canvas Wrapper -->
+      <div class="relative w-full max-w-[1000px] rounded-xl border-2 border-slate-800 shadow-[0_0_40px_rgba(0,0,0,0.8)] overflow-hidden bg-[#090e1a]">
+        <canvas id="gameCanvas" width="1000" height="650"></canvas>
+
+        <!-- Waiting for Opponent Overlay -->
+        <div id="waitingOverlay" class="hidden absolute inset-0 bg-slate-950/75 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10">
+          <div class="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <h3 class="text-xl sm:text-2xl font-black text-white mb-2">等待對手加入房間...</h3>
+          <p class="text-slate-300 text-sm mb-4">請將下方房間代碼傳給好友，或開新分頁輸入此房號加入：</p>
+          <div class="flex items-center gap-3 bg-slate-900 border border-cyan-500/50 px-6 py-3 rounded-2xl mb-4 neon-cyan">
+            <span id="overlayRoomCode" class="font-cyber text-3xl sm:text-4xl font-black tracking-[0.25em] text-cyan-300">----</span>
+            <button id="overlayCopyBtn" class="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm transition">
+              複製房號
+            </button>
+          </div>
+          <p class="text-xs text-slate-400">你可以先在場內自由移動與試射熱身！</p>
+        </div>
+
+        <!-- Victory / Match Over Overlay -->
+        <div id="matchOverOverlay" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+          <div class="text-5xl mb-3">🏆</div>
+          <h3 id="winnerTitle" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 mb-2">
+            藍方獲勝！
+          </h3>
+          <p id="winnerSubtitle" class="text-slate-300 text-base mb-6">最終比數 5 : 2</p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <button id="rematchBtn" class="btn-cyber px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-base shadow-lg">
+              🔄 再戰一局 (Rematch)
+            </button>
+            <button id="backLobbyBtn" class="btn-cyber px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold text-base">
+              返回大廳
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Touch Controls (Shown on touch/small screens) -->
+      <div id="mobileControls" class="md:hidden w-full max-w-[1000px] mt-3 grid grid-cols-2 gap-4 px-2">
+        <div class="flex items-center justify-center bg-slate-900/80 border border-slate-800 rounded-xl p-3">
+          <div class="grid grid-cols-3 gap-1.5 w-36 h-36">
+            <div></div>
+            <button data-key="KeyW" class="touch-btn bg-slate-800 active:bg-cyan-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▲</button>
+            <div></div>
+            <button data-key="KeyA" class="touch-btn bg-slate-800 active:bg-cyan-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">◀</button>
+            <div class="bg-slate-950 rounded-lg flex items-center justify-center text-xs text-slate-500">移動</div>
+            <button data-key="KeyD" class="touch-btn bg-slate-800 active:bg-cyan-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▶</button>
+            <div></div>
+            <button data-key="KeyS" class="touch-btn bg-slate-800 active:bg-cyan-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▼</button>
+            <div></div>
+          </div>
+        </div>
+        <div class="flex flex-col items-center justify-center gap-3 bg-slate-900/80 border border-slate-800 rounded-xl p-3">
+          <button id="mobileShootBtn" class="w-full py-4 rounded-xl bg-rose-500/30 active:bg-rose-500/60 border border-rose-400 text-rose-200 font-black text-base">
+            🔥 射擊 (點擊畫面可瞄準)
+          </button>
+          <button id="mobileDashBtn" class="w-full py-3 rounded-xl bg-cyan-500/30 active:bg-cyan-500/60 border border-cyan-400 text-cyan-200 font-black text-sm">
+            ⚡ 戰術衝刺 (Dash)
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls Legend -->
+      <div class="w-full max-w-[1000px] mt-3 bg-slate-900/70 border border-slate-800/80 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+        <div id="onlineControlsLegend" class="flex flex-wrap items-center gap-x-5 gap-y-1">
+          <span><b class="text-slate-200">WASD / 方向鍵</b>：移動</span>
+          <span><b class="text-slate-200">滑鼠移動</b>：瞄準</span>
+          <span><b class="text-cyan-300">左鍵 / 空白鍵</b>：射擊</span>
+          <span><b class="text-amber-300">Shift / 右鍵</b>：戰術衝刺 (短暫無敵加速)</span>
+        </div>
+        <div id="localControlsLegend" class="hidden flex-wrap items-center gap-x-5 gap-y-1">
+          <span class="text-cyan-300 font-bold">[藍方 P1] WASD 移動 + F / 空白鍵射擊 + Shift 衝刺</span>
+          <span class="text-rose-300 font-bold">[紅方 P2] 方向鍵移動 + Enter / M 射擊 + / 衝刺</span>
+        </div>
+        <div class="text-slate-400">
+          率先取得 <b class="text-amber-300">5 擊殺</b> 獲勝！場內會隨機生成 <span class="text-emerald-400">✚治療</span>、<span class="text-amber-400">⚡連射</span>、<span class="text-sky-400">🛡️護盾</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase Modular SDK & Game Engine -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      update,
+      remove,
+      push,
+      onValue,
+      onChildAdded,
+      onDisconnect,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // ==========================================
+    // 1. FIREBASE CONFIGURATION (User Provided)
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZ9s5Ku8aEzaVEmk_7ztbIiHXI6qmz5H0",
+      authDomain: "my-project-zack0512.firebaseapp.com",
+      databaseURL: "https://my-project-zack0512-default-rtdb.firebaseio.com",
+      projectId: "my-project-zack0512",
+      storageBucket: "my-project-zack0512.firebasestorage.app",
+      messagingSenderId: "972310414233",
+      appId: "1:972310414233:web:e1750488a87ca99c530908",
+      measurementId: "G-YFYKJKD6YE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const DB_ROOT = "games/shooter2d/rooms";
+
+    // ==========================================
+    // 2. WEB AUDIO API SYNTHESIZER (No external URLs)
+    // ==========================================
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === "suspended") {
+          this.ctx.resume();
+        }
+      }
+      play(type) {
+        if (this.muted) return;
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          if (type === "shoot") {
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(680, now);
+            osc.frequency.exponentialRampToValueAtTime(140, now + 0.09);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+            osc.start(now);
+            osc.stop(now + 0.09);
+          } else if (type === "hit") {
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(240, now);
+            osc.frequency.exponentialRampToValueAtTime(70, now + 0.08);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            osc.start(now);
+            osc.stop(now + 0.08);
+          } else if (type === "dash") {
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(520, now + 0.14);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+            osc.start(now);
+            osc.stop(now + 0.14);
+          } else if (type === "explosion") {
+            osc.type = "square";
+            osc.frequency.setValueAtTime(130, now);
+            osc.frequency.exponentialRampToValueAtTime(28, now + 0.35);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else if (type === "powerup") {
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.setValueAtTime(660, now + 0.07);
+            osc.frequency.setValueAtTime(880, now + 0.14);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+            osc.start(now);
+            osc.stop(now + 0.25);
+          }
+        } catch (e) {
+          // Ignore audio context autoplay errors
+        }
+      }
+    }
+    const sfx = new SoundFX();
+
+    // ==========================================
+    // 3. GAME CONSTANTS & ARENA MAP
+    // ==========================================
+    const ARENA_W = 1000;
+    const ARENA_H = 650;
+    const PLAYER_RADIUS = 18;
+    const BULLET_RADIUS = 5;
+    const BULLET_SPEED = 760; // px/sec
+    const PLAYER_SPEED = 260; // px/sec
+    const DASH_SPEED = 680;
+    const DASH_DURATION = 0.16;
+    const DASH_COOLDOWN = 1.6;
+    const MAX_HP = 100;
+    const WIN_SCORE = 5;
+
+    // Symmetrical tactical obstacles
+    const OBSTACLES = [
+      // Center diamond/cross cover
+      { x: 475, y: 275, w: 50, h: 100, color: "#1e293b", glow: "#38bdf8" },
+      // Left & Right vertical bunkers
+      { x: 210, y: 140, w: 36, h: 130, color: "#1e293b", glow: "#22d3ee" },
+      { x: 210, y: 380, w: 36, h: 130, color: "#1e293b", glow: "#22d3ee" },
+      { x: 754, y: 140, w: 36, h: 130, color: "#1e293b", glow: "#f43f5e" },
+      { x: 754, y: 380, w: 36, h: 130, color: "#1e293b", glow: "#f43f5e" },
+      // Top & Bottom horizontal blocks
+      { x: 350, y: 105, w: 110, h: 30, color: "#1e293b", glow: "#818cf8" },
+      { x: 540, y: 105, w: 110, h: 30, color: "#1e293b", glow: "#818cf8" },
+      { x: 350, y: 515, w: 110, h: 30, color: "#1e293b", glow: "#818cf8" },
+      { x: 540, y: 515, w: 110, h: 30, color: "#1e293b", glow: "#818cf8" }
+    ];
+
+    const POWERUP_SPAWNS = [
+      { x: 500, y: 195 },
+      { x: 500, y: 455 },
+      { x: 320, y: 325 },
+      { x: 680, y: 325 }
+    ];
+
+    // ==========================================
+    // 4. APPLICATION & GAME STATE
+    // ==========================================
+    const myClientId = "usr_" + Math.random().toString(36).substring(2, 10);
+    let mode = "lobby"; // "lobby" | "online" | "local"
+    let roomId = null;
+    let myRole = null; // "p1" | "p2"
+    let isConnectedRTDB = false;
+    let roomListeners = [];
+
+    const state = {
+      players: {
+        p1: createPlayerObj("p1", "藍方戰士", 110, ARENA_H / 2, 0),
+        p2: createPlayerObj("p2", "紅方獵手", ARENA_W - 110, ARENA_H / 2, Math.PI)
+      },
+      // Remote interpolation targets
+      remoteTarget: {
+        x: ARENA_W - 110,
+        y: ARENA_H / 2,
+        angle: Math.PI
+      },
+      bullets: [],
+      particles: [],
+      floatingTexts: [],
+      powerup: null, // { id, type: 'heal'|'rapid'|'shield', x, y }
+      scores: { p1: 0, p2: 0 },
+      matchWinner: null,
+      screenShake: 0,
+      lastNetworkSync: 0,
+      lastPowerupSpawn: 0
+    };
+
+    function createPlayerObj(role, name, x, y, angle) {
+      return {
+        role,
+        name,
+        x,
+        y,
+        angle,
+        hp: MAX_HP,
+        alive: true,
+        respawnTimer: 0,
+        dashTimer: 0,
+        dashCooldown: 0,
+        dashDirX: 0,
+        dashDirY: 0,
+        fireCooldown: 0,
+        rapidTimer: 0,
+        shield: 0,
+        invulnTimer: 0,
+        muzzleFlash: 0
+      };
+    }
+
+    // ==========================================
+    // 5. DOM REFERENCES & UI HELPERS
+    // ==========================================
+    const lobbyView = document.getElementById("lobbyView");
+    const gameView = document.getElementById("gameView");
+    const nicknameInput = document.getElementById("nicknameInput");
+    const roomCodeInput = document.getElementById("roomCodeInput");
+    const waitingOverlay = document.getElementById("waitingOverlay");
+    const matchOverOverlay = document.getElementById("matchOverOverlay");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Generate default nickname
+    function setRandomNickname() {
+      const prefixes = ["暗影", "霓虹", "雷霆", "量子", "幻影", "烈焰", "極光", "星際"];
+      const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+      const num = Math.floor(1000 + Math.random() * 9000);
+      nicknameInput.value = `${prefix}_${num}`;
+    }
+    setRandomNickname();
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.remove("opacity-0");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.add("opacity-0"), 2600);
+    }
+
+    function showFirebaseError(title, err) {
+      console.error(title, err);
+      const banner = document.getElementById("errorBanner");
+      document.getElementById("errorTitle").textContent = title;
+      document.getElementById("errorMessage").textContent = err?.message || String(err);
+      banner.classList.remove("hidden");
+    }
+
+    function copyText(text, label = "內容") {
+      const temp = document.createElement("textarea");
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand("copy");
+        showToast(`✅ 已複製${label}：${text}`);
+      } catch (e) {
+        showToast(`⚠️ 複製失敗，請手動選取：${text}`);
+      }
+      document.body.removeChild(temp);
+    }
+
+    // ==========================================
+    // 6. FIREBASE RTDB CONNECTION MONITORING
+    // ==========================================
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (snap) => {
+      const dot = document.getElementById("fbStatusDot");
+      const text = document.getElementById("fbStatusText");
+      const pingEl = document.getElementById("pingDisplay");
+      if (snap.val() === true) {
+        isConnectedRTDB = true;
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]";
+        text.textContent = "已連線至 Firebase RTDB";
+        text.className = "text-emerald-300 font-bold";
+        pingEl.classList.remove("hidden");
+        measurePing();
+      } else {
+        isConnectedRTDB = false;
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
+        text.textContent = "連線中 / 已離線...";
+        text.className = "text-amber-300 font-medium";
+        pingEl.classList.add("hidden");
+      }
+    });
+
+    async function measurePing() {
+      if (!isConnectedRTDB) return;
+      const t0 = performance.now();
+      try {
+        await get(ref(db, ".info/serverTimeOffset"));
+        const ms = Math.max(8, Math.round(performance.now() - t0));
+        document.getElementById("pingDisplay").textContent = `${ms} ms`;
+      } catch (e) {}
+    }
+    setInterval(measurePing, 5000);
+
+    // ==========================================
+    // 7. LOBBY & ROOM MATCHMAKING (FIREBASE RTDB)
+    // ==========================================
+    function generateRoomCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 4; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return code;
+    }
+
+    function cleanupRoomListeners() {
+      roomListeners.forEach((unsub) => {
+        if (typeof unsub === "function") unsub();
+      });
+      roomListeners = [];
+    }
+
+    async function createOnlineRoom() {
+      sfx.init();
+      const myName = nicknameInput.value.trim() || "藍方玩家";
+      const code = generateRoomCode();
+      const roomRef = ref(db, `${DB_ROOT}/${code}`);
+
+      try {
+        const snap = await get(roomRef);
+        if (snap.exists()) {
+          // Collision retry
+          return createOnlineRoom();
+        }
+
+        const initialRoomData = {
+          status: "waiting",
+          createdAt: serverTimestamp(),
+          scores: { p1: 0, p2: 0 },
+          winner: null,
+          powerup: null,
+          players: {
+            p1: {
+              id: myClientId,
+              name: myName,
+              x: 110,
+              y: ARENA_H / 2,
+              angle: 0,
+              hp: MAX_HP,
+              alive: true,
+              shield: 0,
+              rapid: false,
+              dashing: false
+            }
+          }
+        };
+
+        await set(roomRef, initialRoomData);
+
+        // Setup onDisconnect cleanup for P1
+        onDisconnect(ref(db, `${DB_ROOT}/${code}/players/p1`)).remove();
+        onDisconnect(ref(db, `${DB_ROOT}/${code}/status`)).set("abandoned");
+
+        enterOnlineGame(code, "p1", myName);
+      } catch (err) {
+        showFirebaseError("建立房間失敗 (請檢查 Firebase RTDB 讀寫權限)", err);
+      }
+    }
+
+    async function joinOnlineRoom(targetCode) {
+      sfx.init();
+      const code = (targetCode || roomCodeInput.value).trim().toUpperCase();
+      if (code.length !== 4) {
+        showToast("⚠️ 請輸入 4 碼房間代碼！");
+        return;
+      }
+
+      const myName = nicknameInput.value.trim() || "紅方玩家";
+      const roomRef = ref(db, `${DB_ROOT}/${code}`);
+
+      try {
+        const snap = await get(roomRef);
+        if (!snap.exists()) {
+          showToast(`❌ 找不到房間「${code}」，請確認房號是否正確！`);
+          return;
+        }
+
+        const roomData = snap.val();
+        if (roomData.players && roomData.players.p2 && roomData.players.p2.id !== myClientId) {
+          showToast(`⚠️ 房間「${code}」人數已滿！`);
+          return;
+        }
+        if (!roomData.players || !roomData.players.p1) {
+          showToast(`⚠️ 房主已離開該房間，請建立新房間！`);
+          return;
+        }
+
+        const p2Data = {
+          id: myClientId,
+          name: myName,
+          x: ARENA_W - 110,
+          y: ARENA_H / 2,
+          angle: Math.PI,
+          hp: MAX_HP,
+          alive: true,
+          shield: 0,
+          rapid: false,
+          dashing: false
+        };
+
+        await update(ref(db, `${DB_ROOT}/${code}`), {
+          status: "playing",
+          "players/p2": p2Data
+        });
+
+        // Setup onDisconnect cleanup for P2
+        onDisconnect(ref(db, `${DB_ROOT}/${code}/players/p2`)).remove();
+        onDisconnect(ref(db, `${DB_ROOT}/${code}/status`)).set("waiting");
+
+        enterOnlineGame(code, "p2", myName);
+      } catch (err) {
+        showFirebaseError("加入房間失敗 (請檢查 Firebase RTDB 讀寫權限)", err);
+      }
+    }
+
+    async function quickMatch() {
+      sfx.init();
+      showToast("🔍 正在搜尋公開等待中的房間...");
+      try {
+        const roomsSnap = await get(ref(db, DB_ROOT));
+        if (roomsSnap.exists()) {
+          const rooms = roomsSnap.val();
+          for (const [code, data] of Object.entries(rooms)) {
+            if (
+              data &&
+              data.status === "waiting" &&
+              data.players &&
+              data.players.p1 &&
+              !data.players.p2 &&
+              data.players.p1.id !== myClientId
+            ) {
+              roomCodeInput.value = code;
+              return joinOnlineRoom(code);
+            }
+          }
+        }
+        // No available waiting room found -> create one automatically!
+        showToast("✨ 目前無空房，已為你自動建立新房間！");
+        await createOnlineRoom();
+      } catch (err) {
+        showFirebaseError("快速配對失敗", err);
+      }
+    }
+
+    function enterOnlineGame(code, role, myName) {
+      cleanupRoomListeners();
+      mode = "online";
+      roomId = code;
+      myRole = role;
+
+      // Reset local simulation state
+      state.players.p1 = createPlayerObj("p1", role === "p1" ? myName : "等待中...", 110, ARENA_H / 2, 0);
+      state.players.p2 = createPlayerObj("p2", role === "p2" ? myName : "等待中...", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.remoteTarget = role === "p1"
+        ? { x: ARENA_W - 110, y: ARENA_H / 2, angle: Math.PI }
+        : { x: 110, y: ARENA_H / 2, angle: 0 };
+      state.bullets = [];
+      state.particles = [];
+      state.floatingTexts = [];
+      state.scores = { p1: 0, p2: 0 };
+      state.matchWinner = null;
+      state.powerup = null;
+
+      // Update UI
+      lobbyView.classList.add("hidden");
+      gameView.classList.remove("hidden");
+      document.getElementById("leaveRoomBtn").classList.remove("hidden");
+      document.getElementById("onlineControlsLegend").classList.remove("hidden");
+      document.getElementById("localControlsLegend").classList.add("hidden");
+      document.getElementById("roomBadgeContainer").classList.remove("hidden");
+      document.getElementById("hudRoomCode").textContent = code;
+      document.getElementById("overlayRoomCode").textContent = code;
+      document.getElementById("hudP1Badge").classList.toggle("hidden", role !== "p1");
+      document.getElementById("hudP2Badge").classList.toggle("hidden", role !== "p2");
+      matchOverOverlay.classList.add("hidden");
+
+      if (role === "p1") {
+        waitingOverlay.classList.remove("hidden");
+      } else {
+        waitingOverlay.classList.add("hidden");
+      }
+
+      bindRoomRealtimeListeners(code);
+    }
+
+    function bindRoomRealtimeListeners(code) {
+      const enemyRole = myRole === "p1" ? "p2" : "p1";
+
+      // 1. Listen to room metadata (status, scores, winner, powerup)
+      const roomRef = ref(db, `${DB_ROOT}/${code}`);
+      const unsubRoom = onValue(roomRef, (snap) => {
+        if (!snap.exists()) {
+          showToast("⚠️ 房間已關閉");
+          leaveRoom();
+          return;
+        }
+        const data = snap.val();
+
+        // Players presence & names
+        const p1Data = data.players?.p1;
+        const p2Data = data.players?.p2;
+
+        if (p1Data) {
+          state.players.p1.name = p1Data.name || "藍方玩家";
+        }
+        if (p2Data) {
+          state.players.p2.name = p2Data.name || "紅方玩家";
+          if (myRole === "p1" && !waitingOverlay.classList.contains("hidden")) {
+            waitingOverlay.classList.add("hidden");
+            showToast(`🔥 對手「${p2Data.name}」已加入戰場！`);
+            sfx.play("powerup");
+          }
+        } else {
+          state.players.p2.name = "等待對手加入...";
+          if (myRole === "p1" && !state.matchWinner) {
+            waitingOverlay.classList.remove("hidden");
+          }
+        }
+
+        // Sync remote player's state
+        const remoteData = data.players?.[enemyRole];
+        if (remoteData) {
+          state.remoteTarget.x = remoteData.x;
+          state.remoteTarget.y = remoteData.y;
+          state.remoteTarget.angle = remoteData.angle;
+          state.players[enemyRole].hp = remoteData.hp ?? MAX_HP;
+          state.players[enemyRole].alive = remoteData.alive !== false;
+          state.players[enemyRole].shield = remoteData.shield || 0;
+          state.players[enemyRole].rapidTimer = remoteData.rapid ? 1 : 0;
+          state.players[enemyRole].dashTimer = remoteData.dashing ? 0.1 : 0;
+        }
+
+        // Sync Scores
+        if (data.scores) {
+          state.scores.p1 = data.scores.p1 || 0;
+          state.scores.p2 = data.scores.p2 || 0;
+        }
+
+        // Sync Powerup
+        state.powerup = data.powerup || null;
+
+        // Sync Match Winner
+        if (data.winner && !state.matchWinner) {
+          state.matchWinner = data.winner;
+          showMatchOver(data.winner);
+        } else if (!data.winner && state.matchWinner) {
+          // Rematch started!
+          resetForRematchLocal();
+        }
+      });
+      roomListeners.push(unsubRoom);
+
+      // 2. Listen to bullets fired
+      const bulletsRef = ref(db, `${DB_ROOT}/${code}/bullets`);
+      const unsubBullets = onChildAdded(bulletsRef, (snap) => {
+        const b = snap.val();
+        if (!b || b.owner === myRole) return; // Ignore our own echoed bullets
+        // Ignore stale bullets older than 2 seconds
+        if (b.clientTs && Date.now() - b.clientTs > 2500) return;
+
+        spawnBulletLocal(b.owner, b.x, b.y, b.angle, b.id || snap.key);
+        state.players[b.owner].muzzleFlash = 0.08;
+        sfx.play("shoot");
+      });
+      roomListeners.push(unsubBullets);
+
+      // 3. Listen to hit / damage events
+      const eventsRef = ref(db, `${DB_ROOT}/${code}/events`);
+      const unsubEvents = onChildAdded(eventsRef, (snap) => {
+        const ev = snap.val();
+        if (!ev) return;
+        if (ev.clientTs && Date.now() - ev.clientTs > 3000) return;
+
+        if (ev.type === "hit" && ev.target === myRole) {
+          // I got hit by enemy's bullet!
+          applyDamageToLocalPlayer(myRole, ev.damage || 20, ev.from);
+        } else if (ev.type === "fx") {
+          spawnExplosion(ev.x, ev.y, ev.color || "#fb7185", 14);
+        }
+      });
+      roomListeners.push(unsubEvents);
+    }
+
+    function startLocal2PMode() {
+      sfx.init();
+      cleanupRoomListeners();
+      mode = "local";
+      roomId = null;
+      myRole = null;
+
+      const p1Name = nicknameInput.value.trim() || "藍方 P1";
+      state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0);
+      state.players.p2 = createPlayerObj("p2", "紅方 P2", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.bullets = [];
+      state.particles = [];
+      state.floatingTexts = [];
+      state.scores = { p1: 0, p2: 0 };
+      state.matchWinner = null;
+      state.powerup = null;
+
+      lobbyView.classList.add("hidden");
+      gameView.classList.remove("hidden");
+      waitingOverlay.classList.add("hidden");
+      matchOverOverlay.classList.add("hidden");
+      document.getElementById("leaveRoomBtn").classList.remove("hidden");
+      document.getElementById("onlineControlsLegend").classList.add("hidden");
+      document.getElementById("localControlsLegend").classList.remove("hidden");
+      document.getElementById("roomBadgeContainer").classList.add("hidden");
+      document.getElementById("hudP1Badge").classList.add("hidden");
+      document.getElementById("hudP2Badge").classList.add("hidden");
+
+      showToast("🎮 已進入同機雙人測試模式 (P1: WASD+F | P2: 方向鍵+Enter)");
+    }
+
+    async function leaveRoom() {
+      const prevRoom = roomId;
+      const prevRole = myRole;
+      cleanupRoomListeners();
+
+      if (mode === "online" && prevRoom && prevRole) {
+        try {
+          await remove(ref(db, `${DB_ROOT}/${prevRoom}/players/${prevRole}`));
+          if (prevRole === "p1") {
+            await remove(ref(db, `${DB_ROOT}/${prevRoom}`));
+          } else {
+            await update(ref(db, `${DB_ROOT}/${prevRoom}`), { status: "waiting" });
+          }
+        } catch (e) {}
+      }
+
+      mode = "lobby";
+      roomId = null;
+      myRole = null;
+      gameView.classList.add("hidden");
+      lobbyView.classList.remove("hidden");
+      document.getElementById("leaveRoomBtn").classList.add("hidden");
+    }
+
+    async function triggerRematch() {
+      if (mode === "local") {
+        startLocal2PMode();
+        return;
+      }
+      if (mode === "online" && roomId) {
+        try {
+          await update(ref(db, `${DB_ROOT}/${roomId}`), {
+            winner: null,
+            scores: { p1: 0, p2: 0 },
+            powerup: null
+          });
+          await remove(ref(db, `${DB_ROOT}/${roomId}/bullets`));
+          await remove(ref(db, `${DB_ROOT}/${roomId}/events`));
+          resetForRematchLocal();
+        } catch (e) {
+          showToast("⚠️ 重開失敗，請稍後再試");
+        }
+      }
+    }
+
+    function resetForRematchLocal() {
+      state.matchWinner = null;
+      state.scores = { p1: 0, p2: 0 };
+      state.bullets = [];
+      state.powerup = null;
+      matchOverOverlay.classList.add("hidden");
+
+      const spawnX = myRole === "p1" ? 110 : ARENA_W - 110;
+      const spawnAngle = myRole === "p1" ? 0 : Math.PI;
+      const me = state.players[myRole];
+      me.x = spawnX;
+      me.y = ARENA_H / 2;
+      me.angle = spawnAngle;
+      me.hp = MAX_HP;
+      me.alive = true;
+      me.shield = 0;
+      me.rapidTimer = 0;
+      me.invulnTimer = 1.5;
+      syncMyPlayerToRTDB(true);
+    }
+
+    function showMatchOver(winnerRole) {
+      sfx.play("powerup");
+      const titleEl = document.getElementById("winnerTitle");
+      const subEl = document.getElementById("winnerSubtitle");
+      const winName = state.players[winnerRole]?.name || (winnerRole === "p1" ? "藍方" : "紅方");
+      titleEl.textContent = `🏆 ${winName} 獲得勝利！`;
+      subEl.textContent = `最終比數 ${state.scores.p1} : ${state.scores.p2}`;
+      matchOverOverlay.classList.remove("hidden");
+    }
+
+    // ==========================================
+    // 8. INPUT HANDLING (KEYBOARD, MOUSE, TOUCH)
+    // ==========================================
+    const keys = {};
+    const mouse = { x: ARENA_W / 2, y: ARENA_H / 2, down: false };
+
+    window.addEventListener("keydown", (e) => {
+      keys[e.code] = true;
+      if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code) && mode !== "lobby") {
+        e.preventDefault();
+      }
+      if (mode === "online" && myRole && !state.matchWinner) {
+        if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+          tryDash(state.players[myRole]);
+        }
+      } else if (mode === "local" && !state.matchWinner) {
+        if (e.code === "ShiftLeft") tryDash(state.players.p1);
+        if (e.code === "Slash" || e.code === "ShiftRight") tryDash(state.players.p2);
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      keys[e.code] = false;
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = ARENA_W / rect.width;
+      const scaleY = ARENA_H / rect.height;
+      mouse.x = (e.clientX - rect.left) * scaleX;
+      mouse.y = (e.clientY - rect.top) * scaleY;
+    });
+
+    canvas.addEventListener("mousedown", (e) => {
+      sfx.init();
+      if (e.button === 0) {
+        mouse.down = true;
+      } else if (e.button === 2 && mode === "online" && myRole && !state.matchWinner) {
+        tryDash(state.players[myRole]);
+      }
+    });
+
+    window.addEventListener("mouseup", (e) => {
+      if (e.button === 0) mouse.down = false;
+    });
+
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // Touch controls for mobile
+    canvas.addEventListener("touchstart", (e) => {
+      sfx.init();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = (touch.clientX - rect.left) * (ARENA_W / rect.width);
+      mouse.y = (touch.clientY - rect.top) * (ARENA_H / rect.height);
+      mouse.down = true;
+    }, { passive: true });
+
+    canvas.addEventListener("touchmove", (e) => {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = (touch.clientX - rect.left) * (ARENA_W / rect.width);
+      mouse.y = (touch.clientY - rect.top) * (ARENA_H / rect.height);
+    }, { passive: true });
+
+    canvas.addEventListener("touchend", () => {
+      mouse.down = false;
+    });
+
+    document.querySelectorAll(".touch-btn").forEach((btn) => {
+      const code = btn.dataset.key;
+      btn.addEventListener("touchstart", (e) => { e.preventDefault(); keys[code] = true; });
+      btn.addEventListener("touchend", (e) => { e.preventDefault(); keys[code] = false; });
+    });
+
+    document.getElementById("mobileShootBtn").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      mouse.down = true;
+    });
+    document.getElementById("mobileShootBtn").addEventListener("touchend", (e) => {
+      e.preventDefault();
+      mouse.down = false;
+    });
+    document.getElementById("mobileDashBtn").addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      if (mode === "online" && myRole) tryDash(state.players[myRole]);
+    });
+
+    // ==========================================
+    // 9. GAMEPLAY MECHANICS (MOVEMENT, SHOOTING, COLLISIONS)
+    // ==========================================
+    function tryDash(player) {
+      if (!player.alive || player.dashCooldown > 0 || player.dashTimer > 0) return;
+      player.dashTimer = DASH_DURATION;
+      player.dashCooldown = DASH_COOLDOWN;
+      player.dashDirX = Math.cos(player.angle);
+      player.dashDirY = Math.sin(player.angle);
+      sfx.play("dash");
+      spawnExplosion(player.x, player.y, player.role === "p1" ? "#22d3ee" : "#fb7185", 10);
+    }
+
+    function tryShoot(player) {
+      if (!player.alive || player.fireCooldown > 0) return;
+      const rate = player.rapidTimer > 0 ? 0.14 : 0.28;
+      player.fireCooldown = rate;
+      player.muzzleFlash = 0.08;
+
+      const muzzleX = player.x + Math.cos(player.angle) * (PLAYER_RADIUS + 8);
+      const muzzleY = player.y + Math.sin(player.angle) * (PLAYER_RADIUS + 8);
+      const bulletId = `${player.role}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+
+      spawnBulletLocal(player.role, muzzleX, muzzleY, player.angle, bulletId);
+      sfx.play("shoot");
+
+      if (mode === "online" && roomId) {
+        const bulletsRef = ref(db, `${DB_ROOT}/${roomId}/bullets`);
+        push(bulletsRef, {
+          id: bulletId,
+          owner: player.role,
+          x: Math.round(muzzleX),
+          y: Math.round(muzzleY),
+          angle: Number(player.angle.toFixed(3)),
+          clientTs: Date.now()
+        }).catch(() => {});
+      }
+    }
+
+    function spawnBulletLocal(owner, x, y, angle, id) {
+      state.bullets.push({
+        id,
+        owner,
+        x,
+        y,
+        vx: Math.cos(angle) * BULLET_SPEED,
+        vy: Math.sin(angle) * BULLET_SPEED,
+        life: 1.6,
+        trail: []
+      });
+    }
+
+    function circleRectCollide(cx, cy, cr, rx, ry, rw, rh) {
+      const closestX = Math.max(rx, Math.min(cx, rx + rw));
+      const closestY = Math.max(ry, Math.min(cy, ry + rh));
+      const dx = cx - closestX;
+      const dy = cy - closestY;
+      return dx * dx + dy * dy < cr * cr;
+    }
+
+    function resolvePlayerObstacles(p) {
+      // Arena boundaries
+      p.x = Math.max(PLAYER_RADIUS + 6, Math.min(ARENA_W - PLAYER_RADIUS - 6, p.x));
+      p.y = Math.max(PLAYER_RADIUS + 6, Math.min(ARENA_H - PLAYER_RADIUS - 6, p.y));
+
+      // Obstacle push-out
+      for (const obs of OBSTACLES) {
+        const closestX = Math.max(obs.x, Math.min(p.x, obs.x + obs.w));
+        const closestY = Math.max(obs.y, Math.min(p.y, obs.y + obs.h));
+        const dx = p.x - closestX;
+        const dy = p.y - closestY;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < PLAYER_RADIUS * PLAYER_RADIUS) {
+          const dist = Math.sqrt(distSq) || 0.001;
+          const overlap = PLAYER_RADIUS - dist;
+          p.x += (dx / dist) * overlap;
+          p.y += (dy / dist) * overlap;
+        }
+      }
+    }
+
+    function applyDamageToLocalPlayer(targetRole, dmg, attackerRole) {
+      const p = state.players[targetRole];
+      if (!p.alive || p.invulnTimer > 0 || p.dashTimer > 0) return;
+
+      let remainingDmg = dmg;
+      if (p.shield > 0) {
+        const absorbed = Math.min(p.shield, remainingDmg);
+        p.shield -= absorbed;
+        remainingDmg -= absorbed;
+        addFloatingText(p.x, p.y - 25, `🛡️ -${absorbed}`, "#38bdf8");
+      }
+
+      if (remainingDmg > 0) {
+        p.hp = Math.max(0, p.hp - remainingDmg);
+        addFloatingText(p.x, p.y - 20, `-${remainingDmg}`, "#f43f5e");
+        sfx.play("hit");
+        state.screenShake = 6;
+      }
+
+      spawnExplosion(p.x, p.y, targetRole === "p1" ? "#22d3ee" : "#fb7185", 12);
+
+      if (p.hp <= 0 && p.alive) {
+        handlePlayerDeath(targetRole, attackerRole);
+      } else if (mode === "online" && targetRole === myRole) {
+        syncMyPlayerToRTDB(true);
+      }
+    }
+
+    function handlePlayerDeath(deadRole, killerRole) {
+      const deadPlayer = state.players[deadRole];
+      deadPlayer.alive = false;
+      deadPlayer.hp = 0;
+      deadPlayer.respawnTimer = 2.2;
+      deadPlayer.shield = 0;
+      deadPlayer.rapidTimer = 0;
+
+      sfx.play("explosion");
+      state.screenShake = 14;
+      spawnExplosion(deadPlayer.x, deadPlayer.y, deadRole === "p1" ? "#22d3ee" : "#f43f5e", 35);
+      addFloatingText(deadPlayer.x, deadPlayer.y - 30, "💥 擊殺！", "#fbbf24");
+
+      state.scores[killerRole] = (state.scores[killerRole] || 0) + 1;
+
+      if (mode === "online" && roomId) {
+        const newKillerScore = state.scores[killerRole];
+        const updates = {
+          [`scores/${killerRole}`]: newKillerScore
+        };
+        if (newKillerScore >= WIN_SCORE) {
+          updates.winner = killerRole;
+          state.matchWinner = killerRole;
+          showMatchOver(killerRole);
+        }
+        update(ref(db, `${DB_ROOT}/${roomId}`), updates).catch(() => {});
+        syncMyPlayerToRTDB(true);
+      } else if (mode === "local") {
+        if (state.scores[killerRole] >= WIN_SCORE) {
+          state.matchWinner = killerRole;
+          showMatchOver(killerRole);
+        }
+      }
+    }
+
+    function respawnPlayer(p) {
+      p.alive = true;
+      p.hp = MAX_HP;
+      p.invulnTimer = 1.8;
+      p.x = p.role === "p1" ? 110 : ARENA_W - 110;
+      p.y = ARENA_H / 2 + (Math.random() * 160 - 80);
+      spawnExplosion(p.x, p.y, "#34d399", 18);
+      if (mode === "online" && p.role === myRole) {
+        syncMyPlayerToRTDB(true);
+      }
+    }
+
+    function spawnExplosion(x, y, color, count = 15) {
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 60 + Math.random() * 240;
+        state.particles.push({
+          x,
+          y,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          life: 0.3 + Math.random() * 0.35,
+          maxLife: 0.65,
+          size: 2 + Math.random() * 4,
+          color
+        });
+      }
+    }
+
+    function addFloatingText(x, y, text, color) {
+      state.floatingTexts.push({
+        x,
+        y,
+        text,
+        color,
+        life: 0.9
+      });
+    }
+
+    // ==========================================
+    // 10. MAIN SIMULATION LOOP (60 FPS)
+    // ==========================================
+    let lastTime = performance.now();
+
+    function updateSimulation(dt) {
+      if (mode === "lobby") return;
+
+      // Decay screen shake
+      if (state.screenShake > 0) {
+        state.screenShake = Math.max(0, state.screenShake - dt * 35);
+      }
+
+      // Update particles & floating texts
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const pt = state.particles[i];
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.vx *= 0.94;
+        pt.vy *= 0.94;
+        pt.life -= dt;
+        if (pt.life <= 0) state.particles.splice(i, 1);
+      }
+
+      for (let i = state.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = state.floatingTexts[i];
+        ft.y -= 38 * dt;
+        ft.life -= dt;
+        if (ft.life <= 0) state.floatingTexts.splice(i, 1);
+      }
+
+      // Update timers on both players
+      ["p1", "p2"].forEach((r) => {
+        const p = state.players[r];
+        if (p.fireCooldown > 0) p.fireCooldown -= dt;
+        if (p.dashCooldown > 0) p.dashCooldown -= dt;
+        if (p.dashTimer > 0) p.dashTimer -= dt;
+        if (p.rapidTimer > 0) p.rapidTimer -= dt;
+        if (p.invulnTimer > 0) p.invulnTimer -= dt;
+        if (p.muzzleFlash > 0) p.muzzleFlash -= dt;
+
+        if (!p.alive && !state.matchWinner) {
+          p.respawnTimer -= dt;
+          if (p.respawnTimer <= 0 && (mode === "local" || r === myRole)) {
+            respawnPlayer(p);
+          }
+        }
+      });
+
+      if (!state.matchWinner) {
+        if (mode === "online" && myRole) {
+          updateOnlineLocalPlayer(dt);
+          interpolateRemotePlayer(dt);
+          if (myRole === "p1") managePowerupsHost(dt);
+        } else if (mode === "local") {
+          updateLocal2PPlayers(dt);
+          managePowerupsHost(dt);
+        }
+      }
+
+      updateBullets(dt);
+      checkPowerupPickup();
+      updateHUD();
+    }
+
+    function updateOnlineLocalPlayer(dt) {
+      const me = state.players[myRole];
+      if (!me.alive) return;
+
+      // Aim towards mouse
+      me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
+
+      // Movement vector
+      let mx = 0;
+      let my = 0;
+      if (keys["KeyW"] || keys["ArrowUp"]) my -= 1;
+      if (keys["KeyS"] || keys["ArrowDown"]) my += 1;
+      if (keys["KeyA"] || keys["ArrowLeft"]) mx -= 1;
+      if (keys["KeyD"] || keys["ArrowRight"]) mx += 1;
+
+      if (me.dashTimer > 0) {
+        me.x += me.dashDirX * DASH_SPEED * dt;
+        me.y += me.dashDirY * DASH_SPEED * dt;
+      } else if (mx !== 0 || my !== 0) {
+        const len = Math.hypot(mx, my);
+        me.x += (mx / len) * PLAYER_SPEED * dt;
+        me.y += (my / len) * PLAYER_SPEED * dt;
+      }
+
+      resolvePlayerObstacles(me);
+
+      if (mouse.down || keys["Space"]) {
+        tryShoot(me);
+      }
+
+      syncMyPlayerToRTDB(false);
+    }
+
+    function interpolateRemotePlayer(dt) {
+      const enemyRole = myRole === "p1" ? "p2" : "p1";
+      const enemy = state.players[enemyRole];
+      const lerpFactor = Math.min(1, dt * 16);
+      enemy.x += (state.remoteTarget.x - enemy.x) * lerpFactor;
+      enemy.y += (state.remoteTarget.y - enemy.y) * lerpFactor;
+
+      // Shortest angular interpolation
+      let diff = state.remoteTarget.angle - enemy.angle;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      enemy.angle += diff * lerpFactor;
+    }
+
+    function updateLocal2PPlayers(dt) {
+      // Player 1: WASD + F/Space
+      const p1 = state.players.p1;
+      if (p1.alive) {
+        let mx = (keys["KeyD"] ? 1 : 0) - (keys["KeyA"] ? 1 : 0);
+        let my = (keys["KeyS"] ? 1 : 0) - (keys["KeyW"] ? 1 : 0);
+        if (mx !== 0 || my !== 0) {
+          p1.angle = Math.atan2(my, mx);
+          const len = Math.hypot(mx, my);
+          if (p1.dashTimer <= 0) {
+            p1.x += (mx / len) * PLAYER_SPEED * dt;
+            p1.y += (my / len) * PLAYER_SPEED * dt;
+          }
+        }
+        if (p1.dashTimer > 0) {
+          p1.x += p1.dashDirX * DASH_SPEED * dt;
+          p1.y += p1.dashDirY * DASH_SPEED * dt;
+        }
+        resolvePlayerObstacles(p1);
+        if (keys["KeyF"] || keys["Space"]) tryShoot(p1);
+      }
+
+      // Player 2: Arrows + Enter/M
+      const p2 = state.players.p2;
+      if (p2.alive) {
+        let mx = (keys["ArrowRight"] ? 1 : 0) - (keys["ArrowLeft"] ? 1 : 0);
+        let my = (keys["ArrowDown"] ? 1 : 0) - (keys["ArrowUp"] ? 1 : 0);
+        if (mx !== 0 || my !== 0) {
+          p2.angle = Math.atan2(my, mx);
+          const len = Math.hypot(mx, my);
+          if (p2.dashTimer <= 0) {
+            p2.x += (mx / len) * PLAYER_SPEED * dt;
+            p2.y += (my / len) * PLAYER_SPEED * dt;
+          }
+        }
+        if (p2.dashTimer > 0) {
+          p2.x += p2.dashDirX * DASH_SPEED * dt;
+          p2.y += p2.dashDirY * DASH_SPEED * dt;
+        }
+        resolvePlayerObstacles(p2);
+        if (keys["Enter"] || keys["KeyM"]) tryShoot(p2);
+      }
+    }
+
+    function updateBullets(dt) {
+      for (let i = state.bullets.length - 1; i >= 0; i--) {
+        const b = state.bullets[i];
+        b.trail.push({ x: b.x, y: b.y });
+        if (b.trail.length > 6) b.trail.shift();
+
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        b.life -= dt;
+
+        // Out of bounds
+        if (b.life <= 0 || b.x < 0 || b.x > ARENA_W || b.y < 0 || b.y > ARENA_H) {
+          state.bullets.splice(i, 1);
+          continue;
+        }
+
+        // Obstacle collision
+        let hitWall = false;
+        for (const obs of OBSTACLES) {
+          if (circleRectCollide(b.x, b.y, BULLET_RADIUS, obs.x, obs.y, obs.w, obs.h)) {
+            hitWall = true;
+            spawnExplosion(b.x, b.y, b.owner === "p1" ? "#22d3ee" : "#fb7185", 6);
+            break;
+          }
+        }
+        if (hitWall) {
+          state.bullets.splice(i, 1);
+          continue;
+        }
+
+        // Player collision
+        const targetRole = b.owner === "p1" ? "p2" : "p1";
+        const target = state.players[targetRole];
+        if (target.alive) {
+          const dist = Math.hypot(b.x - target.x, b.y - target.y);
+          if (dist < PLAYER_RADIUS + BULLET_RADIUS) {
+            state.bullets.splice(i, 1);
+
+            if (mode === "local") {
+              applyDamageToLocalPlayer(targetRole, 20, b.owner);
+            } else if (mode === "online") {
+              // Shooter detects hit on target and publishes hit event so both sides stay responsive
+              if (b.owner === myRole) {
+                spawnExplosion(b.x, b.y, "#fbbf24", 10);
+                sfx.play("hit");
+                push(ref(db, `${DB_ROOT}/${roomId}/events`), {
+                  type: "hit",
+                  from: myRole,
+                  target: targetRole,
+                  damage: 20,
+                  clientTs: Date.now()
+                }).catch(() => {});
+              }
+            }
+          }
+        }
+      }
+    }
+
+    function managePowerupsHost(dt) {
+      if (state.powerup) return;
+      state.lastPowerupSpawn += dt;
+      if (state.lastPowerupSpawn >= 9.0) {
+        state.lastPowerupSpawn = 0;
+        const spot = POWERUP_SPAWNS[Math.floor(Math.random() * POWERUP_SPAWNS.length)];
+        const types = ["heal", "rapid", "shield"];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const newPowerup = {
+          id: "pw_" + Date.now(),
+          type,
+          x: spot.x,
+          y: spot.y
+        };
+        state.powerup = newPowerup;
+        if (mode === "online" && roomId) {
+          set(ref(db, `${DB_ROOT}/${roomId}/powerup`), newPowerup).catch(() => {});
+        }
+      }
+    }
+
+    function checkPowerupPickup() {
+      if (!state.powerup) return;
+      const pw = state.powerup;
+      const rolesToCheck = mode === "online" ? [myRole] : ["p1", "p2"];
+
+      for (const r of rolesToCheck) {
+        const p = state.players[r];
+        if (!p || !p.alive) continue;
+        if (Math.hypot(p.x - pw.x, p.y - pw.y) < PLAYER_RADIUS + 18) {
+          // Apply effect
+          if (pw.type === "heal") {
+            p.hp = Math.min(MAX_HP, p.hp + 40);
+            addFloatingText(p.x, p.y - 25, "✚ +40 生命", "#34d399");
+          } else if (pw.type === "rapid") {
+            p.rapidTimer = 6.0;
+            addFloatingText(p.x, p.y - 25, "⚡ 極速連射!", "#fbbf24");
+          } else if (pw.type === "shield") {
+            p.shield = 50;
+            addFloatingText(p.x, p.y - 25, "🛡️ 能量護盾 +50", "#38bdf8");
+          }
+
+          sfx.play("powerup");
+          spawnExplosion(pw.x, pw.y, "#34d399", 16);
+          state.powerup = null;
+
+          if (mode === "online" && roomId) {
+            remove(ref(db, `${DB_ROOT}/${roomId}/powerup`)).catch(() => {});
+            syncMyPlayerToRTDB(true);
+          }
+          break;
+        }
+      }
+    }
+
+    function syncMyPlayerToRTDB(force = false) {
+      if (mode !== "online" || !roomId || !myRole) return;
+      const now = performance.now();
+      if (!force && now - state.lastNetworkSync < 45) return; // ~22 Hz network tick rate
+      state.lastNetworkSync = now;
+
+      const me = state.players[myRole];
+      update(ref(db, `${DB_ROOT}/${roomId}/players/${myRole}`), {
+        x: Math.round(me.x),
+        y: Math.round(me.y),
+        angle: Number(me.angle.toFixed(3)),
+        hp: me.hp,
+        alive: me.alive,
+        shield: me.shield,
+        rapid: me.rapidTimer > 0,
+        dashing: me.dashTimer > 0
+      }).catch(() => {});
+    }
+
+    function updateHUD() {
+      document.getElementById("hudP1Name").textContent = state.players.p1.name;
+      document.getElementById("hudP2Name").textContent = state.players.p2.name;
+      document.getElementById("hudP1Score").textContent = state.scores.p1;
+      document.getElementById("hudP2Score").textContent = state.scores.p2;
+      document.getElementById("hudP1Hp").style.width = `${Math.max(0, state.players.p1.hp)}%`;
+      document.getElementById("hudP2Hp").style.width = `${Math.max(0, state.players.p2.hp)}%`;
+    }
+
+    // ==========================================
+    // 11. CANVAS RENDERING (NEON CYBERPUNK AESTHETIC)
+    // ==========================================
+    function renderArena() {
+      ctx.save();
+
+      // Screen shake transform
+      if (state.screenShake > 0.2) {
+        const sx = (Math.random() - 0.5) * state.screenShake;
+        const sy = (Math.random() - 0.5) * state.screenShake;
+        ctx.translate(sx, sy);
+      }
+
+      // 1. Background & Tactical Grid
+      ctx.fillStyle = "#080d19";
+      ctx.fillRect(0, 0, ARENA_W, ARENA_H);
+
+      ctx.strokeStyle = "rgba(30, 41, 59, 0.55)";
+      ctx.lineWidth = 1;
+      const gridSize = 50;
+      for (let x = 0; x <= ARENA_W; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, ARENA_H);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= ARENA_H; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(ARENA_W, y);
+        ctx.stroke();
+      }
+
+      // Center line & circle
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.12)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(ARENA_W / 2, 0);
+      ctx.lineTo(ARENA_W / 2, ARENA_H);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(ARENA_W / 2, ARENA_H / 2, 95, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 2. Obstacles (Cover Walls)
+      for (const obs of OBSTACLES) {
+        ctx.fillStyle = obs.color;
+        ctx.strokeStyle = obs.glow;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = obs.glow;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.roundRect(obs.x, obs.y, obs.w, obs.h, 6);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Inner diagonal tech stripes
+        ctx.fillStyle = "rgba(255,255,255,0.03)";
+        ctx.fillRect(obs.x + 4, obs.y + 4, obs.w - 8, obs.h - 8);
+      }
+
+      // 3. Powerup Pickup
+      if (state.powerup) {
+        const pw = state.powerup;
+        const pulse = Math.sin(performance.now() / 180) * 3;
+        const colorMap = { heal: "#10b981", rapid: "#f59e0b", shield: "#38bdf8" };
+        const iconMap = { heal: "✚", rapid: "⚡", shield: "🛡️" };
+        const c = colorMap[pw.type] || "#34d399";
+
+        ctx.save();
+        ctx.translate(pw.x, pw.y);
+        ctx.shadowColor = c;
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
+        ctx.strokeStyle = c;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 17 + pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(iconMap[pw.type] || "★", 0, 1);
+        ctx.restore();
+      }
+
+      // 4. Bullets & Trails
+      for (const b of state.bullets) {
+        const color = b.owner === "p1" ? "#22d3ee" : "#fb7185";
+        // Trail
+        for (let i = 0; i < b.trail.length; i++) {
+          const t = b.trail[i];
+          const alpha = (i + 1) / b.trail.length * 0.45;
+          ctx.fillStyle = b.owner === "p1" ? `rgba(34, 211, 238, ${alpha})` : `rgba(251, 113, 133, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, BULLET_RADIUS * ((i + 1) / b.trail.length), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Core
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, BULLET_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // 5. Players
+      drawPlayer(state.players.p1);
+      drawPlayer(state.players.p2);
+
+      // 6. Particles
+      for (const pt of state.particles) {
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // 7. Floating Damage / Status Texts
+      for (const ft of state.floatingTexts) {
+        ctx.globalAlpha = Math.min(1, ft.life * 1.4);
+        ctx.font = "900 15px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#000000";
+        ctx.fillText(ft.text, ft.x + 1.5, ft.y + 1.5);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+      }
+      ctx.globalAlpha = 1;
+
+      // 8. Aim Reticle for Online Player
+      if (mode === "online" && myRole && state.players[myRole].alive) {
+        ctx.strokeStyle = "rgba(34, 211, 238, 0.7)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 11, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(mouse.x - 16, mouse.y);
+        ctx.lineTo(mouse.x + 16, mouse.y);
+        ctx.moveTo(mouse.x, mouse.y - 16);
+        ctx.lineTo(mouse.x, mouse.y + 16);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawPlayer(p) {
+      if (!p.alive) {
+        // Respawn countdown indicator
+        ctx.save();
+        ctx.fillStyle = "rgba(148, 163, 184, 0.7)";
+        ctx.font = "bold 13px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`重生倒數 ${Math.max(0, p.respawnTimer).toFixed(1)}s`, p.x, p.y);
+        ctx.restore();
+        return;
+      }
+
+      const mainColor = p.role === "p1" ? "#22d3ee" : "#f43f5e";
+      const darkColor = p.role === "p1" ? "#083344" : "#4c0519";
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+
+      // Invulnerability blink
+      if (p.invulnTimer > 0 && Math.floor(performance.now() / 80) % 2 === 0) {
+        ctx.globalAlpha = 0.45;
+      }
+
+      // Shield bubble
+      if (p.shield > 0) {
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = "#38bdf8";
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(0, 0, PLAYER_RADIUS + 7, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      // Dash aura
+      if (p.dashTimer > 0) {
+        ctx.strokeStyle = "#fbbf24";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, PLAYER_RADIUS + 5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Rotate for gun barrel
+      ctx.save();
+      ctx.rotate(p.angle);
+
+      // Gun barrel
+      ctx.fillStyle = "#cbd5e1";
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(6, -5, 22, 10, 3);
+      ctx.fill();
+      ctx.stroke();
+
+      // Muzzle flash
+      if (p.muzzleFlash > 0) {
+        ctx.fillStyle = "#fef08a";
+        ctx.shadowColor = "#facc15";
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.arc(31, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Player Hull
+      ctx.shadowColor = mainColor;
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = darkColor;
+      ctx.strokeStyle = mainColor;
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, PLAYER_RADIUS, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Core visor
+      ctx.fillStyle = mainColor;
+      ctx.beginPath();
+      ctx.arc(4, 0, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore(); // End rotation
+
+      // Overhead Name & Mini HP / Dash Bar
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(p.name, 0, -PLAYER_RADIUS - 14);
+
+      // Mini HP bar under name
+      const barW = 36;
+      ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+      ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 10, barW, 4);
+      ctx.fillStyle = mainColor;
+      ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 10, barW * (p.hp / MAX_HP), 4);
+
+      // Dash cooldown mini bar (for local controlled players)
+      if ((mode === "online" && p.role === myRole) || mode === "local") {
+        const dashPct = 1 - Math.min(1, p.dashCooldown / DASH_COOLDOWN);
+        ctx.fillStyle = "rgba(15, 23, 42, 0.7)";
+        ctx.fillRect(-barW / 2, PLAYER_RADIUS + 8, barW, 3);
+        ctx.fillStyle = dashPct >= 1 ? "#fbbf24" : "#64748b";
+        ctx.fillRect(-barW / 2, PLAYER_RADIUS + 8, barW * dashPct, 3);
+      }
+
+      ctx.restore();
+    }
+
+    function gameLoop(now) {
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+
+      updateSimulation(dt);
+      if (mode !== "lobby") {
+        renderArena();
+      }
+      requestAnimationFrame(gameLoop);
+    }
+
+    // ==========================================
+    // 12. EVENT LISTENERS & INITIALIZATION
+    // ==========================================
+    document.getElementById("randomNameBtn").addEventListener("click", setRandomNickname);
+    document.getElementById("createRoomBtn").addEventListener("click", createOnlineRoom);
+    document.getElementById("joinRoomBtn").addEventListener("click", () => joinOnlineRoom());
+    document.getElementById("quickMatchBtn").addEventListener("click", quickMatch);
+    document.getElementById("localModeBtn").addEventListener("click", startLocal2PMode);
+    document.getElementById("leaveRoomBtn").addEventListener("click", leaveRoom);
+    document.getElementById("backLobbyBtn").addEventListener("click", leaveRoom);
+    document.getElementById("rematchBtn").addEventListener("click", triggerRematch);
+
+    document.getElementById("copyRoomCodeBtn").addEventListener("click", () => {
+      if (roomId) copyText(roomId, "房間代碼");
+    });
+    document.getElementById("overlayCopyBtn").addEventListener("click", () => {
+      if (roomId) copyText(roomId, "房間代碼");
+    });
+    document.getElementById("copyUrlTipBtn").addEventListener("click", () => {
+      copyText(window.location.href, "遊戲網址");
+    });
+
+    document.getElementById("muteBtn").addEventListener("click", (e) => {
+      sfx.muted = !sfx.muted;
+      e.target.textContent = sfx.muted ? "🔇" : "🔊";
+      showToast(sfx.muted ? "🔇 音效已靜音" : "🔊 音效已開啟");
+    });
+
+    roomCodeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") joinOnlineRoom();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (mode === "online" && roomId && myRole) {
+        remove(ref(db, `${DB_ROOT}/${roomId}/players/${myRole}`)).catch(() => {});
+      }
+    });
+
+    window.onload = () => {
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
