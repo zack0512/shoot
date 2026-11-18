@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>沙沙雙人射擊對決</title>
+  <title>霓虹雙人射擊對決</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -14,25 +14,25 @@
     }
     body {
       margin: 0;
-      background-color: #140f0a;
-      color: #fef3c7;
+      background-color: #0d111a;
+      color: #f8fafc;
       font-family: 'Noto Sans TC', sans-serif;
       overflow-x: hidden;
     }
-    .sand-glow-gold {
-      box-shadow: 0 0 18px rgba(245, 158, 11, 0.3), inset 0 0 10px rgba(245, 158, 11, 0.12);
+    .arena-glow-gold {
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.28), inset 0 0 10px rgba(245, 158, 11, 0.12);
     }
-    .sand-glow-crimson {
-      box-shadow: 0 0 18px rgba(244, 63, 94, 0.3), inset 0 0 10px rgba(244, 63, 94, 0.12);
+    .arena-glow-crimson {
+      box-shadow: 0 0 18px rgba(244, 63, 94, 0.28), inset 0 0 10px rgba(244, 63, 94, 0.12);
     }
-    .btn-sand {
+    .btn-arena {
       transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .btn-sand:hover:not(:disabled) {
+    .btn-arena:hover:not(:disabled) {
       transform: translateY(-2px);
       filter: brightness(1.12);
     }
-    .btn-sand:active:not(:disabled) {
+    .btn-arena:active:not(:disabled) {
       transform: translateY(1px);
     }
     canvas {
@@ -40,40 +40,38 @@
       width: 100%;
       height: auto;
       aspect-ratio: 1000 / 650;
-      background: #1c150e;
+      background: #131824;
       border-radius: 12px;
       cursor: crosshair;
     }
-    /* 自訂捲軸 */
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #1c140d; }
-    ::-webkit-scrollbar-thumb { background: #573e26; border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: #131824; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950/60 via-[#140f0a] to-black">
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0d111a] to-black">
 
   <!-- 頂部導覽與即時連線狀態列 -->
-  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-2 bg-stone-900/85 border border-amber-900/50 backdrop-blur-md px-4 py-2.5 rounded-xl mb-3 shadow-lg">
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-2 bg-slate-900/85 border border-slate-700/60 backdrop-blur-md px-4 py-2.5 rounded-xl mb-3 shadow-lg">
     <div class="flex items-center gap-3">
       <div class="w-3 h-3 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]"></div>
       <h1 class="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-rose-400 bg-clip-text text-transparent">
-        🏜️ 沙沙雙人射擊對決
+        ⚡ 霓虹雙人射擊對決
       </h1>
-      <span class="hidden md:inline-block text-xs px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-700/50 font-bold">
-        沙漠霓虹競技場・即時連線對戰
+      <span class="hidden md:inline-block text-xs px-2.5 py-0.5 rounded-full bg-slate-800/90 text-amber-300 border border-amber-500/40 font-bold">
+        霓虹競技場・即時連線對戰
       </span>
     </div>
 
     <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-      <!-- 雲端連線狀態徽章 -->
-      <div id="fbStatusBadge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-stone-800/90 border border-amber-900/60">
+      <!-- 雲端連線狀態徽章（已移除毫秒數） -->
+      <div id="fbStatusBadge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700">
         <span id="fbStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
         <span id="fbStatusText" class="text-amber-200 font-medium">正在連線至對戰伺服器...</span>
-        <span id="pingDisplay" class="hidden text-xs text-amber-400 font-bold ml-1">-- 毫秒</span>
       </div>
 
       <!-- 音效開關 -->
-      <button id="muteBtn" title="切換遊戲音效" class="p-2 rounded-lg bg-stone-800 hover:bg-stone-700 border border-amber-900/60 text-amber-100 transition">
+      <button id="muteBtn" title="切換遊戲音效" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 transition">
         🔊
       </button>
 
@@ -100,7 +98,7 @@
   </div>
 
   <!-- 浮動訊息通知 -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 px-5 py-2.5 rounded-full bg-stone-900/95 border border-amber-400/60 text-amber-100 text-sm font-bold shadow-[0_0_20px_rgba(245,158,11,0.35)]">
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 px-5 py-2.5 rounded-full bg-slate-900/95 border border-amber-400/60 text-amber-100 text-sm font-bold shadow-[0_0_20px_rgba(245,158,11,0.35)]">
     訊息提示
   </div>
 
@@ -108,77 +106,99 @@
   <main class="w-full max-w-6xl flex-1 flex flex-col items-center justify-center">
 
     <!-- 1. 遊戲大廳畫面 -->
-    <section id="lobbyView" class="w-full max-w-3xl bg-stone-900/85 border border-amber-900/60 backdrop-blur-xl rounded-2xl p-5 sm:p-8 shadow-2xl">
+    <section id="lobbyView" class="w-full max-w-3xl bg-slate-900/85 border border-slate-700/70 backdrop-blur-xl rounded-2xl p-5 sm:p-8 shadow-2xl">
       <div class="text-center mb-6">
-        <h2 class="text-2xl sm:text-3xl font-black text-amber-100 tracking-wide mb-2">沙沙競技場連線大廳</h2>
-        <p class="text-amber-200/75 text-sm sm:text-base">建立房間邀請好友對決，或開啟快速配對（若無人加入將自動召喚電腦機器人陪戰）！</p>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-100 tracking-wide mb-2">競技場連線大廳</h2>
+        <p class="text-slate-300/80 text-sm sm:text-base">建立房間邀請好友對決，或開啟快速配對（若無人加入將自動召喚電腦機器人陪戰）！</p>
       </div>
 
-      <!-- 玩家暱稱設定 -->
-      <div class="mb-6 bg-stone-950/75 p-4 rounded-xl border border-amber-900/50">
-        <label class="block text-xs font-bold tracking-wider text-amber-400 mb-1.5">你的沙沙戰士暱稱</label>
-        <div class="flex gap-2">
-          <input id="nicknameInput" type="text" maxlength="12" placeholder="請輸入玩家暱稱..."
-            class="flex-1 bg-stone-900 border border-amber-800/70 focus:border-amber-400 rounded-lg px-4 py-2.5 text-amber-50 font-bold outline-none transition" />
-          <button id="randomNameBtn" class="px-3.5 py-2.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-amber-800/70 text-amber-200 text-sm font-bold transition" title="隨機產生沙沙暱稱">
-            🎲 隨機暱稱
-          </button>
+      <!-- 玩家暱稱與 NPC 難度設定 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- 暱稱設定 -->
+        <div class="bg-slate-950/75 p-4 rounded-xl border border-slate-700/70">
+          <label class="block text-xs font-bold tracking-wider text-amber-400 mb-1.5">你的戰士暱稱</label>
+          <div class="flex gap-2">
+            <input id="nicknameInput" type="text" maxlength="12" placeholder="請輸入玩家暱稱..."
+              class="flex-1 min-w-0 bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-3.5 py-2 text-slate-50 font-bold outline-none transition" />
+            <button id="randomNameBtn" class="shrink-0 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 text-xs sm:text-sm font-bold transition" title="隨機產生戰士暱稱">
+              🎲 隨機
+            </button>
+          </div>
+        </div>
+
+        <!-- NPC 電腦機器人難度設定 -->
+        <div class="bg-slate-950/75 p-4 rounded-xl border border-sky-500/30">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-bold tracking-wider text-sky-400">🤖 電腦機器人 (NPC) 難度</label>
+            <span id="botDiffDesc" class="text-[11px] text-slate-400">均衡走位與基礎預判</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" data-diff="easy" class="bot-diff-btn py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 text-xs sm:text-sm font-bold transition hover:border-emerald-400">
+              🟢 簡單
+            </button>
+            <button type="button" data-diff="normal" class="bot-diff-btn py-2 rounded-lg border border-amber-400 bg-amber-500/20 text-amber-300 text-xs sm:text-sm font-bold transition shadow-[0_0_10px_rgba(251,191,36,0.2)]">
+              🟡 普通
+            </button>
+            <button type="button" data-diff="hard" class="bot-diff-btn py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 text-xs sm:text-sm font-bold transition hover:border-rose-400">
+              🔴 困難
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- 雙人連線配對卡片 -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
         <!-- 建立房間卡片 -->
-        <div class="bg-stone-950/75 border border-amber-500/40 rounded-xl p-5 flex flex-col justify-between sand-glow-gold">
+        <div class="bg-slate-950/75 border border-amber-500/40 rounded-xl p-5 flex flex-col justify-between arena-glow-gold">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-amber-300 font-black text-lg">建立私人房間</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">房主（沙金一方）</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">房主（一方）</span>
             </div>
-            <p class="text-amber-100/70 text-sm mb-4">產生一組專屬 4 碼房間代碼，邀請好友輸入代碼加入沙丘決鬥。</p>
+            <p class="text-slate-300/75 text-sm mb-4">產生一組專屬 4 碼房間代碼，邀請好友輸入代碼加入決鬥。</p>
           </div>
-          <button id="createRoomBtn" class="btn-sand w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-black text-base shadow-lg">
+          <button id="createRoomBtn" class="btn-arena w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-base shadow-lg">
             ＋ 建立新房間
           </button>
         </div>
 
         <!-- 加入房間卡片 -->
-        <div class="bg-stone-950/75 border border-rose-500/40 rounded-xl p-5 flex flex-col justify-between sand-glow-crimson">
+        <div class="bg-slate-950/75 border border-rose-500/40 rounded-xl p-5 flex flex-col justify-between arena-glow-crimson">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-rose-400 font-black text-lg">加入好友房間</span>
-              <span class="text-xs px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">挑戰者（赤沙二方）</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">挑戰者（二方）</span>
             </div>
-            <p class="text-amber-100/70 text-sm mb-3">輸入好友提供的 4 碼房間代碼立即進入戰場。</p>
+            <p class="text-slate-300/75 text-sm mb-3">輸入好友提供的 4 碼房間代碼立即進入戰場。</p>
             <input id="roomCodeInput" type="text" maxlength="4" placeholder="請輸入 4 碼房號"
-              class="w-full mb-3 bg-stone-900 border border-amber-800/70 focus:border-rose-400 rounded-lg px-4 py-2 text-center text-xl tracking-[0.25em] uppercase text-white font-black outline-none" />
+              class="w-full mb-3 bg-slate-900 border border-slate-700 focus:border-rose-400 rounded-lg px-4 py-2 text-center text-xl tracking-[0.25em] uppercase text-white font-black outline-none" />
           </div>
-          <button id="joinRoomBtn" class="btn-sand w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-base shadow-lg">
+          <button id="joinRoomBtn" class="btn-arena w-full py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-base shadow-lg">
             🚀 加入房間
           </button>
         </div>
       </div>
 
       <!-- 快速配對、電腦對戰與同機測試 -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-amber-900/50">
-        <button id="quickMatchBtn" class="btn-sand py-3 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold text-sm flex items-center justify-center gap-1.5">
-          <span>⚡ 快速配對（無人自動補機器人）</span>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-700/70">
+        <button id="quickMatchBtn" class="btn-arena py-3 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/50 text-emerald-300 font-bold text-sm flex items-center justify-center gap-1.5">
+          <span>⚡ 快速配對（無人補機器人）</span>
         </button>
-        <button id="aiBotModeBtn" class="btn-sand py-3 px-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/50 text-sky-300 font-bold text-sm flex items-center justify-center gap-1.5">
+        <button id="aiBotModeBtn" class="btn-arena py-3 px-3 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/50 text-sky-300 font-bold text-sm flex items-center justify-center gap-1.5">
           <span>🤖 單人挑戰電腦機器人</span>
         </button>
-        <button id="localModeBtn" class="btn-sand py-3 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-bold text-sm flex items-center justify-center gap-1.5">
+        <button id="localModeBtn" class="btn-arena py-3 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 font-bold text-sm flex items-center justify-center gap-1.5">
           <span>🎮 同機雙人對戰</span>
         </button>
       </div>
 
       <!-- 貼心提示框 -->
-      <div class="mt-5 p-3.5 rounded-xl bg-stone-800/60 border border-amber-800/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-amber-100/80">
+      <div class="mt-5 p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-300">
         <div>
           <span class="text-amber-400 font-bold">💡 遊玩小秘訣：</span>
-          若暫時沒有好友在線上，點擊「快速配對」等待 5 秒或直接選「單人挑戰電腦機器人」，就能立刻與智慧沙沙機器人開戰！
+          若暫時沒有好友在線上，可先在上方選擇「簡單 / 普通 / 困難」NPC 難度，再點擊「單人挑戰電腦機器人」立即開戰！
         </div>
-        <button id="copyUrlTipBtn" class="shrink-0 px-3 py-1.5 rounded-lg bg-amber-700/60 hover:bg-amber-600/70 text-amber-50 font-bold transition">
+        <button id="copyUrlTipBtn" class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold transition">
           複製遊戲網址
         </button>
       </div>
@@ -187,36 +207,42 @@
     <!-- 2. 競技場對戰畫面 -->
     <section id="gameView" class="hidden w-full flex flex-col items-center">
       <!-- 頂部對戰資訊欄 -->
-      <div class="w-full max-w-[1000px] grid grid-cols-3 items-center gap-2 bg-stone-900/90 border border-amber-900/60 px-3 sm:px-5 py-2.5 rounded-xl mb-2.5 shadow-lg">
+      <div class="w-full max-w-[1000px] grid grid-cols-3 items-center gap-2 bg-slate-900/90 border border-slate-700/70 px-3 sm:px-5 py-2.5 rounded-xl mb-2.5 shadow-lg">
         <!-- 一方資訊 -->
         <div class="flex items-center gap-2 sm:gap-3">
           <div class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24]"></div>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span id="hudP1Name" class="font-bold text-amber-300 text-xs sm:text-sm truncate">沙金戰士</span>
+              <span id="hudP1Name" class="font-bold text-amber-300 text-xs sm:text-sm truncate">金焰戰士</span>
               <span id="hudP1Badge" class="hidden text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">你</span>
             </div>
-            <div class="w-24 sm:w-36 h-2.5 bg-stone-800 rounded-full overflow-hidden mt-1 border border-stone-700">
+            <div class="w-24 sm:w-36 h-2.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700">
               <div id="hudP1Hp" class="h-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-150" style="width: 100%"></div>
             </div>
           </div>
         </div>
 
-        <!-- 中央比數與房號 -->
+        <!-- 中央比數與房號/難度 -->
         <div class="flex flex-col items-center justify-center">
           <div class="flex items-center gap-2 sm:gap-4 text-xl sm:text-3xl font-black">
             <span id="hudP1Score" class="text-amber-400">0</span>
-            <span class="text-amber-700 text-xs sm:text-sm font-black px-1.5 py-0.5 rounded bg-stone-950 border border-amber-900/60">對決</span>
+            <span class="text-slate-400 text-xs sm:text-sm font-black px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700">對決</span>
             <span id="hudP2Score" class="text-rose-400">0</span>
           </div>
           <div id="roomBadgeContainer" class="flex items-center gap-1.5 mt-0.5">
-            <span class="text-[11px] text-amber-200/70">房號：</span>
-            <button id="copyRoomCodeBtn" title="點擊複製房號" class="text-xs font-bold px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-amber-300 border border-amber-800/70 transition">
+            <span class="text-[11px] text-slate-400">房號：</span>
+            <button id="copyRoomCodeBtn" title="點擊複製房號" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
               <span id="hudRoomCode">----</span> 📋
             </button>
           </div>
-          <div id="modeBadgeContainer" class="hidden mt-0.5">
+          <div id="modeBadgeContainer" class="hidden mt-0.5 flex items-center gap-1.5">
             <span id="hudModeLabel" class="text-[11px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold">🤖 電腦機器人對戰中</span>
+            <!-- 對戰中即時切換 NPC 難度 -->
+            <select id="inGameDiffSelect" title="即時切換 NPC 難度" class="hidden text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-600 font-bold outline-none cursor-pointer">
+              <option value="easy">🟢 簡單</option>
+              <option value="normal" selected>🟡 普通</option>
+              <option value="hard">🔴 困難</option>
+            </select>
           </div>
         </div>
 
@@ -227,7 +253,7 @@
               <span id="hudP2Badge" class="hidden text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">你</span>
               <span id="hudP2Name" class="font-bold text-rose-300 text-xs sm:text-sm truncate">等待對手加入...</span>
             </div>
-            <div class="w-24 sm:w-36 h-2.5 bg-stone-800 rounded-full overflow-hidden mt-1 ml-auto border border-stone-700">
+            <div class="w-24 sm:w-36 h-2.5 bg-slate-800 rounded-full overflow-hidden mt-1 ml-auto border border-slate-700">
               <div id="hudP2Hp" class="h-full bg-gradient-to-l from-rose-500 to-pink-400 transition-all duration-150" style="width: 100%"></div>
             </div>
           </div>
@@ -236,41 +262,41 @@
       </div>
 
       <!-- 畫布外框 -->
-      <div class="relative w-full max-w-[1000px] rounded-xl border-2 border-amber-900/70 shadow-[0_0_40px_rgba(0,0,0,0.85)] overflow-hidden bg-[#1c150e]">
+      <div class="relative w-full max-w-[1000px] rounded-xl border-2 border-slate-700/80 shadow-[0_0_40px_rgba(0,0,0,0.85)] overflow-hidden bg-[#131824]">
         <canvas id="gameCanvas" width="1000" height="650"></canvas>
 
         <!-- 等待對手加入覆蓋層 -->
-        <div id="waitingOverlay" class="hidden absolute inset-0 bg-stone-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10">
+        <div id="waitingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10">
           <div class="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <h3 class="text-xl sm:text-2xl font-black text-amber-100 mb-2">正在等待對手加入沙沙戰場...</h3>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-100 mb-2">正在等待對手加入霓虹戰場...</h3>
           <p id="autoBotCountdownText" class="hidden text-emerald-300 font-bold text-sm sm:text-base mb-3 bg-emerald-950/70 border border-emerald-500/40 px-4 py-1.5 rounded-full">
-            ⏱️ 若無人配對，將於 5 秒後自動召喚沙沙電腦機器人加入！
+            ⏱️ 若無人配對，將於 5 秒後自動召喚電腦機器人加入！
           </p>
-          <p class="text-amber-200/80 text-sm mb-4">你可以將下方 4 碼房間代碼傳給好友，或直接呼叫電腦機器人陪練：</p>
-          <div class="flex items-center gap-3 bg-stone-900 border border-amber-500/50 px-6 py-3 rounded-2xl mb-4 sand-glow-gold">
+          <p class="text-slate-300 text-sm mb-4">你可以將下方 4 碼房間代碼傳給好友，或直接呼叫電腦機器人陪練：</p>
+          <div class="flex items-center gap-3 bg-slate-900 border border-amber-500/50 px-6 py-3 rounded-2xl mb-4 arena-glow-gold">
             <span id="overlayRoomCode" class="text-3xl sm:text-4xl font-black tracking-[0.25em] text-amber-300">----</span>
-            <button id="overlayCopyBtn" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-sm transition">
+            <button id="overlayCopyBtn" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm transition">
               複製房號
             </button>
           </div>
-          <button id="summonBotNowBtn" class="btn-sand px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black text-sm shadow-lg mb-3">
+          <button id="summonBotNowBtn" class="btn-arena px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black text-sm shadow-lg mb-3">
             🤖 立即呼叫電腦機器人加入對戰
           </button>
-          <p class="text-xs text-amber-200/60">等待期間你也可以在場內自由移動與試射熱身！</p>
+          <p class="text-xs text-slate-400">等待期間你也可以在場內自由移動與試射熱身！</p>
         </div>
 
         <!-- 勝利結算覆蓋層 -->
-        <div id="matchOverOverlay" class="hidden absolute inset-0 bg-stone-950/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+        <div id="matchOverOverlay" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
           <div class="text-5xl mb-3">🏆</div>
           <h3 id="winnerTitle" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 mb-2">
-            沙金戰士獲得勝利！
+            金焰戰士獲得勝利！
           </h3>
-          <p id="winnerSubtitle" class="text-amber-100/85 text-base mb-6">最終比數 5 ： 2</p>
+          <p id="winnerSubtitle" class="text-slate-200 text-base mb-6">最終比數 5 ： 2</p>
           <div class="flex flex-wrap items-center justify-center gap-3">
-            <button id="rematchBtn" class="btn-sand px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-stone-950 font-black text-base shadow-lg">
+            <button id="rematchBtn" class="btn-arena px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-base shadow-lg">
               🔄 再戰一局
             </button>
-            <button id="backLobbyBtn" class="btn-sand px-6 py-3 rounded-xl bg-stone-800 hover:bg-stone-700 border border-amber-800/70 text-amber-100 font-bold text-base">
+            <button id="backLobbyBtn" class="btn-arena px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 font-bold text-base">
               返回大廳
             </button>
           </div>
@@ -279,49 +305,49 @@
 
       <!-- 手機／平板觸控操作面板 -->
       <div id="mobileControls" class="md:hidden w-full max-w-[1000px] mt-3 grid grid-cols-2 gap-4 px-2">
-        <div class="flex items-center justify-center bg-stone-900/85 border border-amber-900/60 rounded-xl p-3">
+        <div class="flex items-center justify-center bg-slate-900/85 border border-slate-700 rounded-xl p-3">
           <div class="grid grid-cols-3 gap-1.5 w-36 h-36">
             <div></div>
-            <button data-key="KeyW" class="touch-btn bg-stone-800 active:bg-amber-500/40 rounded-lg border border-amber-800/70 flex items-center justify-center text-lg font-bold">▲</button>
+            <button data-key="KeyW" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▲</button>
             <div></div>
-            <button data-key="KeyA" class="touch-btn bg-stone-800 active:bg-amber-500/40 rounded-lg border border-amber-800/70 flex items-center justify-center text-lg font-bold">◀</button>
-            <div class="bg-stone-950 rounded-lg flex items-center justify-center text-xs text-amber-400/70 font-bold">移動</div>
-            <button data-key="KeyD" class="touch-btn bg-stone-800 active:bg-amber-500/40 rounded-lg border border-amber-800/70 flex items-center justify-center text-lg font-bold">▶</button>
+            <button data-key="KeyA" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">◀</button>
+            <div class="bg-slate-950 rounded-lg flex items-center justify-center text-xs text-amber-400/70 font-bold">移動</div>
+            <button data-key="KeyD" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▶</button>
             <div></div>
-            <button data-key="KeyS" class="touch-btn bg-stone-800 active:bg-amber-500/40 rounded-lg border border-amber-800/70 flex items-center justify-center text-lg font-bold">▼</button>
+            <button data-key="KeyS" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▼</button>
             <div></div>
           </div>
         </div>
-        <div class="flex flex-col items-center justify-center gap-3 bg-stone-900/85 border border-amber-900/60 rounded-xl p-3">
+        <div class="flex flex-col items-center justify-center gap-3 bg-slate-900/85 border border-slate-700 rounded-xl p-3">
           <button id="mobileShootBtn" class="w-full py-4 rounded-xl bg-rose-500/30 active:bg-rose-500/60 border border-rose-400 text-rose-200 font-black text-base">
             🔥 開火射擊（點擊畫面瞄準）
           </button>
           <button id="mobileDashBtn" class="w-full py-3 rounded-xl bg-amber-500/30 active:bg-amber-500/60 border border-amber-400 text-amber-200 font-black text-sm">
-            🌪️ 沙塵衝刺
+            ⚡ 能量衝刺
           </button>
         </div>
       </div>
 
       <!-- 操作說明列（全中文） -->
-      <div class="w-full max-w-[1000px] mt-3 bg-stone-900/80 border border-amber-900/60 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-200/75">
+      <div class="w-full max-w-[1000px] mt-3 bg-slate-900/80 border border-slate-700/70 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
         <div id="onlineControlsLegend" class="flex flex-wrap items-center gap-x-5 gap-y-1">
-          <span><b class="text-amber-100">方向鍵 / 移動鍵盤</b>：操控移動</span>
-          <span><b class="text-amber-100">滑鼠游標</b>：精準瞄準</span>
-          <span><b class="text-amber-300">滑鼠左鍵 / 空白鍵</b>：發射沙能彈</span>
-          <span><b class="text-orange-300">換檔鍵 / 滑鼠右鍵</b>：沙塵衝刺（短暫無敵加速）</span>
+          <span><b class="text-slate-100">WASD / 方向鍵</b>：操控移動</span>
+          <span><b class="text-slate-100">滑鼠游標</b>：精準瞄準</span>
+          <span><b class="text-amber-300">滑鼠左鍵 / 空白鍵</b>：發射能量彈</span>
+          <span><b class="text-orange-300">Shift / 滑鼠右鍵</b>：能量衝刺（短暫無敵加速）</span>
         </div>
         <div id="localControlsLegend" class="hidden flex-wrap items-center gap-x-5 gap-y-1">
-          <span class="text-amber-300 font-bold">【沙金一方】左側方向鍵移動 ＋ 空白鍵射擊 ＋ 左側換檔鍵衝刺</span>
-          <span class="text-rose-300 font-bold">【赤沙二方】右側方向鍵移動 ＋ 確認鍵射擊 ＋ 右側換檔鍵衝刺</span>
+          <span class="text-amber-300 font-bold">【一方】WASD 移動 ＋ F / 空白鍵射擊 ＋ 左 Shift 衝刺</span>
+          <span class="text-rose-300 font-bold">【二方】方向鍵移動 ＋ Enter / M 射擊 ＋ 右 Shift 衝刺</span>
         </div>
-        <div class="text-amber-200/80">
+        <div class="text-slate-300">
           率先取得 <b class="text-amber-300">5 次擊殺</b> 獲勝！場內隨機掉落 <span class="text-emerald-400 font-bold">✚治療</span>、<span class="text-amber-400 font-bold">⚡連射</span>、<span class="text-sky-400 font-bold">🛡️護盾</span>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- 雲端資料庫連線與沙沙遊戲核心引擎 -->
+  <!-- 雲端資料庫連線與遊戲核心引擎 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -339,7 +365,7 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     // ==========================================
-    // 1. 雲端即時資料庫設定（完整保留）
+    // 1. 雲端即時資料庫設定
     // ==========================================
     const firebaseConfig = {
       apiKey: "AIzaSyBZ9s5Ku8aEzaVEmk_7ztbIiHXI6qmz5H0",
@@ -357,7 +383,7 @@
     const DB_ROOT = "games/shooter2d/rooms";
 
     // ==========================================
-    // 2. 網頁音效合成器（無需外部音檔）
+    // 2. 網頁音效合成器
     // ==========================================
     class SoundFX {
       constructor() {
@@ -424,15 +450,13 @@
             osc.start(now);
             osc.stop(now + 0.25);
           }
-        } catch (e) {
-          // 忽略瀏覽器自動播放限制錯誤
-        }
+        } catch (e) {}
       }
     }
     const sfx = new SoundFX();
 
     // ==========================================
-    // 3. 沙沙競技場常數與掩體地圖設定
+    // 3. 競技場常數、NPC 難度參數與掩體地圖設定
     // ==========================================
     const ARENA_W = 1000;
     const ARENA_H = 650;
@@ -446,20 +470,68 @@
     const MAX_HP = 100;
     const WIN_SCORE = 5;
 
-    // 沙漠綠洲霓虹掩體
+    // NPC 難度設定表
+    const BOT_DIFFICULTIES = {
+      easy: {
+        label: "簡單",
+        badge: "🟢 簡單",
+        desc: "移動較緩慢、不會預判與衝刺閃避",
+        botName: "🤖 初級訓練機器人",
+        speedMult: 0.65,
+        turnSpeed: 5,
+        fireExtraDelay: 0.38,
+        aimTolerance: 0.32,
+        predictLead: 0,
+        dodgeChance: 0.15,
+        dashDodgeChance: 0,
+        aimJitter: 0.14
+      },
+      normal: {
+        label: "普通",
+        badge: "🟡 普通",
+        desc: "均衡走位與基礎預判",
+        botName: "🤖 標準戰鬥機器人",
+        speedMult: 0.90,
+        turnSpeed: 10,
+        fireExtraDelay: 0.14,
+        aimTolerance: 0.24,
+        predictLead: 45,
+        dodgeChance: 0.75,
+        dashDodgeChance: 0.45,
+        aimJitter: 0.05
+      },
+      hard: {
+        label: "困難",
+        badge: "🔴 困難",
+        desc: "高速走位、精準彈道預判與閃避衝刺",
+        botName: "🤖 菁英戰術機器人",
+        speedMult: 1.05,
+        turnSpeed: 18,
+        fireExtraDelay: 0.02,
+        aimTolerance: 0.16,
+        predictLead: 95,
+        dodgeChance: 1.0,
+        dashDodgeChance: 0.92,
+        aimJitter: 0.01
+      }
+    };
+
+    let selectedBotDifficulty = "normal";
+
+    // 霓虹競技場掩體
     const OBSTACLES = [
-      // 中央金字塔能源柱
-      { x: 475, y: 275, w: 50, h: 100, color: "#291d12", glow: "#f59e0b" },
-      // 左右兩側沙岩掩體
-      { x: 210, y: 140, w: 36, h: 130, color: "#291d12", glow: "#fbbf24" },
-      { x: 210, y: 380, w: 36, h: 130, color: "#291d12", glow: "#fbbf24" },
-      { x: 754, y: 140, w: 36, h: 130, color: "#291d12", glow: "#f43f5e" },
-      { x: 754, y: 380, w: 36, h: 130, color: "#291d12", glow: "#f43f5e" },
-      // 上下橫向沙丘防線
-      { x: 350, y: 105, w: 110, h: 30, color: "#291d12", glow: "#fb923c" },
-      { x: 540, y: 105, w: 110, h: 30, color: "#291d12", glow: "#fb923c" },
-      { x: 350, y: 515, w: 110, h: 30, color: "#291d12", glow: "#fb923c" },
-      { x: 540, y: 515, w: 110, h: 30, color: "#291d12", glow: "#fb923c" }
+      // 中央能源柱
+      { x: 475, y: 275, w: 50, h: 100, color: "#1e293b", glow: "#f59e0b" },
+      // 左右兩側戰術掩體
+      { x: 210, y: 140, w: 36, h: 130, color: "#1e293b", glow: "#fbbf24" },
+      { x: 210, y: 380, w: 36, h: 130, color: "#1e293b", glow: "#fbbf24" },
+      { x: 754, y: 140, w: 36, h: 130, color: "#1e293b", glow: "#f43f5e" },
+      { x: 754, y: 380, w: 36, h: 130, color: "#1e293b", glow: "#f43f5e" },
+      // 上下橫向防線
+      { x: 350, y: 105, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" },
+      { x: 540, y: 105, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" },
+      { x: 350, y: 515, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" },
+      { x: 540, y: 515, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" }
     ];
 
     const POWERUP_SPAWNS = [
@@ -469,8 +541,8 @@
       { x: 680, y: 325 }
     ];
 
-    // 裝飾性沙塵粒子
-    const DUST_MOTES = Array.from({ length: 28 }, () => ({
+    // 裝飾性光點粒子
+    const AMBIENT_MOTES = Array.from({ length: 28 }, () => ({
       x: Math.random() * ARENA_W,
       y: Math.random() * ARENA_H,
       r: 1 + Math.random() * 2.2,
@@ -482,7 +554,7 @@
     // ==========================================
     // 4. 遊戲與連線狀態管理
     // ==========================================
-    const myClientId = "沙沙玩家_" + Math.random().toString(36).substring(2, 8);
+    const myClientId = "玩家_" + Math.random().toString(36).substring(2, 8);
     let mode = "lobby"; // "lobby" | "online" | "ai" | "local"
     let roomId = null;
     let myRole = null; // "p1" | "p2"
@@ -491,18 +563,16 @@
     let autoBotTimer = null;
     let autoBotSecondsLeft = 5;
 
-    // 智慧電腦機器人記憶狀態
     const botBrain = {
       strafeDir: 1,
       decisionTimer: 0,
-      targetPoint: { x: ARENA_W - 180, y: ARENA_H / 2 },
-      reactionDelay: 0
+      targetPoint: { x: ARENA_W - 180, y: ARENA_H / 2 }
     };
 
     const state = {
       players: {
-        p1: createPlayerObj("p1", "沙金戰士", 110, ARENA_H / 2, 0),
-        p2: createPlayerObj("p2", "赤沙獵手", ARENA_W - 110, ARENA_H / 2, Math.PI)
+        p1: createPlayerObj("p1", "金焰戰士", 110, ARENA_H / 2, 0),
+        p2: createPlayerObj("p2", "緋紅獵手", ARENA_W - 110, ARENA_H / 2, Math.PI)
       },
       remoteTarget: {
         x: ARENA_W - 110,
@@ -551,16 +621,52 @@
     const roomCodeInput = document.getElementById("roomCodeInput");
     const waitingOverlay = document.getElementById("waitingOverlay");
     const matchOverOverlay = document.getElementById("matchOverOverlay");
+    const inGameDiffSelect = document.getElementById("inGameDiffSelect");
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
     function setRandomNickname() {
-      const prefixes = ["沙沙小將", "沙漠旋風", "流沙刺客", "黃金沙丘", "赤焰沙暴", "綠洲遊俠", "飛沙走石", "星沙射手"];
+      const prefixes = ["星辰小將", "疾風旋風", "暗影刺客", "黃金騎士", "烈焰射手", "霓虹遊俠", "雷霆先鋒", "極光獵人"];
       const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
       const num = Math.floor(10 + Math.random() * 89);
       nicknameInput.value = `${prefix}${num}`;
     }
     setRandomNickname();
+
+    function setBotDifficulty(diffKey, silent = false) {
+      if (!BOT_DIFFICULTIES[diffKey]) return;
+      selectedBotDifficulty = diffKey;
+      const cfg = BOT_DIFFICULTIES[diffKey];
+
+      // 更新大廳按鈕樣式
+      document.querySelectorAll(".bot-diff-btn").forEach((btn) => {
+        const isSelected = btn.dataset.diff === diffKey;
+        if (isSelected) {
+          btn.className = "bot-diff-btn py-2 rounded-lg border border-amber-400 bg-amber-500/20 text-amber-300 text-xs sm:text-sm font-bold transition shadow-[0_0_10px_rgba(251,191,36,0.2)]";
+        } else {
+          btn.className = "bot-diff-btn py-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 text-xs sm:text-sm font-bold transition hover:border-slate-500";
+        }
+      });
+
+      document.getElementById("botDiffDesc").textContent = cfg.desc;
+      inGameDiffSelect.value = diffKey;
+
+      // 若目前正在與機器人對戰，即時更新機器人名稱與提示
+      if (mode === "ai") {
+        state.players.p2.name = `${cfg.botName}（${cfg.label}）`;
+        if (!silent) {
+          showToast(`🤖 已將 NPC 難度切換為「${cfg.badge}」`);
+        }
+      }
+    }
+
+    document.querySelectorAll(".bot-diff-btn").forEach((btn) => {
+      btn.addEventListener("click", () => setBotDifficulty(btn.dataset.diff));
+    });
+
+    inGameDiffSelect.addEventListener("change", (e) => {
+      setBotDifficulty(e.target.value);
+    });
 
     function showToast(msg) {
       const toast = document.getElementById("toast");
@@ -593,39 +699,24 @@
     }
 
     // ==========================================
-    // 6. 雲端資料庫連線狀態監控
+    // 6. 雲端資料庫連線狀態監控（已移除毫秒延遲計算）
     // ==========================================
     const connectedRef = ref(db, ".info/connected");
     onValue(connectedRef, (snap) => {
       const dot = document.getElementById("fbStatusDot");
       const text = document.getElementById("fbStatusText");
-      const pingEl = document.getElementById("pingDisplay");
       if (snap.val() === true) {
         isConnectedRTDB = true;
         dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]";
         text.textContent = "已連線至對戰伺服器";
         text.className = "text-emerald-300 font-bold";
-        pingEl.classList.remove("hidden");
-        measurePing();
       } else {
         isConnectedRTDB = false;
         dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
         text.textContent = "伺服器連線中...";
         text.className = "text-amber-300 font-medium";
-        pingEl.classList.add("hidden");
       }
     });
-
-    async function measurePing() {
-      if (!isConnectedRTDB) return;
-      const t0 = performance.now();
-      try {
-        await get(ref(db, ".info/serverTimeOffset"));
-        const ms = Math.max(8, Math.round(performance.now() - t0));
-        document.getElementById("pingDisplay").textContent = `${ms} 毫秒`;
-      } catch (e) {}
-    }
-    setInterval(measurePing, 5000);
 
     // ==========================================
     // 7. 大廳配對、房間系統與自動補位機器人
@@ -651,16 +742,16 @@
       clearAutoBotTimer();
       autoBotSecondsLeft = 5;
       const countdownEl = document.getElementById("autoBotCountdownText");
-      countdownEl.textContent = `⏱️ 若無人配對，將於 ${autoBotSecondsLeft} 秒後自動召喚沙沙電腦機器人加入！`;
+      countdownEl.textContent = `⏱️ 若無人配對，將於 ${autoBotSecondsLeft} 秒後自動召喚電腦機器人加入！`;
       countdownEl.classList.remove("hidden");
 
       autoBotTimer = setInterval(() => {
         autoBotSecondsLeft -= 1;
         if (autoBotSecondsLeft > 0) {
-          countdownEl.textContent = `⏱️ 若無人配對，將於 ${autoBotSecondsLeft} 秒後自動召喚沙沙電腦機器人加入！`;
+          countdownEl.textContent = `⏱️ 若無人配對，將於 ${autoBotSecondsLeft} 秒後自動召喚電腦機器人加入！`;
         } else {
           clearAutoBotTimer();
-          summonBotIntoCurrentMatch("⏱️ 暫無其他玩家加入，已自動為你配對「沙沙電腦機器人」！", true);
+          summonBotIntoCurrentMatch("⏱️ 暫無其他玩家加入，已自動為你配對電腦機器人！", true);
         }
       }, 1000);
     }
@@ -675,7 +766,7 @@
 
     async function createOnlineRoom(enableAutoBot = false) {
       sfx.init();
-      const myName = nicknameInput.value.trim() || "沙金戰士";
+      const myName = nicknameInput.value.trim() || "金焰戰士";
       const code = generateRoomCode();
       const roomRef = ref(db, `${DB_ROOT}/${code}`);
 
@@ -727,7 +818,7 @@
         return;
       }
 
-      const myName = nicknameInput.value.trim() || "赤沙獵手";
+      const myName = nicknameInput.value.trim() || "緋紅獵手";
       const roomRef = ref(db, `${DB_ROOT}/${code}`);
 
       try {
@@ -795,11 +886,9 @@
             }
           }
         }
-        // 找不到空房 -> 自動建立房間並啟動 5 秒自動補位倒數
         showToast("✨ 目前無空房，已建立房間並等待 5 秒配對...");
         await createOnlineRoom(true);
       } catch (err) {
-        // 若網路離線則直接進入電腦機器人模式
         showToast("🤖 無法連線至配對大廳，直接為你召喚電腦機器人！");
         startAiBotMode();
       }
@@ -830,6 +919,7 @@
       document.getElementById("localControlsLegend").classList.add("hidden");
       document.getElementById("roomBadgeContainer").classList.remove("hidden");
       document.getElementById("modeBadgeContainer").classList.add("hidden");
+      inGameDiffSelect.classList.add("hidden");
       document.getElementById("hudRoomCode").textContent = code;
       document.getElementById("overlayRoomCode").textContent = code;
       document.getElementById("hudP1Badge").classList.toggle("hidden", role !== "p1");
@@ -851,7 +941,6 @@
     function bindRoomRealtimeListeners(code) {
       const enemyRole = myRole === "p1" ? "p2" : "p1";
 
-      // 1. 監聽房間狀態、分數、道具與雙方資料
       const roomRef = ref(db, `${DB_ROOT}/${code}`);
       const unsubRoom = onValue(roomRef, (snap) => {
         if (!snap.exists()) {
@@ -867,14 +956,14 @@
         const p2Data = data.players?.p2;
 
         if (p1Data) {
-          state.players.p1.name = p1Data.name || "沙金戰士";
+          state.players.p1.name = p1Data.name || "金焰戰士";
         }
         if (p2Data) {
-          // 如果原本正在跟電腦機器人練習，突然有真人玩家加入，無縫切換為真人對決！
-          if (mode === "ai" && myRole === "p1" && p2Data.id !== "沙沙機器人") {
+          if (mode === "ai" && myRole === "p1" && p2Data.id !== "NPC機器人") {
             mode = "online";
             document.getElementById("roomBadgeContainer").classList.remove("hidden");
             document.getElementById("modeBadgeContainer").classList.add("hidden");
+            inGameDiffSelect.classList.add("hidden");
             state.scores = { p1: 0, p2: 0 };
             state.bullets = [];
             state.players.p1.hp = MAX_HP;
@@ -883,7 +972,7 @@
             sfx.play("powerup");
           }
 
-          state.players.p2.name = p2Data.name || "赤沙獵手";
+          state.players.p2.name = p2Data.name || "緋紅獵手";
           if (myRole === "p1" && !waitingOverlay.classList.contains("hidden")) {
             clearAutoBotTimer();
             waitingOverlay.classList.add("hidden");
@@ -897,7 +986,6 @@
           }
         }
 
-        // 同步遠端玩家位置與狀態（僅在連線模式時套用）
         if (mode === "online") {
           const remoteData = data.players?.[enemyRole];
           if (remoteData) {
@@ -928,7 +1016,6 @@
       });
       roomListeners.push(unsubRoom);
 
-      // 2. 監聽子彈發射事件
       const bulletsRef = ref(db, `${DB_ROOT}/${code}/bullets`);
       const unsubBullets = onChildAdded(bulletsRef, (snap) => {
         if (mode !== "online") return;
@@ -942,7 +1029,6 @@
       });
       roomListeners.push(unsubBullets);
 
-      // 3. 監聽命中與特效事件
       const eventsRef = ref(db, `${DB_ROOT}/${code}/events`);
       const unsubEvents = onChildAdded(eventsRef, (snap) => {
         if (mode !== "online") return;
@@ -959,8 +1045,8 @@
       roomListeners.push(unsubEvents);
     }
 
-    // 召喚沙沙電腦機器人進入當前房間（保留房間監聽，若真人加入仍可無縫切換）
-    async function summonBotIntoCurrentMatch(toastMsg = "🤖 已召喚「沙沙電腦機器人」加入對戰！", keepRoomOpen = true) {
+    // 召喚電腦機器人進入當前房間
+    async function summonBotIntoCurrentMatch(toastMsg = "🤖 已召喚電腦機器人加入對戰！", keepRoomOpen = true) {
       sfx.init();
       clearAutoBotTimer();
       waitingOverlay.classList.add("hidden");
@@ -968,8 +1054,9 @@
       const prevRoom = roomId;
       mode = "ai";
       myRole = "p1";
+      const diffCfg = BOT_DIFFICULTIES[selectedBotDifficulty];
 
-      state.players.p2 = createPlayerObj("p2", "🤖 沙沙電腦機器人", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.players.p2 = createPlayerObj("p2", `${diffCfg.botName}（${diffCfg.label}）`, ARENA_W - 110, ARENA_H / 2, Math.PI);
       state.bullets = [];
       state.scores = { p1: 0, p2: 0 };
       state.matchWinner = null;
@@ -977,8 +1064,10 @@
       state.players.p1.alive = true;
 
       document.getElementById("modeBadgeContainer").classList.remove("hidden");
+      inGameDiffSelect.classList.remove("hidden");
+      inGameDiffSelect.value = selectedBotDifficulty;
       document.getElementById("hudModeLabel").textContent = keepRoomOpen && prevRoom
-        ? `🤖 機器人陪練中（房號 ${prevRoom} 仍開放真人加入）`
+        ? `🤖 陪練中（房號 ${prevRoom}）`
         : "🤖 單人挑戰電腦機器人";
 
       if (!keepRoomOpen && prevRoom) {
@@ -1000,9 +1089,11 @@
       roomId = null;
       myRole = "p1";
 
-      const p1Name = nicknameInput.value.trim() || "沙金戰士";
+      const p1Name = nicknameInput.value.trim() || "金焰戰士";
+      const diffCfg = BOT_DIFFICULTIES[selectedBotDifficulty];
+
       state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0);
-      state.players.p2 = createPlayerObj("p2", "🤖 沙沙電腦機器人", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.players.p2 = createPlayerObj("p2", `${diffCfg.botName}（${diffCfg.label}）`, ARENA_W - 110, ARENA_H / 2, Math.PI);
       state.bullets = [];
       state.particles = [];
       state.floatingTexts = [];
@@ -1019,11 +1110,13 @@
       document.getElementById("localControlsLegend").classList.add("hidden");
       document.getElementById("roomBadgeContainer").classList.add("hidden");
       document.getElementById("modeBadgeContainer").classList.remove("hidden");
-      document.getElementById("hudModeLabel").textContent = "🤖 單人挑戰電腦機器人";
+      inGameDiffSelect.classList.remove("hidden");
+      inGameDiffSelect.value = selectedBotDifficulty;
+      document.getElementById("hudModeLabel").textContent = "🤖 單人挑戰 NPC";
       document.getElementById("hudP1Badge").classList.remove("hidden");
       document.getElementById("hudP2Badge").classList.add("hidden");
 
-      showToast("🤖 已進入單人對戰！準備迎戰智慧沙沙機器人！");
+      showToast(`🤖 已進入單人對戰！目前 NPC 難度：${diffCfg.badge}`);
     }
 
     function startLocal2PMode() {
@@ -1033,9 +1126,9 @@
       roomId = null;
       myRole = null;
 
-      const p1Name = nicknameInput.value.trim() || "沙金一方";
+      const p1Name = nicknameInput.value.trim() || "一方戰士";
       state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0);
-      state.players.p2 = createPlayerObj("p2", "赤沙二方", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.players.p2 = createPlayerObj("p2", "二方獵手", ARENA_W - 110, ARENA_H / 2, Math.PI);
       state.bullets = [];
       state.particles = [];
       state.floatingTexts = [];
@@ -1052,6 +1145,7 @@
       document.getElementById("localControlsLegend").classList.remove("hidden");
       document.getElementById("roomBadgeContainer").classList.add("hidden");
       document.getElementById("modeBadgeContainer").classList.remove("hidden");
+      inGameDiffSelect.classList.add("hidden");
       document.getElementById("hudModeLabel").textContent = "🎮 同機雙人對戰模式";
       document.getElementById("hudP1Badge").classList.add("hidden");
       document.getElementById("hudP2Badge").classList.add("hidden");
@@ -1157,7 +1251,7 @@
       sfx.play("powerup");
       const titleEl = document.getElementById("winnerTitle");
       const subEl = document.getElementById("winnerSubtitle");
-      const winName = state.players[winnerRole]?.name || (winnerRole === "p1" ? "沙金戰士" : "赤沙獵手");
+      const winName = state.players[winnerRole]?.name || (winnerRole === "p1" ? "金焰戰士" : "緋紅獵手");
       titleEl.textContent = `🏆 ${winName} 獲得勝利！`;
       subEl.textContent = `最終比數 ${state.scores.p1} ： ${state.scores.p2}`;
       matchOverOverlay.classList.remove("hidden");
@@ -1211,7 +1305,6 @@
 
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // 行動裝置觸控支援
     canvas.addEventListener("touchstart", (e) => {
       sfx.init();
       const touch = e.touches[0];
@@ -1311,7 +1404,6 @@
       return dx * dx + dy * dy < cr * cr;
     }
 
-    // 判斷兩點之間是否有掩體阻擋視線
     function hasLineOfSight(x1, y1, x2, y2) {
       const steps = 16;
       for (let i = 1; i < steps; i++) {
@@ -1384,7 +1476,7 @@
 
       sfx.play("explosion");
       state.screenShake = 14;
-      spawnExplosion(deadPlayer.x, deadPlayer.y, deadRole === "p1" ? "#fbbf24" : "#f43f5e", 35);
+      spawnExplosion(deadPlayer.x, deadPlayer.y, deadRole === "p1" ? "#fbbf24" : "#fb7185", 35);
       addFloatingText(deadPlayer.x, deadPlayer.y - 30, "💥 擊殺！", "#fbbf24");
 
       state.scores[killerRole] = (state.scores[killerRole] || 0) + 1;
@@ -1449,77 +1541,76 @@
     }
 
     // ==========================================
-    // 10. 智慧電腦機器人（AI）行為邏輯
+    // 10. 智慧電腦機器人（支援簡單 / 普通 / 困難難度）
     // ==========================================
     function updateAiBot(dt) {
       const bot = state.players.p2;
       const target = state.players.p1;
       if (!bot.alive) return;
 
+      const diffCfg = BOT_DIFFICULTIES[selectedBotDifficulty] || BOT_DIFFICULTIES.normal;
+
       botBrain.decisionTimer -= dt;
       if (botBrain.decisionTimer <= 0) {
-        botBrain.decisionTimer = 0.55 + Math.random() * 0.5;
-        // 隨機切換左右橫移方向，避免走位單調
+        botBrain.decisionTimer = selectedBotDifficulty === "hard"
+          ? 0.35 + Math.random() * 0.35
+          : 0.6 + Math.random() * 0.6;
         if (Math.random() < 0.55) {
           botBrain.strafeDir *= -1;
         }
       }
 
-      // 1. 偵測即將飛來的玩家子彈，進行緊急閃避或沙塵衝刺
+      // 1. 偵測即將飛來的玩家子彈並閃避
       let dodgeX = 0;
       let dodgeY = 0;
       let incomingDanger = false;
 
-      for (const b of state.bullets) {
-        if (b.owner !== "p1") continue;
-        const dx = bot.x - b.x;
-        const dy = bot.y - b.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 175) {
-          // 計算子彈前進方向與機器人的垂直閃避向量
-          const bLen = Math.hypot(b.vx, b.vy) || 1;
-          const bDirX = b.vx / bLen;
-          const bDirY = b.vy / bLen;
-          const dot = dx * bDirX + dy * bDirY;
-          if (dot > 0) {
-            // 子彈正朝機器人飛來
-            const perpX = -bDirY;
-            const perpY = bDirX;
-            const side = (dx * perpX + dy * perpY) >= 0 ? 1 : -1;
-            dodgeX += perpX * side * 1.8;
-            dodgeY += perpY * side * 1.8;
-            incomingDanger = true;
+      if (diffCfg.dodgeChance > 0) {
+        for (const b of state.bullets) {
+          if (b.owner !== "p1") continue;
+          const dx = bot.x - b.x;
+          const dy = bot.y - b.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 185) {
+            const bLen = Math.hypot(b.vx, b.vy) || 1;
+            const bDirX = b.vx / bLen;
+            const bDirY = b.vy / bLen;
+            const dot = dx * bDirX + dy * bDirY;
+            if (dot > 0) {
+              const perpX = -bDirY;
+              const perpY = bDirX;
+              const side = (dx * perpX + dy * perpY) >= 0 ? 1 : -1;
+              dodgeX += perpX * side * 1.8 * diffCfg.dodgeChance;
+              dodgeY += perpY * side * 1.8 * diffCfg.dodgeChance;
+              incomingDanger = true;
 
-            // 子彈極近且衝刺冷卻完成時，觸發沙塵衝刺閃避
-            if (dist < 95 && bot.dashCooldown <= 0 && Math.random() < 0.65) {
-              bot.angle = Math.atan2(dodgeY, dodgeX);
-              tryDash(bot);
+              if (dist < 105 && bot.dashCooldown <= 0 && Math.random() < diffCfg.dashDodgeChance) {
+                bot.angle = Math.atan2(dodgeY, dodgeX);
+                tryDash(bot);
+              }
             }
           }
         }
       }
 
-      // 2. 決定移動目標（優先搶奪道具、血量低尋求掩體、或戰術保持中距離交火）
+      // 2. 決定移動目標
       let moveX = 0;
       let moveY = 0;
 
       const distToPlayer = Math.hypot(target.x - bot.x, target.y - bot.y);
       const angleToPlayer = Math.atan2(target.y - bot.y, target.x - bot.x);
 
-      if (state.powerup && (bot.hp < 75 || distToPlayer > 220)) {
-        // 場上有道具且血量未滿或距離安全時，主動前往搶奪
+      if (state.powerup && (bot.hp < 80 || distToPlayer > 210)) {
         const pwAngle = Math.atan2(state.powerup.y - bot.y, state.powerup.x - bot.x);
         moveX += Math.cos(pwAngle);
         moveY += Math.sin(pwAngle);
-      } else if (bot.hp <= 35) {
-        // 血量偏低時，往右側沙岩掩體後方撤退並持續橫移
+      } else if (bot.hp <= 35 && selectedBotDifficulty !== "easy") {
         const coverX = 830;
         const coverY = target.y < ARENA_H / 2 ? 445 : 205;
         const coverAngle = Math.atan2(coverY - bot.y, coverX - bot.x);
         moveX += Math.cos(coverAngle) * 0.9;
         moveY += Math.sin(coverAngle) * 0.9 + botBrain.strafeDir * 0.5;
       } else {
-        // 正常交戰：維持 270~430 像素的理想射擊距離並搭配戰術橫移
         if (distToPlayer > 430) {
           moveX += Math.cos(angleToPlayer) * 0.85;
           moveY += Math.sin(angleToPlayer) * 0.85;
@@ -1527,19 +1618,16 @@
           moveX -= Math.cos(angleToPlayer) * 0.85;
           moveY -= Math.sin(angleToPlayer) * 0.85;
         }
-        // 垂直於玩家方向的圓弧走位
         moveX += -Math.sin(angleToPlayer) * botBrain.strafeDir * 0.85;
         moveY += Math.cos(angleToPlayer) * botBrain.strafeDir * 0.85;
       }
 
-      // 疊加子彈閃避向量
       if (incomingDanger) {
         moveX += dodgeX;
         moveY += dodgeY;
       }
 
-      // 套用機器人移動（速度略微溫和以保持對戰樂趣）
-      const botSpeed = PLAYER_SPEED * 0.92;
+      const botSpeed = PLAYER_SPEED * diffCfg.speedMult;
       if (bot.dashTimer > 0) {
         bot.x += bot.dashDirX * DASH_SPEED * dt;
         bot.y += bot.dashDirY * DASH_SPEED * dt;
@@ -1553,25 +1641,22 @@
 
       // 3. 預判瞄準與開火邏輯
       if (target.alive) {
-        // 根據距離計算子彈飛行時間，進行微幅預判瞄準
         const flightTime = distToPlayer / BULLET_SPEED;
-        const aimX = target.x + Math.cos(target.angle) * 45 * flightTime;
-        const aimY = target.y + Math.sin(target.angle) * 45 * flightTime;
-        const desiredAngle = Math.atan2(aimY - bot.y, aimX - bot.x);
+        const aimX = target.x + Math.cos(target.angle) * diffCfg.predictLead * flightTime;
+        const aimY = target.y + Math.sin(target.angle) * diffCfg.predictLead * flightTime;
+        const jitter = (Math.sin(performance.now() / 160) * diffCfg.aimJitter);
+        const desiredAngle = Math.atan2(aimY - bot.y, aimX - bot.x) + jitter;
 
-        // 平滑轉向砲管
         let diff = desiredAngle - bot.angle;
         while (diff < -Math.PI) diff += Math.PI * 2;
         while (diff > Math.PI) diff -= Math.PI * 2;
-        bot.angle += diff * Math.min(1, dt * 10);
+        bot.angle += diff * Math.min(1, dt * diffCfg.turnSpeed);
 
-        // 當視線無掩體阻擋且準星對準時開火
         const clearShot = hasLineOfSight(bot.x, bot.y, target.x, target.y);
-        if (clearShot && Math.abs(diff) < 0.25) {
-          // 稍微增加射擊間隔讓玩家有操作空間
+        if (clearShot && Math.abs(diff) < diffCfg.aimTolerance) {
           if (bot.fireCooldown <= 0) {
             tryShoot(bot);
-            bot.fireCooldown += 0.12;
+            bot.fireCooldown += diffCfg.fireExtraDelay;
           }
         }
       }
@@ -1585,8 +1670,7 @@
     function updateSimulation(dt) {
       if (mode === "lobby") return;
 
-      // 更新背景漂浮沙塵
-      for (const d of DUST_MOTES) {
+      for (const d of AMBIENT_MOTES) {
         d.x += d.vx * dt;
         d.y += d.vy * dt;
         if (d.x > ARENA_W) d.x = 0;
@@ -1699,7 +1783,7 @@
     }
 
     function updateLocal2PPlayers(dt) {
-      // 沙金一方
+      // 一方
       const p1 = state.players.p1;
       if (p1.alive) {
         let mx = (keys["KeyD"] ? 1 : 0) - (keys["KeyA"] ? 1 : 0);
@@ -1720,7 +1804,7 @@
         if (keys["KeyF"] || keys["Space"]) tryShoot(p1);
       }
 
-      // 赤沙二方
+      // 二方
       const p2 = state.players.p2;
       if (p2.alive) {
         let mx = (keys["ArrowRight"] ? 1 : 0) - (keys["ArrowLeft"] ? 1 : 0);
@@ -1832,10 +1916,10 @@
             addFloatingText(p.x, p.y - 25, "✚ 生命 +40", "#34d399");
           } else if (pw.type === "rapid") {
             p.rapidTimer = 6.0;
-            addFloatingText(p.x, p.y - 25, "⚡ 沙暴連射！", "#fbbf24");
+            addFloatingText(p.x, p.y - 25, "⚡ 極速連射！", "#fbbf24");
           } else if (pw.type === "shield") {
             p.shield = 50;
-            addFloatingText(p.x, p.y - 25, "🛡️ 沙岩護盾 +50", "#38bdf8");
+            addFloatingText(p.x, p.y - 25, "🛡️ 能量護盾 +50", "#38bdf8");
           }
 
           sfx.play("powerup");
@@ -1880,7 +1964,7 @@
     }
 
     // ==========================================
-    // 12. 沙漠霓虹競技場畫布渲染
+    // 12. 霓虹競技場畫布渲染
     // ==========================================
     function renderArena() {
       ctx.save();
@@ -1891,15 +1975,14 @@
         ctx.translate(sx, sy);
       }
 
-      // 1. 沙漠夜色背景與沙丘網格
+      // 1. 深邃夜空背景與戰術網格
       const bgGrad = ctx.createRadialGradient(ARENA_W / 2, ARENA_H / 2, 60, ARENA_W / 2, ARENA_H / 2, 620);
-      bgGrad.addColorStop(0, "#241b12");
-      bgGrad.addColorStop(1, "#140e09");
+      bgGrad.addColorStop(0, "#192132");
+      bgGrad.addColorStop(1, "#0d111a");
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, ARENA_W, ARENA_H);
 
-      // 戰術方格線
-      ctx.strokeStyle = "rgba(180, 120, 50, 0.14)";
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
       ctx.lineWidth = 1;
       const gridSize = 50;
       for (let x = 0; x <= ARENA_W; x += gridSize) {
@@ -1915,8 +1998,8 @@
         ctx.stroke();
       }
 
-      // 飄動沙塵微粒
-      for (const d of DUST_MOTES) {
+      // 飄動能量光點
+      for (const d of AMBIENT_MOTES) {
         ctx.fillStyle = `rgba(251, 191, 36, ${d.alpha})`;
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
@@ -1935,7 +2018,7 @@
       ctx.arc(ARENA_W / 2, ARENA_H / 2, 95, 0, Math.PI * 2);
       ctx.stroke();
 
-      // 2. 沙岩掩體
+      // 2. 戰術掩體
       for (const obs of OBSTACLES) {
         ctx.fillStyle = obs.color;
         ctx.strokeStyle = obs.glow;
@@ -1948,7 +2031,7 @@
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        ctx.fillStyle = "rgba(251, 191, 36, 0.04)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
         ctx.fillRect(obs.x + 4, obs.y + 4, obs.w - 8, obs.h - 8);
       }
 
@@ -1964,7 +2047,7 @@
         ctx.translate(pw.x, pw.y);
         ctx.shadowColor = c;
         ctx.shadowBlur = 16;
-        ctx.fillStyle = "rgba(28, 21, 14, 0.92)";
+        ctx.fillStyle = "rgba(15, 23, 42, 0.92)";
         ctx.strokeStyle = c;
         ctx.lineWidth = 2.5;
         ctx.beginPath();
@@ -1981,7 +2064,7 @@
         ctx.restore();
       }
 
-      // 4. 沙能彈道與尾跡
+      // 4. 能量彈道與尾跡
       for (const b of state.bullets) {
         const color = b.owner === "p1" ? "#fbbf24" : "#fb7185";
         for (let i = 0; i < b.trail.length; i++) {
@@ -2005,7 +2088,7 @@
       drawPlayer(state.players.p1);
       drawPlayer(state.players.p2);
 
-      // 6. 爆炸火花與沙塵粒子
+      // 6. 爆炸火花粒子
       for (const pt of state.particles) {
         ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
         ctx.fillStyle = pt.color;
@@ -2048,7 +2131,7 @@
     function drawPlayer(p) {
       if (!p.alive) {
         ctx.save();
-        ctx.fillStyle = "rgba(254, 243, 199, 0.75)";
+        ctx.fillStyle = "rgba(248, 250, 252, 0.75)";
         ctx.font = "bold 13px 'Noto Sans TC', sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(`重生倒數 ${Math.max(0, p.respawnTimer).toFixed(1)} 秒`, p.x, p.y);
@@ -2088,9 +2171,9 @@
       ctx.save();
       ctx.rotate(p.angle);
 
-      // 沙能槍管
-      ctx.fillStyle = "#e7e5e4";
-      ctx.strokeStyle = "#1c1917";
+      // 能量槍管
+      ctx.fillStyle = "#e2e8f0";
+      ctx.strokeStyle = "#0f172a";
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.roundRect(6, -5, 22, 10, 3);
@@ -2129,23 +2212,23 @@
       ctx.restore();
 
       // 頭頂名稱與血量條
-      ctx.fillStyle = "#fef3c7";
+      ctx.fillStyle = "#f8fafc";
       ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(p.name, 0, -PLAYER_RADIUS - 14);
 
       const barW = 38;
-      ctx.fillStyle = "rgba(28, 25, 23, 0.85)";
+      ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
       ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 10, barW, 4);
       ctx.fillStyle = mainColor;
       ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 10, barW * (p.hp / MAX_HP), 4);
 
-      // 沙塵衝刺冷卻條
+      // 能量衝刺冷卻條
       if (((mode === "online" || mode === "ai") && p.role === myRole) || mode === "local") {
         const dashPct = 1 - Math.min(1, p.dashCooldown / DASH_COOLDOWN);
-        ctx.fillStyle = "rgba(28, 25, 23, 0.75)";
+        ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
         ctx.fillRect(-barW / 2, PLAYER_RADIUS + 8, barW, 3);
-        ctx.fillStyle = dashPct >= 1 ? "#fbbf24" : "#78716c";
+        ctx.fillStyle = dashPct >= 1 ? "#fbbf24" : "#64748b";
         ctx.fillRect(-barW / 2, PLAYER_RADIUS + 8, barW * dashPct, 3);
       }
 
@@ -2173,7 +2256,7 @@
     document.getElementById("aiBotModeBtn").addEventListener("click", startAiBotMode);
     document.getElementById("localModeBtn").addEventListener("click", startLocal2PMode);
     document.getElementById("summonBotNowBtn").addEventListener("click", () => {
-      summonBotIntoCurrentMatch("🤖 已呼叫「沙沙電腦機器人」加入對戰！", true);
+      summonBotIntoCurrentMatch("🤖 已呼叫電腦機器人加入對戰！", true);
     });
     document.getElementById("leaveRoomBtn").addEventListener("click", leaveRoom);
     document.getElementById("backLobbyBtn").addEventListener("click", leaveRoom);
