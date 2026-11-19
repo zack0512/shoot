@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>沙沙雙人射擊對決</title>
+  <title>霓虹雙人射擊對決</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -52,10 +52,10 @@
 <body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0d111a] to-black">
 
   <!-- 頂部導覽與即時連線狀態列 -->
-  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-2 bg-slate-900/85 border border-slate-700/60 backdrop-blur-md px-4 py-2.5 rounded-xl mb-3 shadow-lg">
-    <div class="flex items-center gap-3">
-      <div class="w-3 h-3 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]"></div>
-      <h1 class="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-rose-400 bg-clip-text text-transparent">
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-2 bg-slate-900/85 border border-slate-700/60 backdrop-blur-md px-3 sm:px-4 py-2 rounded-xl mb-2.5 shadow-lg">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_#fbbf24]"></div>
+      <h1 class="text-base sm:text-xl font-black tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-rose-400 bg-clip-text text-transparent whitespace-nowrap">
         ⚡ 霓虹雙人射擊對決
       </h1>
       <span class="hidden md:inline-block text-xs px-2.5 py-0.5 rounded-full bg-slate-800/90 text-amber-300 border border-amber-500/40 font-bold">
@@ -63,21 +63,21 @@
       </span>
     </div>
 
-    <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+    <div class="flex items-center gap-1.5 sm:gap-3 text-xs sm:text-sm">
       <!-- 雲端連線狀態徽章（含毫秒延遲顯示） -->
-      <div id="fbStatusBadge" class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700">
-        <span id="fbStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-        <span id="fbStatusText" class="text-amber-200 font-medium">正在連線至對戰伺服器...</span>
-        <span id="pingDisplay" class="hidden text-xs text-emerald-400 font-bold ml-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700">-- 毫秒</span>
+      <div id="fbStatusBadge" class="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-full bg-slate-800/90 border border-slate-700 whitespace-nowrap">
+        <span id="fbStatusDot" class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+        <span id="fbStatusText" class="text-amber-200 font-medium text-[11px] sm:text-xs">連線中...</span>
+        <span id="pingDisplay" class="hidden text-[11px] sm:text-xs text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-700">-- 毫秒</span>
       </div>
 
       <!-- 音效開關 -->
-      <button id="muteBtn" title="切換遊戲音效" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 transition">
+      <button id="muteBtn" title="切換遊戲音效" class="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 transition">
         🔊
       </button>
 
       <!-- 離開房間按鈕 -->
-      <button id="leaveRoomBtn" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-rose-200 font-bold transition">
+      <button id="leaveRoomBtn" class="hidden px-2.5 sm:px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-rose-200 text-xs font-bold transition whitespace-nowrap">
         離開房間
       </button>
     </div>
@@ -98,8 +98,8 @@
     </div>
   </div>
 
-  <!-- 浮動訊息通知 -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 px-5 py-2.5 rounded-full bg-slate-900/95 border border-amber-400/60 text-amber-100 text-sm font-bold shadow-[0_0_20px_rgba(245,158,11,0.35)]">
+  <!-- 浮動訊息通知（移至頂部避免遮擋下方按鍵） -->
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 px-4 py-2 rounded-full bg-slate-900/95 border border-amber-400/70 text-amber-100 text-xs sm:text-sm font-bold shadow-[0_0_20px_rgba(245,158,11,0.4)] max-w-[92vw] text-center">
     訊息提示
   </div>
 
@@ -197,7 +197,7 @@
       <div class="mt-5 p-3.5 rounded-xl bg-slate-800/60 border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-300">
         <div>
           <span class="text-amber-400 font-bold">💡 戰鬥技巧：</span>
-          對戰中按 <b class="text-white">1 / 2</b>、按 <b class="text-white">Q</b> 或滾動<b class="text-white">滑鼠滾輪</b>，即可在「突擊步槍」與「高爆手榴彈」之間自由切換！
+          對戰中按 <b class="text-white">1 / 2</b>、按 <b class="text-white">Q</b> 或點擊畫布下方的武器列，即可切換「突擊步槍」與「高爆手榴彈」！
         </div>
         <button id="copyUrlTipBtn" class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold transition">
           複製遊戲網址
@@ -207,18 +207,18 @@
 
     <!-- 2. 競技場對戰畫面 -->
     <section id="gameView" class="hidden w-full flex flex-col items-center">
-      <!-- 頂部對戰資訊欄 -->
-      <div class="w-full max-w-[1000px] grid grid-cols-3 items-center gap-2 bg-slate-900/90 border border-slate-700/70 px-3 sm:px-5 py-2.5 rounded-xl mb-2.5 shadow-lg">
+      <!-- 頂部對戰資訊欄（針對手機窄螢幕優化排版，不直排折行） -->
+      <div class="w-full max-w-[1000px] grid grid-cols-3 items-center gap-1.5 sm:gap-2 bg-slate-900/90 border border-slate-700/70 px-2.5 sm:px-5 py-2 rounded-xl mb-2 shadow-lg">
         <!-- 一方資訊 -->
-        <div class="flex items-center gap-2 sm:gap-3">
-          <div class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24]"></div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          <div class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 shrink-0 rounded-full bg-amber-400 shadow-[0_0_10px_#fbbf24]"></div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1">
               <span id="hudP1Name" class="font-bold text-amber-300 text-xs sm:text-sm truncate">金焰戰士</span>
-              <span id="hudP1Badge" class="hidden text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">你</span>
-              <span id="hudP1Weapon" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-amber-200 border border-slate-600 font-bold">🔫 步槍</span>
+              <span id="hudP1Badge" class="hidden shrink-0 text-[10px] px-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">你</span>
+              <span id="hudP1Weapon" class="hidden sm:inline-block shrink-0 text-[10px] px-1.5 rounded bg-slate-800 text-amber-200 border border-slate-600 font-bold whitespace-nowrap">🔫 步槍</span>
             </div>
-            <div class="w-24 sm:w-36 h-2.5 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700">
+            <div class="w-full max-w-[135px] h-2 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700">
               <div id="hudP1Hp" class="h-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-150" style="width: 100%"></div>
             </div>
           </div>
@@ -226,21 +226,21 @@
 
         <!-- 中央比數與房號/難度 -->
         <div class="flex flex-col items-center justify-center">
-          <div class="flex items-center gap-2 sm:gap-4 text-xl sm:text-3xl font-black">
+          <div class="flex items-center gap-1.5 sm:gap-4 text-lg sm:text-3xl font-black leading-none">
             <span id="hudP1Score" class="text-amber-400">0</span>
-            <span class="text-slate-400 text-xs sm:text-sm font-black px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700">對決</span>
+            <span class="text-slate-400 text-[10px] sm:text-sm font-black px-1.5 py-0.5 rounded bg-slate-950 border border-slate-700 whitespace-nowrap">對決</span>
             <span id="hudP2Score" class="text-rose-400">0</span>
           </div>
-          <div id="roomBadgeContainer" class="flex items-center gap-1.5 mt-0.5">
-            <span class="text-[11px] text-slate-400">房號：</span>
-            <button id="copyRoomCodeBtn" title="點擊複製房號" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
+          <div id="roomBadgeContainer" class="flex items-center gap-1 mt-1 whitespace-nowrap">
+            <span class="hidden sm:inline text-[11px] text-slate-400">房號：</span>
+            <button id="copyRoomCodeBtn" title="點擊複製房號" class="text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition">
               <span id="hudRoomCode">----</span> 📋
             </button>
           </div>
-          <div id="modeBadgeContainer" class="hidden mt-0.5 flex items-center gap-1.5">
-            <span id="hudModeLabel" class="text-[11px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold">🤖 電腦機器人對戰中</span>
+          <div id="modeBadgeContainer" class="hidden mt-1 flex items-center justify-center gap-1">
+            <span id="hudModeLabel" class="hidden sm:inline-block text-[11px] px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold whitespace-nowrap">🤖 單人挑戰 NPC</span>
             <!-- 對戰中即時切換 NPC 難度 -->
-            <select id="inGameDiffSelect" title="即時切換 NPC 難度" class="hidden text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-600 font-bold outline-none cursor-pointer">
+            <select id="inGameDiffSelect" title="即時切換 NPC 難度" class="hidden text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-600 font-bold outline-none cursor-pointer whitespace-nowrap">
               <option value="easy">🟢 簡單</option>
               <option value="normal" selected>🟡 普通</option>
               <option value="hard">🔴 困難</option>
@@ -249,38 +249,24 @@
         </div>
 
         <!-- 二方資訊 -->
-        <div class="flex items-center justify-end gap-2 sm:gap-3 text-right">
-          <div class="min-w-0">
-            <div class="flex items-center justify-end gap-1.5">
-              <span id="hudP2Weapon" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-rose-200 border border-slate-600 font-bold">🔫 步槍</span>
-              <span id="hudP2Badge" class="hidden text-[10px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">你</span>
+        <div class="flex items-center justify-end gap-1.5 sm:gap-3 text-right min-w-0">
+          <div class="min-w-0 flex-1 flex flex-col items-end">
+            <div class="flex items-center justify-end gap-1 max-w-full">
+              <span id="hudP2Weapon" class="hidden sm:inline-block shrink-0 text-[10px] px-1.5 rounded bg-slate-800 text-rose-200 border border-slate-600 font-bold whitespace-nowrap">🔫 步槍</span>
+              <span id="hudP2Badge" class="hidden shrink-0 text-[10px] px-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">你</span>
               <span id="hudP2Name" class="font-bold text-rose-300 text-xs sm:text-sm truncate">等待對手加入...</span>
             </div>
-            <div class="w-24 sm:w-36 h-2.5 bg-slate-800 rounded-full overflow-hidden mt-1 ml-auto border border-slate-700">
+            <div class="w-full max-w-[135px] h-2 bg-slate-800 rounded-full overflow-hidden mt-1 border border-slate-700">
               <div id="hudP2Hp" class="h-full bg-gradient-to-l from-rose-500 to-pink-400 transition-all duration-150" style="width: 100%"></div>
             </div>
           </div>
-          <div class="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e]"></div>
+          <div class="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 shrink-0 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e]"></div>
         </div>
       </div>
 
-      <!-- 畫布外框 -->
+      <!-- 畫布外框（保持 100% 乾淨無遮擋） -->
       <div class="relative w-full max-w-[1000px] rounded-xl border-2 border-slate-700/80 shadow-[0_0_40px_rgba(0,0,0,0.85)] overflow-hidden bg-[#131824]">
         <canvas id="gameCanvas" width="1000" height="650"></canvas>
-
-        <!-- 畫布底部武器切換快捷列（點擊或按 1/2/Q/滾輪 切換） -->
-        <div id="weaponSelectorBar" class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2.5 bg-slate-950/85 border border-slate-700/80 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-xl">
-          <button id="selectRifleBtn" type="button" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition">
-            <span class="px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[10px] border border-amber-500/40">1</span>
-            <span>🔫 突擊步槍</span>
-          </button>
-          <button id="selectGrenadeBtn" type="button" class="relative overflow-hidden flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition">
-            <div id="grenadeCdOverlay" class="absolute inset-0 bg-orange-500/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
-            <span class="relative z-10 px-1.5 py-0.5 rounded bg-slate-950 text-orange-300 text-[10px] border border-slate-600">2</span>
-            <span class="relative z-10">💣 高爆手榴彈</span>
-            <span id="grenadeCdText" class="relative z-10 text-[11px] text-emerald-400 font-bold">就緒</span>
-          </button>
-        </div>
 
         <!-- 等待對手加入覆蓋層 -->
         <div id="waitingOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20">
@@ -320,30 +306,44 @@
         </div>
       </div>
 
+      <!-- 獨立武器切換快捷列（移出畫布外部，絕不遮擋戰場畫面！） -->
+      <div id="weaponSelectorBar" class="w-full max-w-[1000px] mt-2 grid grid-cols-2 gap-2 px-1">
+        <button id="selectRifleBtn" type="button" class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[10px] border border-amber-500/40">1</span>
+          <span>🔫 突擊步槍</span>
+        </button>
+        <button id="selectGrenadeBtn" type="button" class="relative overflow-hidden flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap">
+          <div id="grenadeCdOverlay" class="absolute inset-0 bg-orange-500/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
+          <span class="relative z-10 px-1.5 py-0.5 rounded bg-slate-950 text-orange-300 text-[10px] border border-slate-600">2</span>
+          <span class="relative z-10">💣 高爆手榴彈</span>
+          <span id="grenadeCdText" class="relative z-10 text-[11px] text-emerald-400 font-bold">就緒</span>
+        </button>
+      </div>
+
       <!-- 手機／平板觸控操作面板 -->
-      <div id="mobileControls" class="md:hidden w-full max-w-[1000px] mt-3 grid grid-cols-2 gap-4 px-2">
-        <div class="flex items-center justify-center bg-slate-900/85 border border-slate-700 rounded-xl p-3">
-          <div class="grid grid-cols-3 gap-1.5 w-36 h-36">
+      <div id="mobileControls" class="md:hidden w-full max-w-[1000px] mt-2 grid grid-cols-2 gap-3 px-1">
+        <div class="flex items-center justify-center bg-slate-900/85 border border-slate-700 rounded-xl p-2.5">
+          <div class="grid grid-cols-3 gap-1.5 w-32 h-32">
             <div></div>
-            <button data-key="KeyW" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▲</button>
+            <button data-key="KeyW" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-base font-bold">▲</button>
             <div></div>
-            <button data-key="KeyA" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">◀</button>
-            <div class="bg-slate-950 rounded-lg flex items-center justify-center text-xs text-amber-400/70 font-bold">移動</div>
-            <button data-key="KeyD" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▶</button>
+            <button data-key="KeyA" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-base font-bold">◀</button>
+            <div class="bg-slate-950 rounded-lg flex items-center justify-center text-[11px] text-amber-400/70 font-bold">移動</div>
+            <button data-key="KeyD" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-base font-bold">▶</button>
             <div></div>
-            <button data-key="KeyS" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-lg font-bold">▼</button>
+            <button data-key="KeyS" class="touch-btn bg-slate-800 active:bg-amber-500/40 rounded-lg border border-slate-700 flex items-center justify-center text-base font-bold">▼</button>
             <div></div>
           </div>
         </div>
-        <div class="flex flex-col items-center justify-center gap-2 bg-slate-900/85 border border-slate-700 rounded-xl p-3">
-          <button id="mobileShootBtn" class="w-full py-3.5 rounded-xl bg-rose-500/30 active:bg-rose-500/60 border border-rose-400 text-rose-200 font-black text-sm">
+        <div class="flex flex-col items-center justify-center gap-2 bg-slate-900/85 border border-slate-700 rounded-xl p-2.5">
+          <button id="mobileShootBtn" class="w-full py-3 rounded-xl bg-rose-500/30 active:bg-rose-500/60 border border-rose-400 text-rose-200 font-black text-xs sm:text-sm">
             🔥 開火／投擲（點擊畫面瞄準）
           </button>
-          <div class="w-full grid grid-cols-2 gap-2">
-            <button id="mobileSwitchWeaponBtn" class="py-2.5 rounded-xl bg-sky-500/30 active:bg-sky-500/60 border border-sky-400 text-sky-200 font-black text-xs">
+          <div class="w-full grid grid-cols-2 gap-1.5">
+            <button id="mobileSwitchWeaponBtn" class="py-2.5 rounded-xl bg-sky-500/30 active:bg-sky-500/60 border border-sky-400 text-sky-200 font-black text-xs whitespace-nowrap">
               🔄 切換武器
             </button>
-            <button id="mobileDashBtn" class="py-2.5 rounded-xl bg-amber-500/30 active:bg-amber-500/60 border border-amber-400 text-amber-200 font-black text-xs">
+            <button id="mobileDashBtn" class="py-2.5 rounded-xl bg-amber-500/30 active:bg-amber-500/60 border border-amber-400 text-amber-200 font-black text-xs whitespace-nowrap">
               ⚡ 能量衝刺
             </button>
           </div>
@@ -351,7 +351,7 @@
       </div>
 
       <!-- 操作說明列（全中文） -->
-      <div class="w-full max-w-[1000px] mt-3 bg-slate-900/80 border border-slate-700/70 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
+      <div class="w-full max-w-[1000px] mt-2.5 bg-slate-900/80 border border-slate-700/70 rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
         <div id="onlineControlsLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span><b class="text-slate-100">WASD / 方向鍵</b>：移動</span>
           <span><b class="text-amber-300">左鍵 / 空白鍵</b>：開火 / 投擲</span>
@@ -405,7 +405,7 @@
     const DB_ROOT = "games/shooter2d/rooms";
 
     // ==========================================
-    // 2. 網頁音效合成器（含手榴彈投擲與大爆炸音效）
+    // 2. 網頁音效合成器
     // ==========================================
     class SoundFX {
       constructor() {
@@ -508,7 +508,6 @@
     const MAX_HP = 100;
     const WIN_SCORE = 5;
 
-    // 手榴彈參數
     const GRENADE_MAX_RANGE = 430;
     const GRENADE_SPEED = 540;
     const GRENADE_FUSE_TIME = 1.15;
@@ -516,7 +515,6 @@
     const GRENADE_MAX_DAMAGE = 65;
     const GRENADE_COOLDOWN = 2.4;
 
-    // NPC 難度設定表
     const BOT_DIFFICULTIES = {
       easy: {
         label: "簡單",
@@ -567,16 +565,12 @@
 
     let selectedBotDifficulty = "normal";
 
-    // 霓虹競技場掩體
     const OBSTACLES = [
-      // 中央能源柱
       { x: 475, y: 275, w: 50, h: 100, color: "#1e293b", glow: "#f59e0b" },
-      // 左右兩側戰術掩體
       { x: 210, y: 140, w: 36, h: 130, color: "#1e293b", glow: "#fbbf24" },
       { x: 210, y: 380, w: 36, h: 130, color: "#1e293b", glow: "#fbbf24" },
       { x: 754, y: 140, w: 36, h: 130, color: "#1e293b", glow: "#f43f5e" },
       { x: 754, y: 380, w: 36, h: 130, color: "#1e293b", glow: "#f43f5e" },
-      // 上下橫向防線
       { x: 350, y: 105, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" },
       { x: 540, y: 105, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" },
       { x: 350, y: 515, w: 110, h: 30, color: "#1e293b", glow: "#38bdf8" },
@@ -739,7 +733,7 @@
       toast.textContent = msg;
       toast.classList.remove("opacity-0");
       clearTimeout(toast._timer);
-      toast._timer = setTimeout(() => toast.classList.add("opacity-0"), 2800);
+      toast._timer = setTimeout(() => toast.classList.add("opacity-0"), 2600);
     }
 
     function showFirebaseError(title, err) {
@@ -774,16 +768,16 @@
       const pingEl = document.getElementById("pingDisplay");
       if (snap.val() === true) {
         isConnectedRTDB = true;
-        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]";
-        text.textContent = "已連線至對戰伺服器";
-        text.className = "text-emerald-300 font-bold";
+        dot.className = "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]";
+        text.textContent = "已連線";
+        text.className = "text-emerald-300 font-bold text-[11px] sm:text-xs";
         pingEl.classList.remove("hidden");
         measurePing();
       } else {
         isConnectedRTDB = false;
-        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping";
-        text.textContent = "伺服器連線中...";
-        text.className = "text-amber-300 font-medium";
+        dot.className = "w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 animate-ping";
+        text.textContent = "連線中...";
+        text.className = "text-amber-300 font-medium text-[11px] sm:text-xs";
         pingEl.classList.add("hidden");
       }
     });
@@ -798,11 +792,11 @@
         pingEl.textContent = `${ms} 毫秒`;
 
         if (ms < 80) {
-          pingEl.className = "text-xs text-emerald-400 font-bold ml-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-emerald-500/30";
+          pingEl.className = "text-[11px] sm:text-xs text-emerald-400 font-bold px-1.5 py-0.5 rounded bg-slate-950/80 border border-emerald-500/30";
         } else if (ms < 180) {
-          pingEl.className = "text-xs text-amber-400 font-bold ml-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-amber-500/30";
+          pingEl.className = "text-[11px] sm:text-xs text-amber-400 font-bold px-1.5 py-0.5 rounded bg-slate-950/80 border border-amber-500/30";
         } else {
-          pingEl.className = "text-xs text-rose-400 font-bold ml-1 px-1.5 py-0.5 rounded bg-slate-950/80 border border-rose-500/30";
+          pingEl.className = "text-[11px] sm:text-xs text-rose-400 font-bold px-1.5 py-0.5 rounded bg-slate-950/80 border border-rose-500/30";
         }
       } catch (e) {}
     }
@@ -1113,7 +1107,6 @@
       });
       roomListeners.push(unsubRoom);
 
-      // 監聽對手子彈
       const bulletsRef = ref(db, `${DB_ROOT}/${code}/bullets`);
       const unsubBullets = onChildAdded(bulletsRef, (snap) => {
         if (mode !== "online") return;
@@ -1127,7 +1120,6 @@
       });
       roomListeners.push(unsubBullets);
 
-      // 監聽對手手榴彈投擲
       const grenadesRef = ref(db, `${DB_ROOT}/${code}/grenades`);
       const unsubGrenades = onChildAdded(grenadesRef, (snap) => {
         if (mode !== "online") return;
@@ -1140,7 +1132,6 @@
       });
       roomListeners.push(unsubGrenades);
 
-      // 監聽命中事件
       const eventsRef = ref(db, `${DB_ROOT}/${code}/events`);
       const unsubEvents = onChildAdded(eventsRef, (snap) => {
         if (mode !== "online") return;
@@ -1181,8 +1172,8 @@
       inGameDiffSelect.classList.remove("hidden");
       inGameDiffSelect.value = selectedBotDifficulty;
       document.getElementById("hudModeLabel").textContent = keepRoomOpen && prevRoom
-        ? `🤖 陪練中（房號 ${prevRoom}）`
-        : "🤖 單人挑戰電腦機器人";
+        ? `🤖 陪練（房號 ${prevRoom}）`
+        : "🤖 單人挑戰 NPC";
 
       if (!keepRoomOpen && prevRoom) {
         cleanupRoomListeners();
@@ -1232,7 +1223,7 @@
       document.getElementById("hudP1Badge").classList.remove("hidden");
       document.getElementById("hudP2Badge").classList.add("hidden");
 
-      showToast(`🤖 已進入單人對戰！按 1 / 2 或 Q 可切換步槍與手榴彈`);
+      showToast(`🤖 已進入單人對戰！可隨時切換突擊步槍與高爆手榴彈`);
     }
 
     function startLocal2PMode() {
@@ -1417,7 +1408,6 @@
       keys[e.code] = false;
     });
 
-    // 滑鼠滾輪切換步槍 / 手榴彈
     window.addEventListener("wheel", (e) => {
       if ((mode === "online" || mode === "ai") && myRole && !state.matchWinner) {
         switchPlayerWeapon(state.players[myRole]);
@@ -1490,7 +1480,6 @@
       if ((mode === "online" || mode === "ai") && myRole) tryDash(state.players[myRole]);
     });
 
-    // 快捷列按鈕點擊切換武器
     document.getElementById("selectRifleBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "rifle");
     });
@@ -1511,7 +1500,6 @@
       spawnExplosion(player.x, player.y, player.role === "p1" ? "#fbbf24" : "#fb7185", 10);
     }
 
-    // 統一攻擊入口：根據當前手持武器決定射擊或投擲手榴彈
     function tryAttack(player, targetPoint = null) {
       if (!player.alive) return;
       if (player.weapon === "grenade") {
@@ -1521,7 +1509,6 @@
       }
     }
 
-    // 武器 1：突擊步槍射擊
     function tryShootRifle(player) {
       if (!player.alive || player.fireCooldown > 0) return;
       const rate = player.rapidTimer > 0 ? 0.14 : 0.28;
@@ -1548,7 +1535,6 @@
       }
     }
 
-    // 武器 2：高爆手榴彈投擲
     function tryThrowGrenade(player, targetPoint = null) {
       if (!player.alive || player.grenadeCooldown > 0) return;
       const cd = player.rapidTimer > 0 ? GRENADE_COOLDOWN * 0.65 : GRENADE_COOLDOWN;
@@ -1557,7 +1543,6 @@
       const startX = player.x + Math.cos(player.angle) * (PLAYER_RADIUS + 6);
       const startY = player.y + Math.sin(player.angle) * (PLAYER_RADIUS + 6);
 
-      // 計算落點位置（若有指定準星座標則朝該座標投擲，最遠不超過 GRENADE_MAX_RANGE）
       let tx, ty;
       if (targetPoint) {
         const dx = targetPoint.x - startX;
@@ -1616,7 +1601,7 @@
         ty,
         x: startX,
         y: startY,
-        z: 0, // 模擬拋物線高度
+        z: 0,
         flightTime: 0,
         flightDuration,
         fuseTimer: GRENADE_FUSE_TIME,
@@ -1631,7 +1616,6 @@
       spawnExplosion(g.x, g.y, "#fb923c", 36);
       spawnExplosion(g.x, g.y, "#fef08a", 18);
 
-      // 產生擴散衝擊波圓環
       state.shockwaves.push({
         x: g.x,
         y: g.y,
@@ -1642,7 +1626,6 @@
         color: g.owner === "p1" ? "#fbbf24" : "#fb7185"
       });
 
-      // 計算爆炸範圍傷害（可傷害敵方，但不會炸傷投擲者自己）
       const targetRole = g.owner === "p1" ? "p2" : "p1";
       const target = state.players[targetRole];
       if (target && target.alive) {
@@ -1830,7 +1813,6 @@
         }
       }
 
-      // 1. 偵測即將飛來的子彈或手榴彈並閃避
       let dodgeX = 0;
       let dodgeY = 0;
       let incomingDanger = false;
@@ -1862,7 +1844,6 @@
           }
         }
 
-        // 躲避敵方手榴彈落點
         for (const g of state.grenades) {
           if (g.owner !== "p1") continue;
           const dx = bot.x - g.tx;
@@ -1881,7 +1862,6 @@
         }
       }
 
-      // 2. 決定移動目標
       let moveX = 0;
       let moveY = 0;
 
@@ -1927,7 +1907,6 @@
 
       resolvePlayerObstacles(bot);
 
-      // 3. 預判瞄準與雙武器切換攻擊
       if (target.alive) {
         const flightTime = distToPlayer / BULLET_SPEED;
         const aimX = target.x + Math.cos(target.angle) * diffCfg.predictLead * flightTime;
@@ -1942,7 +1921,6 @@
 
         const clearShot = hasLineOfSight(bot.x, bot.y, target.x, target.y);
 
-        // 若敵人躲在掩體後面（無直射線）且在手榴彈射程內，自動切換手榴彈轟炸！
         if (!clearShot && distToPlayer <= GRENADE_MAX_RANGE && bot.grenadeCooldown <= 0 && Math.random() < diffCfg.grenadeChance * dt * 2.5) {
           switchPlayerWeapon(bot, "grenade", true);
           tryThrowGrenade(bot, { x: target.x, y: target.y });
@@ -2088,7 +2066,6 @@
     }
 
     function updateLocal2PPlayers(dt) {
-      // 一方
       const p1 = state.players.p1;
       if (p1.alive) {
         let mx = (keys["KeyD"] ? 1 : 0) - (keys["KeyA"] ? 1 : 0);
@@ -2109,7 +2086,6 @@
         if (keys["KeyF"] || keys["Space"]) tryAttack(p1);
       }
 
-      // 二方
       const p2 = state.players.p2;
       if (p2.alive) {
         let mx = (keys["ArrowRight"] ? 1 : 0) - (keys["ArrowLeft"] ? 1 : 0);
@@ -2196,7 +2172,6 @@
           const t = Math.min(1, g.flightTime / g.flightDuration);
           g.x = g.startX + (g.tx - g.startX) * t;
           g.y = g.startY + (g.ty - g.startY) * t;
-          // 抛物線視覺高度（可越過矮牆掩體）
           g.z = Math.sin(t * Math.PI) * 42;
 
           if (t >= 1) {
@@ -2298,7 +2273,6 @@
       document.getElementById("hudP1Weapon").textContent = state.players.p1.weapon === "grenade" ? "💣 手榴彈" : "🔫 步槍";
       document.getElementById("hudP2Weapon").textContent = state.players.p2.weapon === "grenade" ? "💣 手榴彈" : "🔫 步槍";
 
-      // 更新底部武器切換快捷列狀態
       if ((mode === "online" || mode === "ai") && myRole) {
         const me = state.players[myRole];
         const rifleBtn = document.getElementById("selectRifleBtn");
@@ -2307,11 +2281,11 @@
         const cdText = document.getElementById("grenadeCdText");
 
         if (me.weapon === "rifle") {
-          rifleBtn.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.25)]";
-          grenadeBtn.className = "relative overflow-hidden flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition";
+          rifleBtn.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
+          grenadeBtn.className = "relative overflow-hidden flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
         } else {
-          rifleBtn.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition";
-          grenadeBtn.className = "relative overflow-hidden flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.25)]";
+          rifleBtn.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
+          grenadeBtn.className = "relative overflow-hidden flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.2)] whitespace-nowrap";
         }
 
         const cdRatio = Math.max(0, Math.min(1, me.grenadeCooldown / GRENADE_COOLDOWN));
@@ -2327,7 +2301,7 @@
     }
 
     // ==========================================
-    // 12. 霓虹競技場畫布渲染（含手榴彈抛物線與爆炸預警圈）
+    // 12. 霓虹競技場畫布渲染
     // ==========================================
     function renderArena() {
       ctx.save();
@@ -2338,7 +2312,6 @@
         ctx.translate(sx, sy);
       }
 
-      // 1. 深邃夜空背景與戰術網格
       const bgGrad = ctx.createRadialGradient(ARENA_W / 2, ARENA_H / 2, 60, ARENA_W / 2, ARENA_H / 2, 620);
       bgGrad.addColorStop(0, "#192132");
       bgGrad.addColorStop(1, "#0d111a");
@@ -2379,7 +2352,6 @@
       ctx.arc(ARENA_W / 2, ARENA_H / 2, 95, 0, Math.PI * 2);
       ctx.stroke();
 
-      // 2. 戰術掩體
       for (const obs of OBSTACLES) {
         ctx.fillStyle = obs.color;
         ctx.strokeStyle = obs.glow;
@@ -2396,7 +2368,6 @@
         ctx.fillRect(obs.x + 4, obs.y + 4, obs.w - 8, obs.h - 8);
       }
 
-      // 3. 場上隨機補給道具
       if (state.powerup) {
         const pw = state.powerup;
         const pulse = Math.sin(performance.now() / 180) * 3;
@@ -2425,7 +2396,6 @@
         ctx.restore();
       }
 
-      // 4. 步槍能量彈道與尾跡
       for (const b of state.bullets) {
         const color = b.owner === "p1" ? "#fbbf24" : "#fb7185";
         for (let i = 0; i < b.trail.length; i++) {
@@ -2445,9 +2415,7 @@
         ctx.shadowBlur = 0;
       }
 
-      // 5. 高爆手榴彈（落地預警紅圈、陰影與本體）
       for (const g of state.grenades) {
-        // 落點危險半徑虛線預警圈
         ctx.save();
         const flashRate = g.landed ? 70 : 160;
         const isBlink = Math.floor(performance.now() / flashRate) % 2 === 0;
@@ -2461,13 +2429,11 @@
         ctx.stroke();
         ctx.restore();
 
-        // 地面投影陰影
         ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
         ctx.beginPath();
         ctx.ellipse(g.x, g.y + 4, 8, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // 手榴彈本體（隨高度 z 往上偏移與放大）
         const scale = 1 + g.z / 90;
         ctx.save();
         ctx.translate(g.x, g.y - g.z);
@@ -2484,7 +2450,6 @@
         ctx.fill();
         ctx.stroke();
 
-        // 閃爍引信核心
         ctx.fillStyle = isBlink ? "#fef08a" : "#ef4444";
         ctx.beginPath();
         ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
@@ -2492,7 +2457,6 @@
         ctx.restore();
       }
 
-      // 6. 爆炸衝擊波圓環
       for (const sw of state.shockwaves) {
         const alpha = Math.max(0, sw.life / sw.maxLife);
         ctx.save();
@@ -2505,11 +2469,9 @@
         ctx.restore();
       }
 
-      // 7. 繪製雙方角色
       drawPlayer(state.players.p1);
       drawPlayer(state.players.p2);
 
-      // 8. 爆炸火花粒子
       for (const pt of state.particles) {
         ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
         ctx.fillStyle = pt.color;
@@ -2519,7 +2481,6 @@
       }
       ctx.globalAlpha = 1;
 
-      // 9. 浮動傷害與狀態提示文字
       for (const ft of state.floatingTexts) {
         ctx.globalAlpha = Math.min(1, ft.life * 1.4);
         ctx.font = "900 15px 'Noto Sans TC', sans-serif";
@@ -2531,7 +2492,6 @@
       }
       ctx.globalAlpha = 1;
 
-      // 10. 準星顯示（手持手榴彈時會顯示落點爆炸範圍預覽圈！）
       if ((mode === "online" || mode === "ai") && myRole && state.players[myRole].alive) {
         const me = state.players[myRole];
         if (me.weapon === "grenade") {
@@ -2541,7 +2501,6 @@
           const aimX = Math.max(25, Math.min(ARENA_W - 25, me.x + Math.cos(me.angle) * clampedDist));
           const aimY = Math.max(25, Math.min(ARENA_H - 25, me.y + Math.sin(me.angle) * clampedDist));
 
-          // 投擲導引虛線
           ctx.save();
           ctx.strokeStyle = "rgba(251, 146, 60, 0.45)";
           ctx.lineWidth = 1.5;
@@ -2551,7 +2510,6 @@
           ctx.lineTo(aimX, aimY);
           ctx.stroke();
 
-          // 預估爆炸範圍圈
           ctx.strokeStyle = "rgba(251, 146, 60, 0.7)";
           ctx.fillStyle = "rgba(251, 146, 60, 0.08)";
           ctx.beginPath();
@@ -2620,7 +2578,6 @@
       ctx.save();
       ctx.rotate(p.angle);
 
-      // 依據手持武器繪製不同外觀（突擊步槍長槍管 vs 手持高爆手榴彈）
       if (p.weapon === "grenade") {
         ctx.fillStyle = "#fb923c";
         ctx.strokeStyle = "#0f172a";
@@ -2649,7 +2606,6 @@
         }
       }
 
-      // 戰士機體
       ctx.shadowColor = mainColor;
       ctx.shadowBlur = 14;
       ctx.fillStyle = darkColor;
@@ -2661,7 +2617,6 @@
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // 核心護目鏡
       ctx.fillStyle = mainColor;
       ctx.beginPath();
       ctx.arc(4, 0, 6, 0, Math.PI * 2);
@@ -2669,7 +2624,6 @@
 
       ctx.restore();
 
-      // 頭頂名稱與血量條
       ctx.fillStyle = "#f8fafc";
       ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
       ctx.textAlign = "center";
@@ -2681,7 +2635,6 @@
       ctx.fillStyle = mainColor;
       ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 10, barW * (p.hp / MAX_HP), 4);
 
-      // 能量衝刺冷卻條
       if (((mode === "online" || mode === "ai") && p.role === myRole) || mode === "local") {
         const dashPct = 1 - Math.min(1, p.dashCooldown / DASH_COOLDOWN);
         ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
