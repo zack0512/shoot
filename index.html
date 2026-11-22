@@ -111,7 +111,7 @@
     <section id="lobbyView" class="w-full max-w-4xl bg-slate-900/85 border border-slate-700/70 backdrop-blur-xl rounded-2xl p-4 sm:p-7 shadow-2xl">
       <div class="text-center mb-5">
         <h2 class="text-2xl sm:text-3xl font-black text-slate-100 tracking-wide mb-1.5">競技場連線大廳</h2>
-        <p class="text-slate-300/80 text-xs sm:text-sm">步槍 15 發彈匣戦術對決！雙人選不同地圖將自動為雙方抽籤決定。</p>
+        <p class="text-slate-300/80 text-xs sm:text-sm">步槍 15 發彈匣戰術對決！雙人選不同地圖將自動為雙方抽籤決定。</p>
       </div>
 
       <!-- 玩家暱稱與 NPC 難度設定 -->
@@ -309,7 +309,6 @@
 
       <!-- 武器與彈匣狀態列（含 15 發子彈與手動換彈按鈕） -->
       <div id="weaponSelectorBar" class="w-full max-w-[1000px] mt-2 grid grid-cols-12 gap-2 px-1">
-        <!-- 突擊步槍按鈕（含 15 發彈匣顯示） -->
         <button id="selectRifleBtn" type="button" class="col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <div id="reloadProgressOverlay" class="absolute inset-0 bg-amber-400/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
           <span class="relative z-10 hidden sm:inline px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[10px] border border-amber-500/40">1</span>
@@ -317,13 +316,11 @@
           <span id="rifleAmmoText" class="relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black">15 / 15</span>
         </button>
 
-        <!-- 手動換彈快捷按鈕 (R) -->
         <button id="manualReloadBtn" type="button" class="col-span-2 flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 active:bg-emerald-500/40 text-emerald-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <span>🔄 換彈</span>
           <span class="hidden sm:inline text-[10px] text-emerald-400">(R)</span>
         </button>
 
-        <!-- 高爆手榴彈按鈕 -->
         <button id="selectGrenadeBtn" type="button" class="col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <div id="grenadeCdOverlay" class="absolute inset-0 bg-orange-500/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
           <span class="relative z-10 hidden sm:inline px-1.5 py-0.5 rounded bg-slate-950 text-orange-300 text-[10px] border border-slate-600">2</span>
@@ -332,7 +329,7 @@
         </button>
       </div>
 
-      <!-- 📱 手機／平板專屬雙虛擬搖桿控制面板（自動偵測裝置顯示） -->
+      <!-- 📱 手機／平板專屬雙虛擬搖桿控制面板（手榴彈放開才發射） -->
       <div id="mobileJoystickPanel" class="hidden w-full max-w-[1000px] mt-2.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3 flex items-center justify-between gap-2 shadow-xl">
         <!-- 左側：360° 移動虛擬搖桿 -->
         <div class="flex flex-col items-center">
@@ -343,7 +340,7 @@
           <span class="text-[10px] text-amber-300/80 font-bold mt-1">🕹️ 移動搖桿</span>
         </div>
 
-        <!-- 中間：戰術功能快捷鍵（衝刺 / 換彈 / 切武器） -->
+        <!-- 中間：戰術功能快捷鍵 -->
         <div class="flex flex-col items-center justify-center gap-2 flex-1 max-w-[130px]">
           <button id="mobileDashBtn" type="button" class="w-full py-2.5 rounded-xl bg-amber-500/25 active:bg-amber-500/55 border border-amber-400 text-amber-200 font-black text-xs shadow">
             ⚡ 能量衝刺
@@ -356,7 +353,7 @@
           </button>
         </div>
 
-        <!-- 右側：360° 瞄準與開火虛擬搖桿 -->
+        <!-- 右側：360° 瞄準搖桿（步槍按住連發／手榴彈拖曳瞄準、放開投擲） -->
         <div class="flex flex-col items-center">
           <div id="aimJoystickZone" class="joystick-zone w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-slate-950/90 border-2 border-rose-500/55 shadow-[inset_0_0_20px_rgba(244,63,94,0.18)] flex items-center justify-center">
             <div class="w-16 h-16 rounded-full border border-dashed border-slate-700 pointer-events-none"></div>
@@ -364,11 +361,11 @@
               🔥
             </div>
           </div>
-          <span class="text-[10px] text-rose-300/80 font-bold mt-1">🎯 推桿瞄準開火</span>
+          <span id="aimStickHintText" class="text-[10px] text-rose-300/80 font-bold mt-1">🎯 推桿瞄準開火</span>
         </div>
       </div>
 
-      <!-- 操作說明列（依電腦／手機模式自動切換文字） -->
+      <!-- 操作說明列 -->
       <div class="w-full max-w-[1000px] mt-2.5 bg-slate-900/80 border border-slate-700/70 rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
         <div id="pcControlsLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span><b class="text-slate-100">WASD / 方向鍵</b>：移動</span>
@@ -377,9 +374,8 @@
           <span><b class="text-sky-300">1 / 2 / Q / 滾輪</b>：切換武器</span>
         </div>
         <div id="mobileControlsLegend" class="hidden flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-          <span><b class="text-amber-300">左搖桿</b>：360° 移動</span>
-          <span><b class="text-rose-300">右搖桿</b>：推桿瞄準並自動開火</span>
-          <span><b class="text-emerald-300">步槍 15 發</b>：自動／手動換彈</span>
+          <span><b class="text-amber-300">左搖桿</b>：移動</span>
+          <span><b class="text-rose-300">右搖桿</b>：步槍按住連發／手榴彈拖曳瞄準、放開投擲</span>
         </div>
         <div id="localControlsLegend" class="hidden flex-wrap items-center gap-x-4 gap-y-1">
           <span class="text-amber-300 font-bold">【一方】WASD ＋ F/空白鍵 攻擊 ＋ R 換彈 ＋ Q 切武器</span>
@@ -468,7 +464,7 @@
     }, { once: true, passive: true });
 
     // ==========================================
-    // 3. 網頁音效合成器（含換彈上膛與傳送門音效）
+    // 3. 網頁音效合成器
     // ==========================================
     class SoundFX {
       constructor() {
@@ -603,11 +599,9 @@
     const WIN_SCORE = 5;
     const PORTAL_RADIUS = 24;
 
-    // 突擊步槍彈匣與換彈常數
     const RIFLE_MAG_SIZE = 15;
     const RIFLE_RELOAD_TIME = 1.15;
 
-    // 手榴彈常數
     const GRENADE_MAX_RANGE = 430;
     const GRENADE_SPEED = 540;
     const GRENADE_FUSE_TIME = 1.15;
@@ -989,10 +983,9 @@
       }
     }
 
-    // 觸發步槍換彈
     function startReloadRifle(player, silent = false) {
       if (!player || !player.alive) return;
-      if (player.reloadTimer > 0) return; // 已經在換彈中
+      if (player.reloadTimer > 0) return;
       if (player.ammo >= RIFLE_MAG_SIZE) {
         if (!silent) showToast("✅ 步槍彈匣已滿（15 / 15）", 1500);
         return;
@@ -1716,14 +1709,13 @@
     }
 
     // ==========================================
-    // 9. 輸入控制（鍵鼠 + R鍵換彈 + 手機雙類比虛擬搖桿）
+    // 9. 輸入控制（手榴彈搖桿：拖曳瞄準、放開才發射！）
     // ==========================================
     const keys = {};
     const mouse = { x: ARENA_W / 2, y: ARENA_H / 2, down: false };
 
-    // 手機虛擬搖桿狀態
     const moveStick = { active: false, touchId: null, dx: 0, dy: 0 };
-    const aimStick = { active: false, touchId: null, dx: 0, dy: 0, firing: false };
+    const aimStick = { active: false, touchId: null, dx: 0, dy: 0, lastValidDx: 0, lastValidDy: 0 };
 
     function setupVirtualJoystick(zoneId, knobId, stickState, onReleaseCallback = null) {
       const zone = document.getElementById(zoneId);
@@ -1746,15 +1738,27 @@
         knob.style.transform = `translate(${rawX}px, ${rawY}px)`;
         stickState.dx = rawX / maxDist;
         stickState.dy = rawY / maxDist;
+
+        // 記錄最後有效推桿方向與距離（供放開瞬間投擲手榴彈使用）
+        if (Math.hypot(stickState.dx, stickState.dy) >= 0.18) {
+          stickState.lastValidDx = stickState.dx;
+          stickState.lastValidDy = stickState.dy;
+        }
       }
 
       function resetStick() {
+        const releaseDx = stickState.dx;
+        const releaseDy = stickState.dy;
+
         stickState.active = false;
         stickState.touchId = null;
         stickState.dx = 0;
         stickState.dy = 0;
         knob.style.transform = "translate(0px, 0px)";
-        if (onReleaseCallback) onReleaseCallback();
+
+        if (onReleaseCallback) {
+          onReleaseCallback(releaseDx, releaseDy);
+        }
       }
 
       zone.addEventListener("touchstart", (e) => {
@@ -1764,6 +1768,8 @@
         const t = e.changedTouches[0];
         stickState.active = true;
         stickState.touchId = t.identifier;
+        stickState.lastValidDx = 0;
+        stickState.lastValidDy = 0;
         updateStickPosition(t.clientX, t.clientY);
       }, { passive: false });
 
@@ -1793,8 +1799,25 @@
     }
 
     setupVirtualJoystick("moveJoystickZone", "moveJoystickKnob", moveStick);
-    setupVirtualJoystick("aimJoystickZone", "aimJoystickKnob", aimStick, () => {
-      aimStick.firing = false;
+
+    // 右側瞄準搖桿放開回呼：若當前裝備手榴彈且有拉開搖桿，則在放開瞬間投擲！
+    setupVirtualJoystick("aimJoystickZone", "aimJoystickKnob", aimStick, (releaseDx, releaseDy) => {
+      if ((mode === "online" || mode === "ai") && myRole && !state.matchWinner) {
+        const me = state.players[myRole];
+        if (me && me.alive && me.weapon === "grenade") {
+          const mag = Math.hypot(releaseDx, releaseDy);
+          // 放開時推桿距離超過 18% 才投擲（拉回中心放開則視為取消投擲）
+          if (mag >= 0.18) {
+            me.angle = Math.atan2(releaseDy, releaseDx);
+            const throwDist = Math.max(90, Math.min(1, mag) * GRENADE_MAX_RANGE);
+            const targetPt = {
+              x: me.x + Math.cos(me.angle) * throwDist,
+              y: me.y + Math.sin(me.angle) * throwDist
+            };
+            tryThrowGrenade(me, targetPt);
+          }
+        }
+      }
     });
 
     window.addEventListener("keydown", (e) => {
@@ -1860,14 +1883,22 @@
 
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // 點擊畫布直接瞄準並開火（手機模式下若直接點畫面也可射擊）
+    // 觸控畫布：若為手榴彈，拖曳時瞄準、放開時投擲！
+    let canvasTouching = false;
     canvas.addEventListener("touchstart", (e) => {
       sfx.init();
       const touch = e.touches[0];
       const rect = canvas.getBoundingClientRect();
       mouse.x = (touch.clientX - rect.left) * (ARENA_W / rect.width);
       mouse.y = (touch.clientY - rect.top) * (ARENA_H / rect.height);
-      mouse.down = true;
+      canvasTouching = true;
+
+      if ((mode === "online" || mode === "ai") && myRole) {
+        const me = state.players[myRole];
+        if (me && me.weapon === "rifle") {
+          mouse.down = true;
+        }
+      }
     }, { passive: true });
 
     canvas.addEventListener("touchmove", (e) => {
@@ -1878,10 +1909,17 @@
     }, { passive: true });
 
     canvas.addEventListener("touchend", () => {
+      if (canvasTouching && (mode === "online" || mode === "ai") && myRole && !state.matchWinner) {
+        const me = state.players[myRole];
+        if (me && me.alive && me.weapon === "grenade") {
+          me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
+          tryThrowGrenade(me, { x: mouse.x, y: mouse.y });
+        }
+      }
+      canvasTouching = false;
       mouse.down = false;
     });
 
-    // 手機快捷按鈕事件
     document.getElementById("mobileSwitchWeaponBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole]);
     });
@@ -1892,7 +1930,6 @@
       if ((mode === "online" || mode === "ai") && myRole) startReloadRifle(state.players[myRole]);
     });
 
-    // 武器快捷列按鈕
     document.getElementById("selectRifleBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "rifle");
     });
@@ -1904,7 +1941,7 @@
     });
 
     // ==========================================
-    // 10. 核心戰鬥機制（含 15 發換彈與傳送門系統）
+    // 10. 核心戰鬥機制
     // ==========================================
     function findPairedPortal(portal) {
       const portals = getCurrentMap().portals;
@@ -1999,12 +2036,10 @@
     function tryShootRifle(player) {
       if (!player.alive || player.fireCooldown > 0) return;
 
-      // 若正在換彈中，無法開火
       if (player.reloadTimer > 0) {
         return;
       }
 
-      // 若子彈已用盡（0 發），自動觸發換彈
       if (player.ammo <= 0) {
         sfx.play("emptyClick");
         startReloadRifle(player);
@@ -2023,7 +2058,6 @@
       spawnBulletLocal(player.role, muzzleX, muzzleY, player.angle, bulletId);
       sfx.play("shoot");
 
-      // 打完最後第 15 發子彈後，自動進入換彈
       if (player.ammo <= 0) {
         startReloadRifle(player);
       }
@@ -2309,7 +2343,7 @@
     }
 
     // ==========================================
-    // 11. 智慧電腦機器人（支援 15 發換彈與手榴彈戰術）
+    // 11. 智慧電腦機器人
     // ==========================================
     function updateAiBot(dt) {
       const bot = state.players.p2;
@@ -2388,7 +2422,6 @@
         moveX += Math.cos(pwAngle);
         moveY += Math.sin(pwAngle);
       } else if ((bot.hp <= 35 || bot.reloadTimer > 0) && selectedBotDifficulty !== "easy") {
-        // 換彈或殘血時往掩體拉扯
         const coverX = 830;
         const coverY = target.y < ARENA_H / 2 ? 445 : 205;
         const coverAngle = Math.atan2(coverY - bot.y, coverX - bot.x);
@@ -2508,7 +2541,6 @@
         if (p.invulnTimer > 0) p.invulnTimer -= dt;
         if (p.muzzleFlash > 0) p.muzzleFlash -= dt;
 
-        // 處理步槍換彈倒數完成
         if (p.reloadTimer > 0) {
           p.reloadTimer -= dt;
           if (p.reloadTimer <= 0) {
@@ -2557,7 +2589,6 @@
       const me = state.players[myRole];
       if (!me.alive) return;
 
-      // 移動控制（支援鍵盤與手機左虛擬搖桿）
       let mx = 0;
       let my = 0;
       if (keys["KeyW"] || keys["ArrowUp"]) my -= 1;
@@ -2583,27 +2614,33 @@
       resolvePlayerObstacles(me);
       checkPortalTeleportForPlayer(me);
 
-      // 瞄準與攻擊控制（手機右搖桿推桿優先，其次鍵鼠）
       let targetPoint = { x: mouse.x, y: mouse.y };
       let shouldAttack = mouse.down || keys["Space"];
 
       if (aimStick.active) {
         const stickMag = Math.hypot(aimStick.dx, aimStick.dy);
-        if (stickMag > 0.15) {
+        if (stickMag > 0.12) {
           me.angle = Math.atan2(aimStick.dy, aimStick.dx);
           const throwDist = Math.max(90, stickMag * GRENADE_MAX_RANGE);
           targetPoint = {
             x: me.x + Math.cos(me.angle) * throwDist,
             y: me.y + Math.sin(me.angle) * throwDist
           };
-          shouldAttack = stickMag > 0.35; // 推桿超過 35% 自動開火／投擲
+          // 若為步槍，推桿超過 35% 即連發；若為手榴彈，按住時只瞄準、放開時才在 resetStick 觸發投擲！
+          if (me.weapon === "rifle") {
+            shouldAttack = stickMag > 0.35;
+          } else {
+            shouldAttack = false;
+          }
         }
       } else if (!isMobileMode) {
         me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
-      } else if (mouse.down) {
+      } else if (canvasTouching) {
         me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
+        if (me.weapon === "grenade") {
+          shouldAttack = false; // 觸控畫面拖曳手榴彈時也不提前發射，等 touchend 放開才丟
+        }
       } else if (moveStick.active && Math.hypot(moveStick.dx, moveStick.dy) > 0.25) {
-        // 手機版只推左搖桿移動時，角色面朝移動方向
         me.angle = Math.atan2(moveStick.dy, moveStick.dx);
       }
 
@@ -2873,16 +2910,18 @@
         const ammoText = document.getElementById("rifleAmmoText");
         const cdOverlay = document.getElementById("grenadeCdOverlay");
         const cdText = document.getElementById("grenadeCdText");
+        const aimHint = document.getElementById("aimStickHintText");
 
         if (me.weapon === "rifle") {
           rifleBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
           grenadeBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
+          if (aimHint) aimHint.textContent = "🎯 推桿瞄準並連發";
         } else {
           rifleBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
           grenadeBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.2)] whitespace-nowrap";
+          if (aimHint) aimHint.textContent = "💣 拖曳瞄準・放開投擲";
         }
 
-        // 更新步槍 15 發彈匣與換彈進度條
         if (me.reloadTimer > 0) {
           const pct = Math.max(0, Math.min(1, 1 - me.reloadTimer / me.reloadDuration));
           reloadOverlay.style.transform = `scaleX(${pct})`;
@@ -2909,7 +2948,7 @@
     }
 
     // ==========================================
-    // 13. 霓虹競技場畫布渲染（含頭頂彈匣指示器與換彈環）
+    // 13. 霓虹競技場畫布渲染
     // ==========================================
     function renderArena() {
       const map = getCurrentMap();
@@ -2957,7 +2996,6 @@
       ctx.lineTo(ARENA_W / 2, ARENA_H);
       ctx.stroke();
 
-      // 繪製雙向傳送門
       const nowSec = performance.now() / 1000;
       for (const portal of map.portals) {
         ctx.save();
@@ -3003,7 +3041,6 @@
         ctx.restore();
       }
 
-      // 繪製掩體
       for (const obs of map.obstacles) {
         ctx.fillStyle = obs.color;
         ctx.strokeStyle = obs.glow;
@@ -3020,7 +3057,6 @@
         ctx.fillRect(obs.x + 4, obs.y + 4, obs.w - 8, obs.h - 8);
       }
 
-      // 繪製補給道具
       if (state.powerup) {
         const pw = state.powerup;
         const pulse = Math.sin(performance.now() / 180) * 3;
@@ -3049,7 +3085,6 @@
         ctx.restore();
       }
 
-      // 繪製步槍子彈
       for (const b of state.bullets) {
         const color = b.owner === "p1" ? "#fbbf24" : "#fb7185";
         for (let i = 0; i < b.trail.length; i++) {
@@ -3069,7 +3104,6 @@
         ctx.shadowBlur = 0;
       }
 
-      // 繪製手榴彈
       for (const g of state.grenades) {
         ctx.save();
         const flashRate = g.landed ? 70 : 160;
@@ -3112,7 +3146,6 @@
         ctx.restore();
       }
 
-      // 繪製爆炸衝擊波
       for (const sw of state.shockwaves) {
         const alpha = Math.max(0, sw.life / sw.maxLife);
         ctx.save();
@@ -3148,20 +3181,24 @@
       }
       ctx.globalAlpha = 1;
 
-      // 準星與手榴彈拋物範圍（電腦模式或手機推右搖桿時顯示）
+      // 準星與手榴彈拋物範圍（電腦模式、手機推右搖桿或觸控畫面拖曳時即時顯示）
       if ((mode === "online" || mode === "ai") && myRole && state.players[myRole].alive) {
         const me = state.players[myRole];
-        if (!isMobileMode || aimStick.active) {
+        const showAimPreview = !isMobileMode || aimStick.active || canvasTouching;
+        if (showAimPreview) {
           let targetX = mouse.x;
           let targetY = mouse.y;
+          let stickMag = 1;
+
           if (aimStick.active) {
-            const mag = Math.hypot(aimStick.dx, aimStick.dy);
-            const dist = Math.max(90, mag * GRENADE_MAX_RANGE);
+            stickMag = Math.hypot(aimStick.dx, aimStick.dy);
+            const dist = Math.max(90, stickMag * GRENADE_MAX_RANGE);
             targetX = me.x + Math.cos(me.angle) * dist;
             targetY = me.y + Math.sin(me.angle) * dist;
           }
 
           if (me.weapon === "grenade") {
+            const isReadyToThrow = !aimStick.active || stickMag >= 0.18;
             const dx = targetX - me.x;
             const dy = targetY - me.y;
             const clampedDist = Math.min(GRENADE_MAX_RANGE, Math.max(70, Math.hypot(dx, dy)));
@@ -3169,20 +3206,29 @@
             const aimY = Math.max(25, Math.min(ARENA_H - 25, me.y + Math.sin(me.angle) * clampedDist));
 
             ctx.save();
-            ctx.strokeStyle = "rgba(251, 146, 60, 0.45)";
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = isReadyToThrow ? "rgba(251, 146, 60, 0.75)" : "rgba(148, 163, 184, 0.45)";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 5]);
             ctx.beginPath();
             ctx.moveTo(me.x, me.y);
             ctx.lineTo(aimX, aimY);
             ctx.stroke();
 
-            ctx.strokeStyle = "rgba(251, 146, 60, 0.7)";
-            ctx.fillStyle = "rgba(251, 146, 60, 0.08)";
+            ctx.strokeStyle = isReadyToThrow ? "rgba(251, 146, 60, 0.85)" : "rgba(148, 163, 184, 0.45)";
+            ctx.fillStyle = isReadyToThrow ? "rgba(251, 146, 60, 0.14)" : "rgba(148, 163, 184, 0.06)";
             ctx.beginPath();
             ctx.arc(aimX, aimY, GRENADE_EXPLOSION_RADIUS, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
+
+            // 手機瞄準提示文字
+            if (isMobileMode && (aimStick.active || canvasTouching)) {
+              ctx.setLineDash([]);
+              ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
+              ctx.textAlign = "center";
+              ctx.fillStyle = isReadyToThrow ? "#fdba74" : "#94a3b8";
+              ctx.fillText(isReadyToThrow ? "放開搖桿投擲！" : "拉回中心取消", aimX, aimY - 6);
+            }
             ctx.restore();
           } else if (!isMobileMode) {
             ctx.strokeStyle = "rgba(251, 191, 36, 0.75)";
@@ -3196,6 +3242,17 @@
             ctx.moveTo(mouse.x, mouse.y - 16);
             ctx.lineTo(mouse.x, mouse.y + 16);
             ctx.stroke();
+          } else if (aimStick.active && stickMag > 0.12) {
+            // 手機版步槍推右搖桿時的雷射瞄準線
+            ctx.save();
+            ctx.strokeStyle = "rgba(251, 191, 36, 0.45)";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(me.x, me.y);
+            ctx.lineTo(me.x + Math.cos(me.angle) * 260, me.y + Math.sin(me.angle) * 260);
+            ctx.stroke();
+            ctx.restore();
           }
         }
       }
@@ -3243,7 +3300,6 @@
         ctx.stroke();
       }
 
-      // 換彈中旋轉進度環
       if (p.reloadTimer > 0) {
         const progress = 1 - Math.max(0, Math.min(1, p.reloadTimer / p.reloadDuration));
         ctx.strokeStyle = "#34d399";
@@ -3307,14 +3363,12 @@
       ctx.textAlign = "center";
       ctx.fillText(p.name, 0, -PLAYER_RADIUS - 16);
 
-      // 血量條
       const barW = 40;
       ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
       ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 12, barW, 4);
       ctx.fillStyle = mainColor;
       ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 12, barW * (p.hp / MAX_HP), 4);
 
-      // 角色下方顯示：步槍 15 發彈匣條（或換彈進度條）＋ 衝刺冷卻條
       if (p.weapon === "rifle") {
         ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
         ctx.fillRect(-barW / 2, PLAYER_RADIUS + 7, barW, 3.5);
