@@ -111,7 +111,7 @@
     <section id="lobbyView" class="w-full max-w-4xl bg-slate-900/85 border border-slate-700/70 backdrop-blur-xl rounded-2xl p-4 sm:p-7 shadow-2xl">
       <div class="text-center mb-5">
         <h2 class="text-2xl sm:text-3xl font-black text-slate-100 tracking-wide mb-1.5">競技場連線大廳</h2>
-        <p class="text-slate-300/80 text-xs sm:text-sm">步槍 15 發彈匣戰術對決！雙人選不同地圖將自動為雙方抽籤決定。</p>
+        <p class="text-slate-300/80 text-xs sm:text-sm">步槍 15 發彈匣＋手榴彈＋⚔️ 武士刀鋒狂轉（5秒反彈子彈＆近戰斬殺）！</p>
       </div>
 
       <!-- 玩家暱稱與 NPC 難度設定 -->
@@ -307,29 +307,37 @@
         </div>
       </div>
 
-      <!-- 武器與彈匣狀態列（含 15 發子彈與手動換彈按鈕） -->
-      <div id="weaponSelectorBar" class="w-full max-w-[1000px] mt-2 grid grid-cols-12 gap-2 px-1">
-        <button id="selectRifleBtn" type="button" class="col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
+      <!-- 武器、換彈與武士刀鋒狂旋轉狀態列 -->
+      <div id="weaponSelectorBar" class="w-full max-w-[1000px] mt-2 grid grid-cols-12 gap-1.5 sm:gap-2 px-1">
+        <button id="selectRifleBtn" type="button" class="col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <div id="reloadProgressOverlay" class="absolute inset-0 bg-amber-400/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
           <span class="relative z-10 hidden sm:inline px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[10px] border border-amber-500/40">1</span>
           <span class="relative z-10">🔫 步槍</span>
-          <span id="rifleAmmoText" class="relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black">15 / 15</span>
+          <span id="rifleAmmoText" class="relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black">15/15</span>
         </button>
 
-        <button id="manualReloadBtn" type="button" class="col-span-2 flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 active:bg-emerald-500/40 text-emerald-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
+        <button id="manualReloadBtn" type="button" class="col-span-2 flex items-center justify-center gap-1 py-2 px-1 rounded-xl border border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 active:bg-emerald-500/40 text-emerald-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <span>🔄 換彈</span>
-          <span class="hidden sm:inline text-[10px] text-emerald-400">(R)</span>
+          <span class="hidden md:inline text-[10px] text-emerald-400">(R)</span>
         </button>
 
-        <button id="selectGrenadeBtn" type="button" class="col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap">
+        <button id="selectGrenadeBtn" type="button" class="col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <div id="grenadeCdOverlay" class="absolute inset-0 bg-orange-500/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
           <span class="relative z-10 hidden sm:inline px-1.5 py-0.5 rounded bg-slate-950 text-orange-300 text-[10px] border border-slate-600">2</span>
           <span class="relative z-10">💣 手榴彈</span>
           <span id="grenadeCdText" class="relative z-10 text-[11px] text-emerald-400 font-bold">就緒</span>
         </button>
+
+        <!-- ⚔️ 武士刀鋒狂旋轉（30秒CD / 持續5秒反彈子彈+近戰傷害） -->
+        <button id="katanaSpinBtn" type="button" class="col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-cyan-400 bg-cyan-500/20 text-cyan-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(34,211,238,0.2)] whitespace-nowrap">
+          <div id="katanaCdOverlay" class="absolute inset-0 bg-cyan-400/30 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
+          <span class="relative z-10 hidden sm:inline px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 text-[10px] border border-cyan-500/40">E</span>
+          <span class="relative z-10">⚔️ 刀鋒狂轉</span>
+          <span id="katanaCdText" class="relative z-10 text-[11px] text-cyan-300 font-black">就緒</span>
+        </button>
       </div>
 
-      <!-- 📱 手機／平板專屬雙虛擬搖桿控制面板（手榴彈放開才發射） -->
+      <!-- 📱 手機／平板專屬雙虛擬搖桿控制面板 -->
       <div id="mobileJoystickPanel" class="hidden w-full max-w-[1000px] mt-2.5 bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3 flex items-center justify-between gap-2 shadow-xl">
         <!-- 左側：360° 移動虛擬搖桿 -->
         <div class="flex flex-col items-center">
@@ -340,17 +348,22 @@
           <span class="text-[10px] text-amber-300/80 font-bold mt-1">🕹️ 移動搖桿</span>
         </div>
 
-        <!-- 中間：戰術功能快捷鍵 -->
-        <div class="flex flex-col items-center justify-center gap-2 flex-1 max-w-[130px]">
-          <button id="mobileDashBtn" type="button" class="w-full py-2.5 rounded-xl bg-amber-500/25 active:bg-amber-500/55 border border-amber-400 text-amber-200 font-black text-xs shadow">
+        <!-- 中間：戰術功能快捷鍵（新增武士刀鋒狂旋轉） -->
+        <div class="flex flex-col items-center justify-center gap-1.5 flex-1 max-w-[136px]">
+          <button id="mobileKatanaBtn" type="button" class="w-full py-2 rounded-xl bg-cyan-500/25 active:bg-cyan-500/55 border border-cyan-400 text-cyan-200 font-black text-xs shadow">
+            ⚔️ 刀鋒狂轉 <span id="mobileKatanaState" class="text-[10px] text-cyan-300">(就緒)</span>
+          </button>
+          <button id="mobileDashBtn" type="button" class="w-full py-2 rounded-xl bg-amber-500/25 active:bg-amber-500/55 border border-amber-400 text-amber-200 font-black text-xs shadow">
             ⚡ 能量衝刺
           </button>
-          <button id="mobileReloadBtn" type="button" class="w-full py-2.5 rounded-xl bg-emerald-500/25 active:bg-emerald-500/55 border border-emerald-400 text-emerald-200 font-black text-xs shadow">
-            🔄 步槍換彈
-          </button>
-          <button id="mobileSwitchWeaponBtn" type="button" class="w-full py-2 rounded-xl bg-sky-500/25 active:bg-sky-500/55 border border-sky-400 text-sky-200 font-black text-xs shadow">
-            🔁 切換武器
-          </button>
+          <div class="w-full grid grid-cols-2 gap-1.5">
+            <button id="mobileReloadBtn" type="button" class="py-2 rounded-xl bg-emerald-500/25 active:bg-emerald-500/55 border border-emerald-400 text-emerald-200 font-black text-[11px] shadow">
+              🔄 換彈
+            </button>
+            <button id="mobileSwitchWeaponBtn" type="button" class="py-2 rounded-xl bg-sky-500/25 active:bg-sky-500/55 border border-sky-400 text-sky-200 font-black text-[11px] shadow">
+              🔁 切武器
+            </button>
+          </div>
         </div>
 
         <!-- 右側：360° 瞄準搖桿（步槍按住連發／手榴彈拖曳瞄準、放開投擲） -->
@@ -370,16 +383,17 @@
         <div id="pcControlsLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span><b class="text-slate-100">WASD / 方向鍵</b>：移動</span>
           <span><b class="text-amber-300">左鍵 / 空白鍵</b>：開火 / 投擲</span>
-          <span><b class="text-emerald-300">R 鍵</b>：手動換彈（15發）</span>
-          <span><b class="text-sky-300">1 / 2 / Q / 滾輪</b>：切換武器</span>
+          <span><b class="text-cyan-300">E 鍵</b>：武士刀鋒狂轉（5秒反彈子彈＋近戰斬殺）</span>
+          <span><b class="text-emerald-300">R 鍵</b>：換彈</span>
+          <span><b class="text-sky-300">1 / 2 / Q</b>：切換武器</span>
         </div>
         <div id="mobileControlsLegend" class="hidden flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-          <span><b class="text-amber-300">左搖桿</b>：移動</span>
-          <span><b class="text-rose-300">右搖桿</b>：步槍按住連發／手榴彈拖曳瞄準、放開投擲</span>
+          <span><b class="text-cyan-300">⚔️ 刀鋒狂轉</b>：5秒反彈子彈＋近戰斬擊</span>
+          <span><b class="text-rose-300">右搖桿</b>：步槍按住連發／手榴彈放開投擲</span>
         </div>
         <div id="localControlsLegend" class="hidden flex-wrap items-center gap-x-4 gap-y-1">
-          <span class="text-amber-300 font-bold">【一方】WASD ＋ F/空白鍵 攻擊 ＋ R 換彈 ＋ Q 切武器</span>
-          <span class="text-rose-300 font-bold">【二方】方向鍵 ＋ Enter/M 攻擊 ＋ P 換彈 ＋ / 切武器</span>
+          <span class="text-amber-300 font-bold">【一方】WASD ＋ F/空白 攻擊 ＋ E 刀鋒狂轉 ＋ R 換彈 ＋ Q 切武器</span>
+          <span class="text-rose-300 font-bold">【二方】方向鍵 ＋ Enter/M 攻擊 ＋ O 刀鋒狂轉 ＋ P 換彈 ＋ / 切武器</span>
         </div>
         <div class="text-slate-300">
           率先 <b class="text-amber-300">5 擊殺</b> 獲勝！
@@ -464,7 +478,7 @@
     }, { once: true, passive: true });
 
     // ==========================================
-    // 3. 網頁音效合成器
+    // 3. 網頁音效合成器（新增刀鋒狂轉、反彈、斬擊音效）
     // ==========================================
     class SoundFX {
       constructor() {
@@ -497,6 +511,34 @@
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
             osc.start(now);
             osc.stop(now + 0.09);
+          } else if (type === "katanaStart") {
+            // 武士刀出鞘＋狂風旋轉音效
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(420, now);
+            osc.frequency.exponentialRampToValueAtTime(1380, now + 0.14);
+            osc.frequency.exponentialRampToValueAtTime(680, now + 0.34);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else if (type === "deflect") {
+            // 金屬武士刀反彈子彈清脆叮噹聲
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(1450, now);
+            osc.frequency.exponentialRampToValueAtTime(2200, now + 0.08);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+            osc.start(now);
+            osc.stop(now + 0.11);
+          } else if (type === "slash") {
+            // 刀鋒劈砍音效
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.exponentialRampToValueAtTime(210, now + 0.11);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.start(now);
+            osc.stop(now + 0.12);
           } else if (type === "reloadStart") {
             osc.type = "triangle";
             osc.frequency.setValueAtTime(280, now);
@@ -584,7 +626,7 @@
     const sfx = new SoundFX();
 
     // ==========================================
-    // 4. 競技場常數、彈匣換彈、地圖與機器人設定
+    // 4. 競技場常數、武士刀鋒狂旋轉、地圖與機器人設定
     // ==========================================
     const ARENA_W = 1000;
     const ARENA_H = 650;
@@ -608,6 +650,13 @@
     const GRENADE_EXPLOSION_RADIUS = 115;
     const GRENADE_MAX_DAMAGE = 65;
     const GRENADE_COOLDOWN = 2.4;
+
+    // ⚔️ 武士刀鋒狂旋轉技能常數
+    const KATANA_SPIN_COOLDOWN = 30.0;   // 30 秒一次
+    const KATANA_SPIN_DURATION = 5.0;    // 連續旋轉 5 秒
+    const KATANA_SPIN_RADIUS = 56;       // 刀鋒旋轉力場半徑（涵蓋刀身）
+    const KATANA_SLASH_DAMAGE = 28;      // 每次近戰斬擊傷害
+    const KATANA_SLASH_INTERVAL = 0.25;  // 每 0.25 秒可造成一次斬擊（每秒約 112 傷害）
 
     const MAPS = {
       classic: {
@@ -641,7 +690,7 @@
         id: "wormhole",
         name: "🌀 蟲洞核心",
         tag: "雙組傳送門・高速奇襲",
-        desc: "上下兩對傳送門，子彈、手榴彈與角色皆可穿梭繞背",
+        desc: "上下兩對傳送門，子彈、手榴彈與刀鋒皆可穿梭繞背",
         bgInner: "#1e1636",
         bgOuter: "#0b0816",
         gridColor: "rgba(168, 85, 247, 0.12)",
@@ -745,12 +794,13 @@
         dodgeChance: 0.15,
         dashDodgeChance: 0,
         aimJitter: 0.14,
-        grenadeChance: 0.1
+        grenadeChance: 0.1,
+        katanaChance: 0.25
       },
       normal: {
         label: "普通",
         badge: "🟡 普通",
-        desc: "均衡走位與基礎預判，會投擲手榴彈",
+        desc: "均衡走位與基礎預判，會投擲手榴彈與開啟刀鋒狂轉",
         botName: "🤖 標準戰鬥機器人",
         speedMult: 0.90,
         turnSpeed: 10,
@@ -760,12 +810,13 @@
         dodgeChance: 0.75,
         dashDodgeChance: 0.45,
         aimJitter: 0.05,
-        grenadeChance: 0.45
+        grenadeChance: 0.45,
+        katanaChance: 0.65
       },
       hard: {
         label: "困難",
         badge: "🔴 困難",
-        desc: "高速走位、精準預判、掩體手榴彈轟炸",
+        desc: "高速走位、精準預判、火力密集時開啟刀鋒狂轉突進",
         botName: "🤖 菁英戰術機器人",
         speedMult: 1.05,
         turnSpeed: 18,
@@ -775,7 +826,8 @@
         dodgeChance: 1.0,
         dashDodgeChance: 0.92,
         aimJitter: 0.01,
-        grenadeChance: 0.85
+        grenadeChance: 0.85,
+        katanaChance: 0.95
       }
     };
 
@@ -851,6 +903,11 @@
         reloadDuration: RIFLE_RELOAD_TIME,
         fireCooldown: 0,
         grenadeCooldown: 0,
+        // ⚔️ 武士刀鋒狂旋轉狀態
+        katanaSpinTimer: 0,
+        katanaSpinCooldown: 0,
+        katanaSlashTimer: 0,
+        katanaVisualAngle: 0,
         rapidTimer: 0,
         shield: 0,
         invulnTimer: 0,
@@ -999,6 +1056,40 @@
         sfx.play("reloadStart");
         addFloatingText(player.x, player.y - 30, "🔄 換彈中...", "#34d399");
       }
+
+      if (mode === "online" && player.role === myRole) {
+        syncMyPlayerToRTDB(true);
+      }
+    }
+
+    // ⚔️ 發動「武士刀鋒狂旋轉」（30秒一次、連續5秒）
+    function tryActivateKatanaSpin(player, silent = false) {
+      if (!player || !player.alive) return;
+      if (player.katanaSpinTimer > 0) return;
+      if (player.katanaSpinCooldown > 0) {
+        if (!silent && ((mode === "online" || mode === "ai") && player.role === myRole)) {
+          showToast(`⚔️ 武士刀鋒狂轉冷卻中（剩餘 ${player.katanaSpinCooldown.toFixed(1)} 秒）`, 1400);
+        }
+        return;
+      }
+
+      player.katanaSpinTimer = KATANA_SPIN_DURATION;
+      player.katanaSpinCooldown = KATANA_SPIN_COOLDOWN;
+      player.katanaSlashTimer = 0;
+
+      sfx.play("katanaStart");
+      state.screenShake = Math.max(state.screenShake, 8);
+      spawnExplosion(player.x, player.y, "#22d3ee", 24);
+      state.shockwaves.push({
+        x: player.x,
+        y: player.y,
+        radius: 14,
+        maxRadius: KATANA_SPIN_RADIUS + 20,
+        life: 0.32,
+        maxLife: 0.32,
+        color: "#22d3ee"
+      });
+      addFloatingText(player.x, player.y - 36, "⚔️ 武士刀鋒狂轉！", "#22d3ee");
 
       if (mode === "online" && player.role === myRole) {
         syncMyPlayerToRTDB(true);
@@ -1170,6 +1261,7 @@
               weapon: "rifle",
               ammo: RIFLE_MAG_SIZE,
               reloading: false,
+              katanaSpin: false,
               shield: 0,
               rapid: false,
               dashing: false
@@ -1233,6 +1325,7 @@
           weapon: "rifle",
           ammo: RIFLE_MAG_SIZE,
           reloading: false,
+          katanaSpin: false,
           shield: 0,
           rapid: false,
           dashing: false
@@ -1392,6 +1485,8 @@
             state.players.p1.hp = MAX_HP;
             state.players.p1.ammo = RIFLE_MAG_SIZE;
             state.players.p1.reloadTimer = 0;
+            state.players.p1.katanaSpinTimer = 0;
+            state.players.p1.katanaSpinCooldown = 0;
             state.players.p1.alive = true;
             showToast(`🎉 真人玩家「${p2Data.name}」加入房間，已切換為真人對決！`);
             sfx.play("powerup");
@@ -1421,6 +1516,7 @@
             state.players[enemyRole].weapon = remoteData.weapon || "rifle";
             state.players[enemyRole].ammo = remoteData.ammo ?? RIFLE_MAG_SIZE;
             state.players[enemyRole].reloadTimer = remoteData.reloading ? 0.5 : 0;
+            state.players[enemyRole].katanaSpinTimer = remoteData.katanaSpin ? 0.5 : 0;
             state.players[enemyRole].shield = remoteData.shield || 0;
             state.players[enemyRole].rapidTimer = remoteData.rapid ? 1 : 0;
             state.players[enemyRole].dashTimer = remoteData.dashing ? 0.1 : 0;
@@ -1450,9 +1546,9 @@
         if (!b || b.owner === myRole) return;
         if (b.clientTs && Date.now() - b.clientTs > 2500) return;
 
-        spawnBulletLocal(b.owner, b.x, b.y, b.angle, b.id || snap.key);
+        spawnBulletLocal(b.owner, b.x, b.y, b.angle, b.id || snap.key, b.deflected || false);
         state.players[b.owner].muzzleFlash = 0.08;
-        sfx.play("shoot");
+        sfx.play(b.deflected ? "deflect" : "shoot");
       });
       roomListeners.push(unsubBullets);
 
@@ -1504,6 +1600,8 @@
       state.players.p1.hp = MAX_HP;
       state.players.p1.ammo = RIFLE_MAG_SIZE;
       state.players.p1.reloadTimer = 0;
+      state.players.p1.katanaSpinTimer = 0;
+      state.players.p1.katanaSpinCooldown = 0;
       state.players.p1.alive = true;
 
       document.getElementById("modeBadgeContainer").classList.remove("hidden");
@@ -1648,6 +1746,8 @@
           p.hp = MAX_HP;
           p.ammo = RIFLE_MAG_SIZE;
           p.reloadTimer = 0;
+          p.katanaSpinTimer = 0;
+          p.katanaSpinCooldown = 0;
           p.alive = true;
           p.shield = 0;
           p.rapidTimer = 0;
@@ -1691,6 +1791,8 @@
       me.hp = MAX_HP;
       me.ammo = RIFLE_MAG_SIZE;
       me.reloadTimer = 0;
+      me.katanaSpinTimer = 0;
+      me.katanaSpinCooldown = 0;
       me.alive = true;
       me.shield = 0;
       me.rapidTimer = 0;
@@ -1709,7 +1811,7 @@
     }
 
     // ==========================================
-    // 9. 輸入控制（手榴彈搖桿：拖曳瞄準、放開才發射！）
+    // 9. 輸入控制（手榴彈搖桿：拖曳瞄準、放開才發射）
     // ==========================================
     const keys = {};
     const mouse = { x: ARENA_W / 2, y: ARENA_H / 2, down: false };
@@ -1739,7 +1841,6 @@
         stickState.dx = rawX / maxDist;
         stickState.dy = rawY / maxDist;
 
-        // 記錄最後有效推桿方向與距離（供放開瞬間投擲手榴彈使用）
         if (Math.hypot(stickState.dx, stickState.dy) >= 0.18) {
           stickState.lastValidDx = stickState.dx;
           stickState.lastValidDy = stickState.dy;
@@ -1800,13 +1901,11 @@
 
     setupVirtualJoystick("moveJoystickZone", "moveJoystickKnob", moveStick);
 
-    // 右側瞄準搖桿放開回呼：若當前裝備手榴彈且有拉開搖桿，則在放開瞬間投擲！
     setupVirtualJoystick("aimJoystickZone", "aimJoystickKnob", aimStick, (releaseDx, releaseDy) => {
       if ((mode === "online" || mode === "ai") && myRole && !state.matchWinner) {
         const me = state.players[myRole];
         if (me && me.alive && me.weapon === "grenade") {
           const mag = Math.hypot(releaseDx, releaseDy);
-          // 放開時推桿距離超過 18% 才投擲（拉回中心放開則視為取消投擲）
           if (mag >= 0.18) {
             me.angle = Math.atan2(releaseDy, releaseDx);
             const throwDist = Math.max(90, Math.min(1, mag) * GRENADE_MAX_RANGE);
@@ -1835,6 +1934,8 @@
           switchPlayerWeapon(me);
         } else if (e.code === "KeyR") {
           startReloadRifle(me);
+        } else if (e.code === "KeyE") {
+          tryActivateKatanaSpin(me);
         } else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
           tryDash(me);
         }
@@ -1843,6 +1944,8 @@
         if (e.code === "Digit2") switchPlayerWeapon(state.players.p1, "grenade");
         if (e.code === "KeyQ") switchPlayerWeapon(state.players.p1);
         if (e.code === "KeyR") startReloadRifle(state.players.p1);
+        if (e.code === "KeyE") tryActivateKatanaSpin(state.players.p1);
+        if (e.code === "KeyO") tryActivateKatanaSpin(state.players.p2);
         if (e.code === "KeyP") startReloadRifle(state.players.p2);
         if (e.code === "Slash") switchPlayerWeapon(state.players.p2);
         if (e.code === "ShiftLeft") tryDash(state.players.p1);
@@ -1883,7 +1986,6 @@
 
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // 觸控畫布：若為手榴彈，拖曳時瞄準、放開時投擲！
     let canvasTouching = false;
     canvas.addEventListener("touchstart", (e) => {
       sfx.init();
@@ -1929,6 +2031,9 @@
     document.getElementById("mobileReloadBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) startReloadRifle(state.players[myRole]);
     });
+    document.getElementById("mobileKatanaBtn").addEventListener("click", () => {
+      if ((mode === "online" || mode === "ai") && myRole) tryActivateKatanaSpin(state.players[myRole]);
+    });
 
     document.getElementById("selectRifleBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "rifle");
@@ -1938,6 +2043,9 @@
     });
     document.getElementById("selectGrenadeBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "grenade");
+    });
+    document.getElementById("katanaSpinBtn").addEventListener("click", () => {
+      if ((mode === "online" || mode === "ai") && myRole) tryActivateKatanaSpin(state.players[myRole]);
     });
 
     // ==========================================
@@ -2055,7 +2163,7 @@
       const muzzleY = player.y + Math.sin(player.angle) * (PLAYER_RADIUS + 8);
       const bulletId = `${player.role}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 
-      spawnBulletLocal(player.role, muzzleX, muzzleY, player.angle, bulletId);
+      spawnBulletLocal(player.role, muzzleX, muzzleY, player.angle, bulletId, false);
       sfx.play("shoot");
 
       if (player.ammo <= 0) {
@@ -2070,6 +2178,7 @@
           x: Math.round(muzzleX),
           y: Math.round(muzzleY),
           angle: Number(player.angle.toFixed(3)),
+          deflected: false,
           clientTs: Date.now()
         }).catch(() => {});
       }
@@ -2116,16 +2225,18 @@
       }
     }
 
-    function spawnBulletLocal(owner, x, y, angle, id) {
+    function spawnBulletLocal(owner, x, y, angle, id, deflected = false) {
+      const spd = deflected ? BULLET_SPEED * 1.25 : BULLET_SPEED;
       state.bullets.push({
         id,
         owner,
         x,
         y,
-        vx: Math.cos(angle) * BULLET_SPEED,
-        vy: Math.sin(angle) * BULLET_SPEED,
-        life: 1.8,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+        life: 2.0,
         portalCooldown: 0,
+        deflected,
         trail: []
       });
     }
@@ -2269,6 +2380,7 @@
       deadPlayer.hp = 0;
       deadPlayer.respawnTimer = 2.2;
       deadPlayer.reloadTimer = 0;
+      deadPlayer.katanaSpinTimer = 0;
       deadPlayer.shield = 0;
       deadPlayer.rapidTimer = 0;
 
@@ -2304,6 +2416,7 @@
       p.hp = MAX_HP;
       p.ammo = RIFLE_MAG_SIZE;
       p.reloadTimer = 0;
+      p.katanaSpinTimer = 0;
       p.invulnTimer = 1.8;
       p.portalCooldown = 0.5;
       p.x = p.role === "p1" ? 110 : ARENA_W - 110;
@@ -2343,7 +2456,7 @@
     }
 
     // ==========================================
-    // 11. 智慧電腦機器人
+    // 11. 智慧電腦機器人（支援開啟武士刀鋒狂旋轉！）
     // ==========================================
     function updateAiBot(dt) {
       const bot = state.players.p2;
@@ -2365,14 +2478,16 @@
       let dodgeX = 0;
       let dodgeY = 0;
       let incomingDanger = false;
+      let nearbyBullets = 0;
 
-      if (diffCfg.dodgeChance > 0) {
-        for (const b of state.bullets) {
-          if (b.owner !== "p1") continue;
-          const dx = bot.x - b.x;
-          const dy = bot.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < 185) {
+      for (const b of state.bullets) {
+        if (b.owner !== "p1") continue;
+        const dx = bot.x - b.x;
+        const dy = bot.y - b.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 185) {
+          nearbyBullets++;
+          if (diffCfg.dodgeChance > 0 && bot.katanaSpinTimer <= 0) {
             const bLen = Math.hypot(b.vx, b.vy) || 1;
             const bDirX = b.vx / bLen;
             const bDirY = b.vy / bLen;
@@ -2392,7 +2507,19 @@
             }
           }
         }
+      }
 
+      const distToPlayer = Math.hypot(target.x - bot.x, target.y - bot.y);
+      const angleToPlayer = Math.atan2(target.y - bot.y, target.x - bot.x);
+
+      // 🤖 機器人在近距離交鋒或遭到密集子彈射擊時，機率啟動武士刀鋒狂旋轉！
+      if (bot.katanaSpinCooldown <= 0 && bot.katanaSpinTimer <= 0 && target.alive) {
+        if ((distToPlayer < 170 || nearbyBullets >= 2) && Math.random() < diffCfg.katanaChance * dt * 2.5) {
+          tryActivateKatanaSpin(bot);
+        }
+      }
+
+      if (diffCfg.dodgeChance > 0) {
         for (const g of state.grenades) {
           if (g.owner !== "p1") continue;
           const dx = bot.x - g.tx;
@@ -2414,10 +2541,11 @@
       let moveX = 0;
       let moveY = 0;
 
-      const distToPlayer = Math.hypot(target.x - bot.x, target.y - bot.y);
-      const angleToPlayer = Math.atan2(target.y - bot.y, target.x - bot.x);
-
-      if (state.powerup && (bot.hp < 80 || distToPlayer > 210)) {
+      // 如果機器人正在刀鋒狂轉，主動貼近玩家砍殺並反彈子彈！
+      if (bot.katanaSpinTimer > 0 && target.alive) {
+        moveX += Math.cos(angleToPlayer) * 1.25;
+        moveY += Math.sin(angleToPlayer) * 1.25;
+      } else if (state.powerup && (bot.hp < 80 || distToPlayer > 210)) {
         const pwAngle = Math.atan2(state.powerup.y - bot.y, state.powerup.x - bot.x);
         moveX += Math.cos(pwAngle);
         moveY += Math.sin(pwAngle);
@@ -2439,12 +2567,12 @@
         moveY += Math.cos(angleToPlayer) * botBrain.strafeDir * 0.85;
       }
 
-      if (incomingDanger) {
+      if (incomingDanger && bot.katanaSpinTimer <= 0) {
         moveX += dodgeX;
         moveY += dodgeY;
       }
 
-      const botSpeed = PLAYER_SPEED * diffCfg.speedMult;
+      const botSpeed = PLAYER_SPEED * diffCfg.speedMult * (bot.katanaSpinTimer > 0 ? 1.12 : 1.0);
       if (bot.dashTimer > 0) {
         bot.x += bot.dashDirX * DASH_SPEED * dt;
         bot.y += bot.dashDirY * DASH_SPEED * dt;
@@ -2541,6 +2669,62 @@
         if (p.invulnTimer > 0) p.invulnTimer -= dt;
         if (p.muzzleFlash > 0) p.muzzleFlash -= dt;
 
+        // ⚔️ 武士刀鋒狂旋轉計時器與近戰範圍斬擊判定
+        if (p.katanaSpinCooldown > 0) {
+          p.katanaSpinCooldown = Math.max(0, p.katanaSpinCooldown - dt);
+        }
+        if (p.katanaSlashTimer > 0) {
+          p.katanaSlashTimer = Math.max(0, p.katanaSlashTimer - dt);
+        }
+        if (p.katanaSpinTimer > 0) {
+          p.katanaSpinTimer = Math.max(0, p.katanaSpinTimer - dt);
+          p.katanaVisualAngle += dt * 28; // 高速狂轉角速度
+
+          // 旋轉風壓火花粒子
+          if (Math.random() < 0.55) {
+            const sparkAngle = p.katanaVisualAngle + (Math.random() - 0.5);
+            const sx = p.x + Math.cos(sparkAngle) * (KATANA_SPIN_RADIUS - 6);
+            const sy = p.y + Math.sin(sparkAngle) * (KATANA_SPIN_RADIUS - 6);
+            state.particles.push({
+              x: sx,
+              y: sy,
+              vx: -Math.sin(sparkAngle) * 90,
+              vy: Math.cos(sparkAngle) * 90,
+              life: 0.16,
+              maxLife: 0.16,
+              size: 2.5,
+              color: "#22d3ee"
+            });
+          }
+
+          // 近戰刀鋒殺傷力判定：敵人踏入刀光範圍內會連續受到斬擊傷害！
+          if (p.alive && !state.matchWinner && p.katanaSlashTimer <= 0) {
+            const enemyRole = r === "p1" ? "p2" : "p1";
+            const enemy = state.players[enemyRole];
+            if (enemy && enemy.alive) {
+              const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+              if (dist <= KATANA_SPIN_RADIUS + PLAYER_RADIUS) {
+                p.katanaSlashTimer = KATANA_SLASH_INTERVAL;
+                sfx.play("slash");
+                spawnExplosion((p.x + enemy.x) / 2, (p.y + enemy.y) / 2, "#22d3ee", 14);
+                addFloatingText(enemy.x, enemy.y - 34, "⚔️ 刀鋒斬擊！", "#22d3ee");
+
+                if (mode === "local" || mode === "ai") {
+                  applyDamageToLocalPlayer(enemyRole, KATANA_SLASH_DAMAGE, r);
+                } else if (mode === "online" && r === myRole) {
+                  push(ref(db, `${DB_ROOT}/${roomId}/events`), {
+                    type: "hit",
+                    from: myRole,
+                    target: enemyRole,
+                    damage: KATANA_SLASH_DAMAGE,
+                    clientTs: Date.now()
+                  }).catch(() => {});
+                }
+              }
+            }
+          }
+        }
+
         if (p.reloadTimer > 0) {
           p.reloadTimer -= dt;
           if (p.reloadTimer <= 0) {
@@ -2601,14 +2785,17 @@
         my += moveStick.dy;
       }
 
+      // 刀鋒狂旋轉期間移動速度小幅提升 10%
+      const moveSpeed = me.katanaSpinTimer > 0 ? PLAYER_SPEED * 1.1 : PLAYER_SPEED;
+
       if (me.dashTimer > 0) {
         me.x += me.dashDirX * DASH_SPEED * dt;
         me.y += me.dashDirY * DASH_SPEED * dt;
       } else if (mx !== 0 || my !== 0) {
         const len = Math.hypot(mx, my);
         const speedScale = Math.min(1, len);
-        me.x += (mx / len) * PLAYER_SPEED * speedScale * dt;
-        me.y += (my / len) * PLAYER_SPEED * speedScale * dt;
+        me.x += (mx / len) * moveSpeed * speedScale * dt;
+        me.y += (my / len) * moveSpeed * speedScale * dt;
       }
 
       resolvePlayerObstacles(me);
@@ -2626,7 +2813,6 @@
             x: me.x + Math.cos(me.angle) * throwDist,
             y: me.y + Math.sin(me.angle) * throwDist
           };
-          // 若為步槍，推桿超過 35% 即連發；若為手榴彈，按住時只瞄準、放開時才在 resetStick 觸發投擲！
           if (me.weapon === "rifle") {
             shouldAttack = stickMag > 0.35;
           } else {
@@ -2638,7 +2824,7 @@
       } else if (canvasTouching) {
         me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
         if (me.weapon === "grenade") {
-          shouldAttack = false; // 觸控畫面拖曳手榴彈時也不提前發射，等 touchend 放開才丟
+          shouldAttack = false;
         }
       } else if (moveStick.active && Math.hypot(moveStick.dx, moveStick.dy) > 0.25) {
         me.angle = Math.atan2(moveStick.dy, moveStick.dx);
@@ -2676,12 +2862,13 @@
       if (p1.alive) {
         let mx = (keys["KeyD"] ? 1 : 0) - (keys["KeyA"] ? 1 : 0);
         let my = (keys["KeyS"] ? 1 : 0) - (keys["KeyW"] ? 1 : 0);
+        const spd = p1.katanaSpinTimer > 0 ? PLAYER_SPEED * 1.1 : PLAYER_SPEED;
         if (mx !== 0 || my !== 0) {
           p1.angle = Math.atan2(my, mx);
           const len = Math.hypot(mx, my);
           if (p1.dashTimer <= 0) {
-            p1.x += (mx / len) * PLAYER_SPEED * dt;
-            p1.y += (my / len) * PLAYER_SPEED * dt;
+            p1.x += (mx / len) * spd * dt;
+            p1.y += (my / len) * spd * dt;
           }
         }
         if (p1.dashTimer > 0) {
@@ -2697,12 +2884,13 @@
       if (p2.alive) {
         let mx = (keys["ArrowRight"] ? 1 : 0) - (keys["ArrowLeft"] ? 1 : 0);
         let my = (keys["ArrowDown"] ? 1 : 0) - (keys["ArrowUp"] ? 1 : 0);
+        const spd = p2.katanaSpinTimer > 0 ? PLAYER_SPEED * 1.1 : PLAYER_SPEED;
         if (mx !== 0 || my !== 0) {
           p2.angle = Math.atan2(my, mx);
           const len = Math.hypot(mx, my);
           if (p2.dashTimer <= 0) {
-            p2.x += (mx / len) * PLAYER_SPEED * dt;
-            p2.y += (my / len) * PLAYER_SPEED * dt;
+            p2.x += (mx / len) * spd * dt;
+            p2.y += (my / len) * spd * dt;
           }
         }
         if (p2.dashTimer > 0) {
@@ -2739,7 +2927,7 @@
         for (const obs of obstacles) {
           if (circleRectCollide(b.x, b.y, BULLET_RADIUS, obs.x, obs.y, obs.w, obs.h)) {
             hitWall = true;
-            spawnExplosion(b.x, b.y, b.owner === "p1" ? "#fbbf24" : "#fb7185", 6);
+            spawnExplosion(b.x, b.y, b.deflected ? "#22d3ee" : (b.owner === "p1" ? "#fbbf24" : "#fb7185"), 6);
             break;
           }
         }
@@ -2752,20 +2940,66 @@
         const target = state.players[targetRole];
         if (target.alive) {
           const dist = Math.hypot(b.x - target.x, b.y - target.y);
+
+          // ⚔️ 優先判定：若目標正在「武士刀鋒狂旋轉」，在刀光半徑內直接反彈子彈！
+          if (target.katanaSpinTimer > 0 && dist < KATANA_SPIN_RADIUS + BULLET_RADIUS) {
+            const oldOwner = b.owner;
+            b.owner = targetRole; // 子彈擁有者反轉為反彈者！
+            b.deflected = true;
+            b.life = 1.9;
+            b.trail = [];
+
+            // 精準朝原射手（或徑向法線）高速反彈回去！
+            const attacker = state.players[oldOwner];
+            let reflectAngle;
+            if (attacker && attacker.alive) {
+              reflectAngle = Math.atan2(attacker.y - b.y, attacker.x - b.x);
+            } else {
+              reflectAngle = Math.atan2(b.y - target.y, b.x - target.x);
+            }
+
+            const deflectSpeed = BULLET_SPEED * 1.25;
+            b.vx = Math.cos(reflectAngle) * deflectSpeed;
+            b.vy = Math.sin(reflectAngle) * deflectSpeed;
+            // 將子彈推出刀圈外避免重複觸發
+            b.x = target.x + Math.cos(reflectAngle) * (KATANA_SPIN_RADIUS + BULLET_RADIUS + 6);
+            b.y = target.y + Math.sin(reflectAngle) * (KATANA_SPIN_RADIUS + BULLET_RADIUS + 6);
+
+            sfx.play("deflect");
+            spawnExplosion(b.x, b.y, "#22d3ee", 12);
+            addFloatingText(target.x, target.y - 36, "⚔️ 彈反！", "#22d3ee");
+
+            // 線上模式同步反彈子彈給對手
+            if (mode === "online" && targetRole === myRole && roomId) {
+              push(ref(db, `${DB_ROOT}/${roomId}/bullets`), {
+                id: `def_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                owner: myRole,
+                x: Math.round(b.x),
+                y: Math.round(b.y),
+                angle: Number(reflectAngle.toFixed(3)),
+                deflected: true,
+                clientTs: Date.now()
+              }).catch(() => {});
+            }
+            continue;
+          }
+
+          // 一般子彈命中玩家判定
           if (dist < PLAYER_RADIUS + BULLET_RADIUS) {
             state.bullets.splice(i, 1);
+            const dmg = b.deflected ? 25 : 20; // 反彈回去的子彈威力更強！
 
             if (mode === "local" || mode === "ai") {
-              applyDamageToLocalPlayer(targetRole, 20, b.owner);
+              applyDamageToLocalPlayer(targetRole, dmg, b.owner);
             } else if (mode === "online") {
               if (b.owner === myRole) {
-                spawnExplosion(b.x, b.y, "#fbbf24", 10);
+                spawnExplosion(b.x, b.y, b.deflected ? "#22d3ee" : "#fbbf24", 10);
                 sfx.play("hit");
                 push(ref(db, `${DB_ROOT}/${roomId}/events`), {
                   type: "hit",
                   from: myRole,
                   target: targetRole,
-                  damage: 20,
+                  damage: dmg,
                   clientTs: Date.now()
                 }).catch(() => {});
               }
@@ -2877,6 +3111,7 @@
         weapon: me.weapon,
         ammo: me.ammo,
         reloading: me.reloadTimer > 0,
+        katanaSpin: me.katanaSpinTimer > 0,
         shield: me.shield,
         rapid: me.rapidTimer > 0,
         dashing: me.dashTimer > 0
@@ -2895,12 +3130,12 @@
 
       const p1 = state.players.p1;
       const p2 = state.players.p2;
-      document.getElementById("hudP1Weapon").textContent = p1.weapon === "grenade"
-        ? "💣 手榴彈"
-        : (p1.reloadTimer > 0 ? "🔄 換彈中" : `🔫 ${p1.ammo}/${RIFLE_MAG_SIZE}`);
-      document.getElementById("hudP2Weapon").textContent = p2.weapon === "grenade"
-        ? "💣 手榴彈"
-        : (p2.reloadTimer > 0 ? "🔄 換彈中" : `🔫 ${p2.ammo}/${RIFLE_MAG_SIZE}`);
+      document.getElementById("hudP1Weapon").textContent = p1.katanaSpinTimer > 0
+        ? `⚔️ 狂轉 ${p1.katanaSpinTimer.toFixed(1)}s`
+        : (p1.weapon === "grenade" ? "💣 手榴彈" : (p1.reloadTimer > 0 ? "🔄 換彈中" : `🔫 ${p1.ammo}/${RIFLE_MAG_SIZE}`));
+      document.getElementById("hudP2Weapon").textContent = p2.katanaSpinTimer > 0
+        ? `⚔️ 狂轉 ${p2.katanaSpinTimer.toFixed(1)}s`
+        : (p2.weapon === "grenade" ? "💣 手榴彈" : (p2.reloadTimer > 0 ? "🔄 換彈中" : `🔫 ${p2.ammo}/${RIFLE_MAG_SIZE}`));
 
       if ((mode === "online" || mode === "ai") && myRole) {
         const me = state.players[myRole];
@@ -2912,24 +3147,29 @@
         const cdText = document.getElementById("grenadeCdText");
         const aimHint = document.getElementById("aimStickHintText");
 
+        const katanaBtn = document.getElementById("katanaSpinBtn");
+        const katanaOverlay = document.getElementById("katanaCdOverlay");
+        const katanaText = document.getElementById("katanaCdText");
+        const mobKatanaState = document.getElementById("mobileKatanaState");
+
         if (me.weapon === "rifle") {
-          rifleBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
-          grenadeBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
+          rifleBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
+          grenadeBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
           if (aimHint) aimHint.textContent = "🎯 推桿瞄準並連發";
         } else {
-          rifleBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
-          grenadeBtn.className = "col-span-5 relative overflow-hidden flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.2)] whitespace-nowrap";
+          rifleBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
+          grenadeBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.2)] whitespace-nowrap";
           if (aimHint) aimHint.textContent = "💣 拖曳瞄準・放開投擲";
         }
 
         if (me.reloadTimer > 0) {
           const pct = Math.max(0, Math.min(1, 1 - me.reloadTimer / me.reloadDuration));
           reloadOverlay.style.transform = `scaleX(${pct})`;
-          ammoText.textContent = `換彈 ${me.reloadTimer.toFixed(1)}秒`;
+          ammoText.textContent = `${me.reloadTimer.toFixed(1)}s`;
           ammoText.className = "relative z-10 text-[11px] sm:text-xs text-amber-300 font-black";
         } else {
           reloadOverlay.style.transform = "scaleX(0)";
-          ammoText.textContent = `${me.ammo} / ${RIFLE_MAG_SIZE}`;
+          ammoText.textContent = `${me.ammo}/${RIFLE_MAG_SIZE}`;
           ammoText.className = me.ammo <= 4
             ? "relative z-10 text-[11px] sm:text-xs text-rose-400 font-black animate-pulse"
             : "relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black";
@@ -2938,17 +3178,40 @@
         const cdRatio = Math.max(0, Math.min(1, me.grenadeCooldown / GRENADE_COOLDOWN));
         cdOverlay.style.transform = `scaleX(${cdRatio})`;
         if (me.grenadeCooldown > 0) {
-          cdText.textContent = `${me.grenadeCooldown.toFixed(1)}秒`;
+          cdText.textContent = `${me.grenadeCooldown.toFixed(1)}s`;
           cdText.className = "relative z-10 text-[11px] text-orange-300 font-bold";
         } else {
           cdText.textContent = "就緒";
           cdText.className = "relative z-10 text-[11px] text-emerald-400 font-bold";
         }
+
+        // ⚔️ 更新武士刀鋒狂旋轉按鈕狀態
+        if (me.katanaSpinTimer > 0) {
+          const activePct = Math.max(0, Math.min(1, me.katanaSpinTimer / KATANA_SPIN_DURATION));
+          katanaBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border-2 border-cyan-300 bg-cyan-500/35 text-white font-black text-xs sm:text-sm transition shadow-[0_0_18px_rgba(34,211,238,0.55)] whitespace-nowrap";
+          katanaOverlay.style.transform = `scaleX(${activePct})`;
+          katanaText.textContent = `狂轉 ${me.katanaSpinTimer.toFixed(1)}s`;
+          katanaText.className = "relative z-10 text-[11px] text-yellow-200 font-black animate-pulse";
+          if (mobKatanaState) mobKatanaState.textContent = `(${me.katanaSpinTimer.toFixed(1)}s)`;
+        } else if (me.katanaSpinCooldown > 0) {
+          const cdPct = Math.max(0, Math.min(1, me.katanaSpinCooldown / KATANA_SPIN_COOLDOWN));
+          katanaBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-400 font-black text-xs sm:text-sm transition whitespace-nowrap";
+          katanaOverlay.style.transform = `scaleX(${cdPct})`;
+          katanaText.textContent = `${Math.ceil(me.katanaSpinCooldown)}s`;
+          katanaText.className = "relative z-10 text-[11px] text-slate-400 font-bold";
+          if (mobKatanaState) mobKatanaState.textContent = `(${Math.ceil(me.katanaSpinCooldown)}s)`;
+        } else {
+          katanaBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-cyan-400 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(34,211,238,0.25)] whitespace-nowrap";
+          katanaOverlay.style.transform = "scaleX(0)";
+          katanaText.textContent = "就緒";
+          katanaText.className = "relative z-10 text-[11px] text-cyan-300 font-black";
+          if (mobKatanaState) mobKatanaState.textContent = "(就緒)";
+        }
       }
     }
 
     // ==========================================
-    // 13. 霓虹競技場畫布渲染
+    // 13. 霓虹競技場畫布渲染（含雙武士刀高速斬擊刀光特效）
     // ==========================================
     function renderArena() {
       const map = getCurrentMap();
@@ -3085,21 +3348,24 @@
         ctx.restore();
       }
 
+      // 子彈渲染（被武士刀反彈的子彈會呈青藍色高能電弧）
       for (const b of state.bullets) {
-        const color = b.owner === "p1" ? "#fbbf24" : "#fb7185";
+        const color = b.deflected ? "#22d3ee" : (b.owner === "p1" ? "#fbbf24" : "#fb7185");
         for (let i = 0; i < b.trail.length; i++) {
           const t = b.trail[i];
-          const alpha = ((i + 1) / b.trail.length) * 0.45;
-          ctx.fillStyle = b.owner === "p1" ? `rgba(251, 191, 36, ${alpha})` : `rgba(251, 113, 133, ${alpha})`;
+          const alpha = ((i + 1) / b.trail.length) * 0.55;
+          ctx.fillStyle = b.deflected
+            ? `rgba(34, 211, 238, ${alpha})`
+            : (b.owner === "p1" ? `rgba(251, 191, 36, ${alpha})` : `rgba(251, 113, 133, ${alpha})`);
           ctx.beginPath();
-          ctx.arc(t.x, t.y, BULLET_RADIUS * ((i + 1) / b.trail.length), 0, Math.PI * 2);
+          ctx.arc(t.x, t.y, (b.deflected ? BULLET_RADIUS * 1.3 : BULLET_RADIUS) * ((i + 1) / b.trail.length), 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.shadowColor = color;
-        ctx.shadowBlur = 12;
-        ctx.fillStyle = "#fffbeb";
+        ctx.shadowBlur = b.deflected ? 16 : 12;
+        ctx.fillStyle = b.deflected ? "#cffafe" : "#fffbeb";
         ctx.beginPath();
-        ctx.arc(b.x, b.y, BULLET_RADIUS, 0, Math.PI * 2);
+        ctx.arc(b.x, b.y, b.deflected ? BULLET_RADIUS * 1.25 : BULLET_RADIUS, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -3181,7 +3447,7 @@
       }
       ctx.globalAlpha = 1;
 
-      // 準星與手榴彈拋物範圍（電腦模式、手機推右搖桿或觸控畫面拖曳時即時顯示）
+      // 準星與手榴彈拋物範圍
       if ((mode === "online" || mode === "ai") && myRole && state.players[myRole].alive) {
         const me = state.players[myRole];
         const showAimPreview = !isMobileMode || aimStick.active || canvasTouching;
@@ -3221,7 +3487,6 @@
             ctx.fill();
             ctx.stroke();
 
-            // 手機瞄準提示文字
             if (isMobileMode && (aimStick.active || canvasTouching)) {
               ctx.setLineDash([]);
               ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
@@ -3243,7 +3508,6 @@
             ctx.lineTo(mouse.x, mouse.y + 16);
             ctx.stroke();
           } else if (aimStick.active && stickMag > 0.12) {
-            // 手機版步槍推右搖桿時的雷射瞄準線
             ctx.save();
             ctx.strokeStyle = "rgba(251, 191, 36, 0.45)";
             ctx.lineWidth = 1.5;
@@ -3279,6 +3543,58 @@
 
       if (p.invulnTimer > 0 && Math.floor(performance.now() / 80) % 2 === 0) {
         ctx.globalAlpha = 0.45;
+      }
+
+      // ⚔️ 渲染武士刀鋒狂旋轉力場與雙刀殘影
+      if (p.katanaSpinTimer > 0) {
+        ctx.save();
+        const spin = p.katanaVisualAngle || (performance.now() / 35);
+
+        // 青藍色刀鋒風暴氣場外環
+        const auraGrad = ctx.createRadialGradient(0, 0, PLAYER_RADIUS, 0, 0, KATANA_SPIN_RADIUS);
+        auraGrad.addColorStop(0, "rgba(34, 211, 238, 0.05)");
+        auraGrad.addColorStop(0.75, "rgba(34, 211, 238, 0.22)");
+        auraGrad.addColorStop(1, "rgba(165, 243, 252, 0.45)");
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, KATANA_SPIN_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 旋轉刀光弧線殘影
+        ctx.rotate(spin);
+        for (let b = 0; b < 2; b++) {
+          ctx.save();
+          ctx.rotate(b * Math.PI);
+
+          // 扇形劍氣拖尾
+          ctx.strokeStyle = "rgba(34, 211, 238, 0.75)";
+          ctx.lineWidth = 6;
+          ctx.shadowColor = "#22d3ee";
+          ctx.shadowBlur = 16;
+          ctx.beginPath();
+          ctx.arc(0, 0, KATANA_SPIN_RADIUS - 4, -0.95, 0.12);
+          ctx.stroke();
+
+          // 武士刀刀柄與雪亮刀身
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = "#0f172a";
+          ctx.fillRect(PLAYER_RADIUS - 2, -2.5, 10, 5); // 刀柄
+          ctx.fillStyle = "#f59e0b";
+          ctx.fillRect(PLAYER_RADIUS + 7, -5, 3, 10); // 刀鍔（護手）
+
+          // 鋒利銀白刀刃
+          ctx.fillStyle = "#f8fafc";
+          ctx.beginPath();
+          ctx.moveTo(PLAYER_RADIUS + 10, -3);
+          ctx.lineTo(KATANA_SPIN_RADIUS + 2, -1);
+          ctx.lineTo(KATANA_SPIN_RADIUS + 5, 2.5);
+          ctx.lineTo(PLAYER_RADIUS + 10, 3);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.restore();
+        }
+        ctx.restore();
       }
 
       if (p.shield > 0) {
@@ -3340,10 +3656,10 @@
         }
       }
 
-      ctx.shadowColor = mainColor;
+      ctx.shadowColor = p.katanaSpinTimer > 0 ? "#22d3ee" : mainColor;
       ctx.shadowBlur = 14;
       ctx.fillStyle = darkColor;
-      ctx.strokeStyle = mainColor;
+      ctx.strokeStyle = p.katanaSpinTimer > 0 ? "#22d3ee" : mainColor;
       ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.arc(0, 0, PLAYER_RADIUS, 0, Math.PI * 2);
@@ -3351,7 +3667,7 @@
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      ctx.fillStyle = mainColor;
+      ctx.fillStyle = p.katanaSpinTimer > 0 ? "#67e8f9" : mainColor;
       ctx.beginPath();
       ctx.arc(4, 0, 6, 0, Math.PI * 2);
       ctx.fill();
