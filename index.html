@@ -111,11 +111,11 @@
     <section id="lobbyView" class="w-full max-w-4xl bg-slate-900/85 border border-slate-700/70 backdrop-blur-xl rounded-2xl p-4 sm:p-7 shadow-2xl">
       <div class="text-center mb-5">
         <h2 class="text-2xl sm:text-3xl font-black text-slate-100 tracking-wide mb-1.5">競技場連線大廳</h2>
-        <p class="text-slate-300/80 text-xs sm:text-sm">步槍 15 發彈匣＋手榴彈＋⚔️ 武士刀鋒狂轉（5秒反彈子彈＆近戰斬殺）！</p>
+        <p class="text-slate-300/80 text-xs sm:text-sm">戰前挑選三大主武器＋手榴彈＋⚔️ 武士刀鋒狂轉（5秒反彈子彈＆近戰斬殺）！</p>
       </div>
 
       <!-- 玩家暱稱與 NPC 難度設定 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-4">
         <div class="bg-slate-950/75 p-3.5 rounded-xl border border-slate-700/70">
           <label class="block text-xs font-bold tracking-wider text-amber-400 mb-1.5">你的戰士暱稱</label>
           <div class="flex gap-2">
@@ -144,6 +144,15 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- ⚔️ 新增：戰前主武器選單（3 選 1） -->
+      <div class="bg-slate-950/75 p-4 rounded-xl border border-amber-500/40 mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <label class="text-xs sm:text-sm font-black tracking-wider text-amber-300">🔫 選擇出戰主武器（3 選 1，另附手榴彈＋刀鋒狂轉）</label>
+          <span id="selectedWeaponSummary" class="text-[11px] text-emerald-300 font-bold">目前裝備：🔫 突擊步槍</span>
+        </div>
+        <div id="lobbyWeaponGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
       </div>
 
       <!-- 戰場地圖選擇區 -->
@@ -309,11 +318,11 @@
 
       <!-- 武器、換彈與武士刀鋒狂旋轉狀態列 -->
       <div id="weaponSelectorBar" class="w-full max-w-[1000px] mt-2 grid grid-cols-12 gap-1.5 sm:gap-2 px-1">
-        <button id="selectRifleBtn" type="button" class="col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
+        <button id="selectPrimaryBtn" type="button" class="col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
           <div id="reloadProgressOverlay" class="absolute inset-0 bg-amber-400/25 origin-left transition-transform duration-75" style="transform: scaleX(0)"></div>
           <span class="relative z-10 hidden sm:inline px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 text-[10px] border border-amber-500/40">1</span>
-          <span class="relative z-10">🔫 步槍</span>
-          <span id="rifleAmmoText" class="relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black">15/15</span>
+          <span id="primaryBtnLabel" class="relative z-10">🔫 步槍</span>
+          <span id="primaryAmmoText" class="relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black">15/15</span>
         </button>
 
         <button id="manualReloadBtn" type="button" class="col-span-2 flex items-center justify-center gap-1 py-2 px-1 rounded-xl border border-emerald-500/50 bg-emerald-500/15 hover:bg-emerald-500/25 active:bg-emerald-500/40 text-emerald-200 font-black text-xs sm:text-sm transition whitespace-nowrap">
@@ -348,7 +357,7 @@
           <span class="text-[10px] text-amber-300/80 font-bold mt-1">🕹️ 移動搖桿</span>
         </div>
 
-        <!-- 中間：戰術功能快捷鍵（新增武士刀鋒狂旋轉） -->
+        <!-- 中間：戰術功能快捷鍵 -->
         <div class="flex flex-col items-center justify-center gap-1.5 flex-1 max-w-[136px]">
           <button id="mobileKatanaBtn" type="button" class="w-full py-2 rounded-xl bg-cyan-500/25 active:bg-cyan-500/55 border border-cyan-400 text-cyan-200 font-black text-xs shadow">
             ⚔️ 刀鋒狂轉 <span id="mobileKatanaState" class="text-[10px] text-cyan-300">(就緒)</span>
@@ -366,7 +375,7 @@
           </div>
         </div>
 
-        <!-- 右側：360° 瞄準搖桿（步槍按住連發／手榴彈拖曳瞄準、放開投擲） -->
+        <!-- 右側：360° 瞄準搖桿 -->
         <div class="flex flex-col items-center">
           <div id="aimJoystickZone" class="joystick-zone w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-slate-950/90 border-2 border-rose-500/55 shadow-[inset_0_0_20px_rgba(244,63,94,0.18)] flex items-center justify-center">
             <div class="w-16 h-16 rounded-full border border-dashed border-slate-700 pointer-events-none"></div>
@@ -385,11 +394,11 @@
           <span><b class="text-amber-300">左鍵 / 空白鍵</b>：開火 / 投擲</span>
           <span><b class="text-cyan-300">E 鍵</b>：武士刀鋒狂轉（5秒反彈子彈＋近戰斬殺）</span>
           <span><b class="text-emerald-300">R 鍵</b>：換彈</span>
-          <span><b class="text-sky-300">1 / 2 / Q</b>：切換武器</span>
+          <span><b class="text-sky-300">1 / 2 / Q</b>：切換主武器與手榴彈</span>
         </div>
         <div id="mobileControlsLegend" class="hidden flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
           <span><b class="text-cyan-300">⚔️ 刀鋒狂轉</b>：5秒反彈子彈＋近戰斬擊</span>
-          <span><b class="text-rose-300">右搖桿</b>：步槍按住連發／手榴彈放開投擲</span>
+          <span><b class="text-rose-300">右搖桿</b>：主武器按住射擊／手榴彈放開投擲</span>
         </div>
         <div id="localControlsLegend" class="hidden flex-wrap items-center gap-x-4 gap-y-1">
           <span class="text-amber-300 font-bold">【一方】WASD ＋ F/空白 攻擊 ＋ E 刀鋒狂轉 ＋ R 換彈 ＋ Q 切武器</span>
@@ -478,7 +487,7 @@
     }, { once: true, passive: true });
 
     // ==========================================
-    // 3. 網頁音效合成器（新增刀鋒狂轉、反彈、斬擊音效）
+    // 3. 網頁音效合成器（新增散彈槍、狙擊槍與刀鋒狂轉音效）
     // ==========================================
     class SoundFX {
       constructor() {
@@ -503,7 +512,7 @@
           osc.connect(gain);
           gain.connect(this.ctx.destination);
 
-          if (type === "shoot") {
+          if (type === "shoot" || type === "rifle") {
             osc.type = "sawtooth";
             osc.frequency.setValueAtTime(640, now);
             osc.frequency.exponentialRampToValueAtTime(150, now + 0.09);
@@ -511,8 +520,23 @@
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
             osc.start(now);
             osc.stop(now + 0.09);
+          } else if (type === "shotgun") {
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.exponentialRampToValueAtTime(48, now + 0.18);
+            gain.gain.setValueAtTime(0.24, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+            osc.start(now);
+            osc.stop(now + 0.19);
+          } else if (type === "sniper") {
+            osc.type = "square";
+            osc.frequency.setValueAtTime(1180, now);
+            osc.frequency.exponentialRampToValueAtTime(95, now + 0.22);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+            osc.start(now);
+            osc.stop(now + 0.23);
           } else if (type === "katanaStart") {
-            // 武士刀出鞘＋狂風旋轉音效
             osc.type = "sawtooth";
             osc.frequency.setValueAtTime(420, now);
             osc.frequency.exponentialRampToValueAtTime(1380, now + 0.14);
@@ -522,7 +546,6 @@
             osc.start(now);
             osc.stop(now + 0.35);
           } else if (type === "deflect") {
-            // 金屬武士刀反彈子彈清脆叮噹聲
             osc.type = "triangle";
             osc.frequency.setValueAtTime(1450, now);
             osc.frequency.exponentialRampToValueAtTime(2200, now + 0.08);
@@ -531,7 +554,6 @@
             osc.start(now);
             osc.stop(now + 0.11);
           } else if (type === "slash") {
-            // 刀鋒劈砍音效
             osc.type = "sawtooth";
             osc.frequency.setValueAtTime(880, now);
             osc.frequency.exponentialRampToValueAtTime(210, now + 0.11);
@@ -626,7 +648,7 @@
     const sfx = new SoundFX();
 
     // ==========================================
-    // 4. 競技場常數、武士刀鋒狂旋轉、地圖與機器人設定
+    // 4. 三大主武器設定、武士刀鋒狂轉、地圖與機器人
     // ==========================================
     const ARENA_W = 1000;
     const ARENA_H = 650;
@@ -641,8 +663,81 @@
     const WIN_SCORE = 5;
     const PORTAL_RADIUS = 24;
 
-    const RIFLE_MAG_SIZE = 15;
-    const RIFLE_RELOAD_TIME = 1.15;
+    // 🔫 三大主武器資料庫
+    const PRIMARY_WEAPONS = {
+      rifle: {
+        id: "rifle",
+        name: "突擊步槍",
+        shortName: "🔫 步槍",
+        icon: "🔫",
+        tag: "均衡連射・15發彈匣",
+        desc: "射速穩定、中遠距離全方位壓制，容錯率最高",
+        magSize: 15,
+        reloadTime: 1.15,
+        fireRate: 0.25,
+        rapidFireRate: 0.14,
+        damage: 20,
+        bulletSpeed: 760,
+        bulletRadius: 5,
+        pellets: 1,
+        spread: 0,
+        bulletLife: 2.0,
+        barrelLen: 22,
+        barrelWidth: 10,
+        barrelColor: "#e2e8f0",
+        sfxType: "rifle"
+      },
+      shotgun: {
+        id: "shotgun",
+        name: "重型散彈槍",
+        shortName: "💥 散彈槍",
+        icon: "💥",
+        tag: "近戰爆發・5彈丸齊射",
+        desc: "一次噴射 5 發鋼珠彈，貼身瞬間最高 55 傷害！",
+        magSize: 6,
+        reloadTime: 1.35,
+        fireRate: 0.65,
+        rapidFireRate: 0.38,
+        damage: 11,
+        bulletSpeed: 680,
+        bulletRadius: 4,
+        pellets: 5,
+        spread: 0.26,
+        bulletLife: 0.58,
+        barrelLen: 20,
+        barrelWidth: 13,
+        barrelColor: "#fb923c",
+        sfxType: "shotgun"
+      },
+      sniper: {
+        id: "sniper",
+        name: "電磁狙擊槍",
+        shortName: "🎯 狙擊槍",
+        icon: "🎯",
+        tag: "超遠穿甲・68高傷",
+        desc: "附帶雷射瞄準線，極速重型彈頭一槍重創對手！",
+        magSize: 4,
+        reloadTime: 1.65,
+        fireRate: 0.95,
+        rapidFireRate: 0.55,
+        damage: 68,
+        bulletSpeed: 1220,
+        bulletRadius: 6.5,
+        pellets: 1,
+        spread: 0,
+        bulletLife: 2.4,
+        barrelLen: 30,
+        barrelWidth: 7,
+        barrelColor: "#38bdf8",
+        sfxType: "sniper"
+      }
+    };
+
+    let selectedPrimaryWeaponId = "rifle";
+
+    function getPrimaryCfg(weaponId) {
+      return PRIMARY_WEAPONS[weaponId] || PRIMARY_WEAPONS.rifle;
+    }
 
     const GRENADE_MAX_RANGE = 430;
     const GRENADE_SPEED = 540;
@@ -652,11 +747,11 @@
     const GRENADE_COOLDOWN = 2.4;
 
     // ⚔️ 武士刀鋒狂旋轉技能常數
-    const KATANA_SPIN_COOLDOWN = 30.0;   // 30 秒一次
-    const KATANA_SPIN_DURATION = 5.0;    // 連續旋轉 5 秒
-    const KATANA_SPIN_RADIUS = 56;       // 刀鋒旋轉力場半徑（涵蓋刀身）
-    const KATANA_SLASH_DAMAGE = 28;      // 每次近戰斬擊傷害
-    const KATANA_SLASH_INTERVAL = 0.25;  // 每 0.25 秒可造成一次斬擊（每秒約 112 傷害）
+    const KATANA_SPIN_COOLDOWN = 30.0;
+    const KATANA_SPIN_DURATION = 5.0;
+    const KATANA_SPIN_RADIUS = 56;
+    const KATANA_SLASH_DAMAGE = 28;
+    const KATANA_SLASH_INTERVAL = 0.25;
 
     const MAPS = {
       classic: {
@@ -861,8 +956,8 @@
 
     const state = {
       players: {
-        p1: createPlayerObj("p1", "金焰戰士", 110, ARENA_H / 2, 0),
-        p2: createPlayerObj("p2", "緋紅獵手", ARENA_W - 110, ARENA_H / 2, Math.PI)
+        p1: createPlayerObj("p1", "金焰戰士", 110, ARENA_H / 2, 0, "rifle"),
+        p2: createPlayerObj("p2", "緋紅獵手", ARENA_W - 110, ARENA_H / 2, Math.PI, "rifle")
       },
       remoteTarget: {
         x: ARENA_W - 110,
@@ -882,7 +977,8 @@
       lastPowerupSpawn: 0
     };
 
-    function createPlayerObj(role, name, x, y, angle) {
+    function createPlayerObj(role, name, x, y, angle, primaryWeapon = "rifle") {
+      const wCfg = getPrimaryCfg(primaryWeapon);
       return {
         role,
         name,
@@ -897,13 +993,13 @@
         dashDirX: 0,
         dashDirY: 0,
         portalCooldown: 0,
-        weapon: "rifle",
-        ammo: RIFLE_MAG_SIZE,
+        primaryWeapon: wCfg.id,
+        weapon: "primary", // "primary" 或 "grenade"
+        ammo: wCfg.magSize,
         reloadTimer: 0,
-        reloadDuration: RIFLE_RELOAD_TIME,
+        reloadDuration: wCfg.reloadTime,
         fireCooldown: 0,
         grenadeCooldown: 0,
-        // ⚔️ 武士刀鋒狂旋轉狀態
         katanaSpinTimer: 0,
         katanaSpinCooldown: 0,
         katanaSlashTimer: 0,
@@ -916,7 +1012,7 @@
     }
 
     // ==========================================
-    // 6. 畫面元素參照與地圖選擇 UI 渲染
+    // 6. 畫面元素參照與大廳武器／地圖選單渲染
     // ==========================================
     const lobbyView = document.getElementById("lobbyView");
     const gameView = document.getElementById("gameView");
@@ -927,6 +1023,44 @@
     const inGameDiffSelect = document.getElementById("inGameDiffSelect");
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+
+    // 🔫 渲染大廳 3 把主武器選單
+    function renderWeaponSelectors() {
+      const grid = document.getElementById("lobbyWeaponGrid");
+      const summary = document.getElementById("selectedWeaponSummary");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      Object.values(PRIMARY_WEAPONS).forEach((w) => {
+        const isSelected = w.id === selectedPrimaryWeaponId;
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = isSelected
+          ? "text-left p-3 rounded-xl border-2 border-amber-400 bg-amber-500/20 shadow-[0_0_16px_rgba(251,191,36,0.25)] transition"
+          : "text-left p-3 rounded-xl border border-slate-700 bg-slate-900/90 hover:border-amber-400/60 transition";
+
+        const totalBurst = w.damage * w.pellets;
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-black text-sm sm:text-base ${isSelected ? "text-amber-200" : "text-slate-100"}">${w.icon} ${w.name}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-950/90 border border-slate-700 text-amber-300 font-bold">彈匣 ${w.magSize}</span>
+          </div>
+          <div class="text-[11px] font-bold text-emerald-300 mb-1">${w.tag}（單發 ${totalBurst} 傷）</div>
+          <div class="text-[11px] text-slate-400 leading-snug">${w.desc}</div>
+        `;
+        card.addEventListener("click", () => {
+          selectedPrimaryWeaponId = w.id;
+          sfx.play("switch");
+          renderWeaponSelectors();
+        });
+        grid.appendChild(card);
+      });
+
+      const cur = getPrimaryCfg(selectedPrimaryWeaponId);
+      if (summary) {
+        summary.textContent = `目前裝備：${cur.icon} ${cur.name}（彈匣 ${cur.magSize} 發）`;
+      }
+    }
 
     function renderMapSelectors() {
       const lobbyGrid = document.getElementById("lobbyMapGrid");
@@ -980,6 +1114,7 @@
       }
     }
 
+    renderWeaponSelectors();
     renderMapSelectors();
 
     function setRandomNickname() {
@@ -1025,14 +1160,15 @@
 
     function switchPlayerWeapon(player, targetWeapon = null, silent = false) {
       if (!player) return;
-      const nextWeapon = targetWeapon || (player.weapon === "rifle" ? "grenade" : "rifle");
+      const nextWeapon = targetWeapon || (player.weapon === "primary" ? "grenade" : "primary");
       if (player.weapon === nextWeapon) return;
       player.weapon = nextWeapon;
 
       if (!silent) {
         sfx.play("switch");
-        const label = nextWeapon === "rifle" ? `🔫 突擊步槍 (${player.ammo}/${RIFLE_MAG_SIZE})` : "💣 高爆手榴彈";
-        addFloatingText(player.x, player.y - 32, label, nextWeapon === "rifle" ? "#fbbf24" : "#fb923c");
+        const wCfg = getPrimaryCfg(player.primaryWeapon);
+        const label = nextWeapon === "primary" ? `${wCfg.shortName} (${player.ammo}/${wCfg.magSize})` : "💣 高爆手榴彈";
+        addFloatingText(player.x, player.y - 32, label, nextWeapon === "primary" ? "#fbbf24" : "#fb923c");
       }
 
       if (mode === "online" && player.role === myRole) {
@@ -1040,15 +1176,16 @@
       }
     }
 
-    function startReloadRifle(player, silent = false) {
+    function startReloadPrimary(player, silent = false) {
       if (!player || !player.alive) return;
       if (player.reloadTimer > 0) return;
-      if (player.ammo >= RIFLE_MAG_SIZE) {
-        if (!silent) showToast("✅ 步槍彈匣已滿（15 / 15）", 1500);
+      const wCfg = getPrimaryCfg(player.primaryWeapon);
+      if (player.ammo >= wCfg.magSize) {
+        if (!silent) showToast(`✅ ${wCfg.name}彈匣已滿（${wCfg.magSize} / ${wCfg.magSize}）`, 1500);
         return;
       }
 
-      const dur = player.rapidTimer > 0 ? RIFLE_RELOAD_TIME * 0.55 : RIFLE_RELOAD_TIME;
+      const dur = player.rapidTimer > 0 ? wCfg.reloadTime * 0.55 : wCfg.reloadTime;
       player.reloadDuration = dur;
       player.reloadTimer = dur;
 
@@ -1062,7 +1199,6 @@
       }
     }
 
-    // ⚔️ 發動「武士刀鋒狂旋轉」（30秒一次、連續5秒）
     function tryActivateKatanaSpin(player, silent = false) {
       if (!player || !player.alive) return;
       if (player.katanaSpinTimer > 0) return;
@@ -1231,6 +1367,7 @@
       const myName = nicknameInput.value.trim() || "金焰戰士";
       const code = generateRoomCode();
       const roomRef = ref(db, `${DB_ROOT}/${code}`);
+      const wCfg = getPrimaryCfg(selectedPrimaryWeaponId);
 
       try {
         const snap = await get(roomRef);
@@ -1258,8 +1395,9 @@
               angle: 0,
               hp: MAX_HP,
               alive: true,
-              weapon: "rifle",
-              ammo: RIFLE_MAG_SIZE,
+              primaryWeapon: wCfg.id,
+              weapon: "primary",
+              ammo: wCfg.magSize,
               reloading: false,
               katanaSpin: false,
               shield: 0,
@@ -1291,6 +1429,7 @@
 
       const myName = nicknameInput.value.trim() || "緋紅獵手";
       const roomRef = ref(db, `${DB_ROOT}/${code}`);
+      const wCfg = getPrimaryCfg(selectedPrimaryWeaponId);
 
       try {
         const snap = await get(roomRef);
@@ -1322,8 +1461,9 @@
           angle: Math.PI,
           hp: MAX_HP,
           alive: true,
-          weapon: "rifle",
-          ammo: RIFLE_MAG_SIZE,
+          primaryWeapon: wCfg.id,
+          weapon: "primary",
+          ammo: wCfg.magSize,
           reloading: false,
           katanaSpin: false,
           shield: 0,
@@ -1390,8 +1530,22 @@
       myRole = role;
       currentMapId = selectedMapId;
 
-      state.players.p1 = createPlayerObj("p1", role === "p1" ? myName : "等待中...", 110, ARENA_H / 2, 0);
-      state.players.p2 = createPlayerObj("p2", role === "p2" ? myName : "等待中...", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.players.p1 = createPlayerObj(
+        "p1",
+        role === "p1" ? myName : "等待中...",
+        110,
+        ARENA_H / 2,
+        0,
+        role === "p1" ? selectedPrimaryWeaponId : "rifle"
+      );
+      state.players.p2 = createPlayerObj(
+        "p2",
+        role === "p2" ? myName : "等待中...",
+        ARENA_W - 110,
+        ARENA_H / 2,
+        Math.PI,
+        role === "p2" ? selectedPrimaryWeaponId : "rifle"
+      );
       state.remoteTarget = role === "p1"
         ? { x: ARENA_W - 110, y: ARENA_H / 2, angle: Math.PI }
         : { x: 110, y: ARENA_H / 2, angle: 0 };
@@ -1472,7 +1626,10 @@
         const p1Data = data.players?.p1;
         const p2Data = data.players?.p2;
 
-        if (p1Data) state.players.p1.name = p1Data.name || "金焰戰士";
+        if (p1Data) {
+          state.players.p1.name = p1Data.name || "金焰戰士";
+          if (p1Data.primaryWeapon) state.players.p1.primaryWeapon = p1Data.primaryWeapon;
+        }
         if (p2Data) {
           if (mode === "ai" && myRole === "p1" && p2Data.id !== "NPC機器人") {
             mode = "online";
@@ -1482,8 +1639,9 @@
             state.scores = { p1: 0, p2: 0 };
             state.bullets = [];
             state.grenades = [];
+            const myW = getPrimaryCfg(state.players.p1.primaryWeapon);
             state.players.p1.hp = MAX_HP;
-            state.players.p1.ammo = RIFLE_MAG_SIZE;
+            state.players.p1.ammo = myW.magSize;
             state.players.p1.reloadTimer = 0;
             state.players.p1.katanaSpinTimer = 0;
             state.players.p1.katanaSpinCooldown = 0;
@@ -1493,6 +1651,7 @@
           }
 
           state.players.p2.name = p2Data.name || "緋紅獵手";
+          if (p2Data.primaryWeapon) state.players.p2.primaryWeapon = p2Data.primaryWeapon;
           if (myRole === "p1" && !waitingOverlay.classList.contains("hidden")) {
             clearAutoBotTimer();
             waitingOverlay.classList.add("hidden");
@@ -1513,8 +1672,9 @@
             state.remoteTarget.angle = remoteData.angle;
             state.players[enemyRole].hp = remoteData.hp ?? MAX_HP;
             state.players[enemyRole].alive = remoteData.alive !== false;
-            state.players[enemyRole].weapon = remoteData.weapon || "rifle";
-            state.players[enemyRole].ammo = remoteData.ammo ?? RIFLE_MAG_SIZE;
+            state.players[enemyRole].primaryWeapon = remoteData.primaryWeapon || "rifle";
+            state.players[enemyRole].weapon = remoteData.weapon || "primary";
+            state.players[enemyRole].ammo = remoteData.ammo ?? getPrimaryCfg(state.players[enemyRole].primaryWeapon).magSize;
             state.players[enemyRole].reloadTimer = remoteData.reloading ? 0.5 : 0;
             state.players[enemyRole].katanaSpinTimer = remoteData.katanaSpin ? 0.5 : 0;
             state.players[enemyRole].shield = remoteData.shield || 0;
@@ -1546,9 +1706,16 @@
         if (!b || b.owner === myRole) return;
         if (b.clientTs && Date.now() - b.clientTs > 2500) return;
 
-        spawnBulletLocal(b.owner, b.x, b.y, b.angle, b.id || snap.key, b.deflected || false);
+        spawnBulletLocal(b.owner, b.x, b.y, b.angle, b.id || snap.key, {
+          deflected: b.deflected || false,
+          damage: b.damage || 20,
+          speed: b.speed || BULLET_SPEED,
+          radius: b.radius || BULLET_RADIUS,
+          life: b.life || 2.0,
+          weaponType: b.weaponType || "rifle"
+        });
         state.players[b.owner].muzzleFlash = 0.08;
-        sfx.play(b.deflected ? "deflect" : "shoot");
+        sfx.play(b.deflected ? "deflect" : (b.weaponType || "shoot"));
       });
       roomListeners.push(unsubBullets);
 
@@ -1580,6 +1747,11 @@
       roomListeners.push(unsubEvents);
     }
 
+    function pickRandomPrimaryWeapon() {
+      const ids = Object.keys(PRIMARY_WEAPONS);
+      return ids[Math.floor(Math.random() * ids.length)];
+    }
+
     async function summonBotIntoCurrentMatch(toastMsg = "🤖 已召喚電腦機器人加入對戰！", keepRoomOpen = true) {
       sfx.init();
       clearAutoBotTimer();
@@ -1590,15 +1762,18 @@
       myRole = "p1";
       currentMapId = selectedMapId;
       const diffCfg = BOT_DIFFICULTIES[selectedBotDifficulty];
+      const botWeapon = pickRandomPrimaryWeapon();
 
-      state.players.p2 = createPlayerObj("p2", `${diffCfg.botName}（${diffCfg.label}）`, ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.players.p2 = createPlayerObj("p2", `${diffCfg.botName}（${diffCfg.label}）`, ARENA_W - 110, ARENA_H / 2, Math.PI, botWeapon);
       state.bullets = [];
       state.grenades = [];
       state.shockwaves = [];
       state.scores = { p1: 0, p2: 0 };
       state.matchWinner = null;
+
+      const myW = getPrimaryCfg(state.players.p1.primaryWeapon);
       state.players.p1.hp = MAX_HP;
-      state.players.p1.ammo = RIFLE_MAG_SIZE;
+      state.players.p1.ammo = myW.magSize;
       state.players.p1.reloadTimer = 0;
       state.players.p1.katanaSpinTimer = 0;
       state.players.p1.katanaSpinCooldown = 0;
@@ -1630,9 +1805,10 @@
 
       const p1Name = nicknameInput.value.trim() || "金焰戰士";
       const diffCfg = BOT_DIFFICULTIES[selectedBotDifficulty];
+      const botWeapon = pickRandomPrimaryWeapon();
 
-      state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0);
-      state.players.p2 = createPlayerObj("p2", `${diffCfg.botName}（${diffCfg.label}）`, ARENA_W - 110, ARENA_H / 2, Math.PI);
+      state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0, selectedPrimaryWeaponId);
+      state.players.p2 = createPlayerObj("p2", `${diffCfg.botName}（${diffCfg.label}）`, ARENA_W - 110, ARENA_H / 2, Math.PI, botWeapon);
       state.bullets = [];
       state.grenades = [];
       state.shockwaves = [];
@@ -1657,7 +1833,9 @@
       document.getElementById("hudP2Badge").classList.add("hidden");
       detectDeviceMode();
 
-      showToast(`🤖 已進入【${getCurrentMap().name}】對戰！`);
+      const myW = getPrimaryCfg(selectedPrimaryWeaponId);
+      const botW = getPrimaryCfg(botWeapon);
+      showToast(`🤖 裝備【${myW.name}】對決電腦【${botW.name}】！`);
     }
 
     function startLocal2PMode() {
@@ -1669,8 +1847,12 @@
       currentMapId = selectedMapId;
 
       const p1Name = nicknameInput.value.trim() || "一方戰士";
-      state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0);
-      state.players.p2 = createPlayerObj("p2", "二方獵手", ARENA_W - 110, ARENA_H / 2, Math.PI);
+      // 同機雙人：一方使用大廳所選主武器，二方隨機配給不同主武器（或按 C 切換）
+      const p2Weapons = Object.keys(PRIMARY_WEAPONS).filter((id) => id !== selectedPrimaryWeaponId);
+      const p2Weapon = p2Weapons[Math.floor(Math.random() * p2Weapons.length)] || "shotgun";
+
+      state.players.p1 = createPlayerObj("p1", p1Name, 110, ARENA_H / 2, 0, selectedPrimaryWeaponId);
+      state.players.p2 = createPlayerObj("p2", "二方獵手", ARENA_W - 110, ARENA_H / 2, Math.PI, p2Weapon);
       state.bullets = [];
       state.grenades = [];
       state.shockwaves = [];
@@ -1696,7 +1878,7 @@
       document.getElementById("hudP1Badge").classList.add("hidden");
       document.getElementById("hudP2Badge").classList.add("hidden");
 
-      showToast(`🎮 已進入【${getCurrentMap().name}】同機雙人對戰！`);
+      showToast(`🎮 一方【${getPrimaryCfg(selectedPrimaryWeaponId).name}】vs 二方【${getPrimaryCfg(p2Weapon).name}】！`);
     }
 
     async function leaveRoom() {
@@ -1740,11 +1922,12 @@
 
         ["p1", "p2"].forEach((r) => {
           const p = state.players[r];
+          const wCfg = getPrimaryCfg(p.primaryWeapon);
           p.x = r === "p1" ? 110 : ARENA_W - 110;
           p.y = ARENA_H / 2;
           p.angle = r === "p1" ? 0 : Math.PI;
           p.hp = MAX_HP;
-          p.ammo = RIFLE_MAG_SIZE;
+          p.ammo = wCfg.magSize;
           p.reloadTimer = 0;
           p.katanaSpinTimer = 0;
           p.katanaSpinCooldown = 0;
@@ -1785,11 +1968,12 @@
       const spawnX = myRole === "p1" ? 110 : ARENA_W - 110;
       const spawnAngle = myRole === "p1" ? 0 : Math.PI;
       const me = state.players[myRole];
+      const wCfg = getPrimaryCfg(me.primaryWeapon);
       me.x = spawnX;
       me.y = ARENA_H / 2;
       me.angle = spawnAngle;
       me.hp = MAX_HP;
-      me.ammo = RIFLE_MAG_SIZE;
+      me.ammo = wCfg.magSize;
       me.reloadTimer = 0;
       me.katanaSpinTimer = 0;
       me.katanaSpinCooldown = 0;
@@ -1927,26 +2111,26 @@
       if ((mode === "online" || mode === "ai") && myRole && !state.matchWinner) {
         const me = state.players[myRole];
         if (e.code === "Digit1" || e.code === "Numpad1") {
-          switchPlayerWeapon(me, "rifle");
+          switchPlayerWeapon(me, "primary");
         } else if (e.code === "Digit2" || e.code === "Numpad2") {
           switchPlayerWeapon(me, "grenade");
         } else if (e.code === "KeyQ") {
           switchPlayerWeapon(me);
         } else if (e.code === "KeyR") {
-          startReloadRifle(me);
+          startReloadPrimary(me);
         } else if (e.code === "KeyE") {
           tryActivateKatanaSpin(me);
         } else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
           tryDash(me);
         }
       } else if (mode === "local" && !state.matchWinner) {
-        if (e.code === "Digit1") switchPlayerWeapon(state.players.p1, "rifle");
+        if (e.code === "Digit1") switchPlayerWeapon(state.players.p1, "primary");
         if (e.code === "Digit2") switchPlayerWeapon(state.players.p1, "grenade");
         if (e.code === "KeyQ") switchPlayerWeapon(state.players.p1);
-        if (e.code === "KeyR") startReloadRifle(state.players.p1);
+        if (e.code === "KeyR") startReloadPrimary(state.players.p1);
         if (e.code === "KeyE") tryActivateKatanaSpin(state.players.p1);
         if (e.code === "KeyO") tryActivateKatanaSpin(state.players.p2);
-        if (e.code === "KeyP") startReloadRifle(state.players.p2);
+        if (e.code === "KeyP") startReloadPrimary(state.players.p2);
         if (e.code === "Slash") switchPlayerWeapon(state.players.p2);
         if (e.code === "ShiftLeft") tryDash(state.players.p1);
         if (e.code === "ShiftRight") tryDash(state.players.p2);
@@ -1997,7 +2181,7 @@
 
       if ((mode === "online" || mode === "ai") && myRole) {
         const me = state.players[myRole];
-        if (me && me.weapon === "rifle") {
+        if (me && me.weapon === "primary") {
           mouse.down = true;
         }
       }
@@ -2029,17 +2213,17 @@
       if ((mode === "online" || mode === "ai") && myRole) tryDash(state.players[myRole]);
     });
     document.getElementById("mobileReloadBtn").addEventListener("click", () => {
-      if ((mode === "online" || mode === "ai") && myRole) startReloadRifle(state.players[myRole]);
+      if ((mode === "online" || mode === "ai") && myRole) startReloadPrimary(state.players[myRole]);
     });
     document.getElementById("mobileKatanaBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) tryActivateKatanaSpin(state.players[myRole]);
     });
 
-    document.getElementById("selectRifleBtn").addEventListener("click", () => {
-      if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "rifle");
+    document.getElementById("selectPrimaryBtn").addEventListener("click", () => {
+      if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "primary");
     });
     document.getElementById("manualReloadBtn").addEventListener("click", () => {
-      if ((mode === "online" || mode === "ai") && myRole) startReloadRifle(state.players[myRole]);
+      if ((mode === "online" || mode === "ai") && myRole) startReloadPrimary(state.players[myRole]);
     });
     document.getElementById("selectGrenadeBtn").addEventListener("click", () => {
       if ((mode === "online" || mode === "ai") && myRole) switchPlayerWeapon(state.players[myRole], "grenade");
@@ -2049,7 +2233,7 @@
     });
 
     // ==========================================
-    // 10. 核心戰鬥機制
+    // 10. 核心戰鬥機制（支援步槍 / 散彈槍 / 狙擊槍）
     // ==========================================
     function findPairedPortal(portal) {
       const portals = getCurrentMap().portals;
@@ -2080,7 +2264,7 @@
       if (b.portalCooldown > 0) return;
       const portals = getCurrentMap().portals;
       for (const portal of portals) {
-        if (Math.hypot(b.x - portal.x, b.y - portal.y) < PORTAL_RADIUS + BULLET_RADIUS) {
+        if (Math.hypot(b.x - portal.x, b.y - portal.y) < PORTAL_RADIUS + b.radius) {
           const dest = findPairedPortal(portal);
           if (!dest) continue;
 
@@ -2137,50 +2321,80 @@
       if (player.weapon === "grenade") {
         tryThrowGrenade(player, targetPoint);
       } else {
-        tryShootRifle(player);
+        tryShootPrimary(player);
       }
     }
 
-    function tryShootRifle(player) {
+    function tryShootPrimary(player) {
       if (!player.alive || player.fireCooldown > 0) return;
-
-      if (player.reloadTimer > 0) {
-        return;
-      }
+      if (player.reloadTimer > 0) return;
 
       if (player.ammo <= 0) {
         sfx.play("emptyClick");
-        startReloadRifle(player);
+        startReloadPrimary(player);
         return;
       }
 
-      const rate = player.rapidTimer > 0 ? 0.14 : 0.25;
+      const wCfg = getPrimaryCfg(player.primaryWeapon);
+      const rate = player.rapidTimer > 0 ? wCfg.rapidFireRate : wCfg.fireRate;
       player.fireCooldown = rate;
-      player.muzzleFlash = 0.08;
+      player.muzzleFlash = 0.09;
       player.ammo = Math.max(0, player.ammo - 1);
 
-      const muzzleX = player.x + Math.cos(player.angle) * (PLAYER_RADIUS + 8);
-      const muzzleY = player.y + Math.sin(player.angle) * (PLAYER_RADIUS + 8);
-      const bulletId = `${player.role}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      const muzzleDist = PLAYER_RADIUS + (wCfg.barrelLen - 12);
+      const muzzleX = player.x + Math.cos(player.angle) * muzzleDist;
+      const muzzleY = player.y + Math.sin(player.angle) * muzzleDist;
 
-      spawnBulletLocal(player.role, muzzleX, muzzleY, player.angle, bulletId, false);
-      sfx.play("shoot");
-
-      if (player.ammo <= 0) {
-        startReloadRifle(player);
+      // 狙擊槍與散彈槍增加微幅後座力震動感
+      if (wCfg.id === "sniper" && ((mode === "online" || mode === "ai") && player.role === myRole)) {
+        state.screenShake = Math.max(state.screenShake, 5);
+      } else if (wCfg.id === "shotgun" && ((mode === "online" || mode === "ai") && player.role === myRole)) {
+        state.screenShake = Math.max(state.screenShake, 3.5);
       }
 
-      if (mode === "online" && roomId) {
-        const bulletsRef = ref(db, `${DB_ROOT}/${roomId}/bullets`);
-        push(bulletsRef, {
-          id: bulletId,
-          owner: player.role,
-          x: Math.round(muzzleX),
-          y: Math.round(muzzleY),
-          angle: Number(player.angle.toFixed(3)),
+      for (let i = 0; i < wCfg.pellets; i++) {
+        let pelletAngle = player.angle;
+        if (wCfg.pellets > 1) {
+          const offset = ((i / (wCfg.pellets - 1)) - 0.5) * wCfg.spread + (Math.random() - 0.5) * 0.04;
+          pelletAngle += offset;
+        }
+        const spdJitter = wCfg.id === "shotgun" ? (0.9 + Math.random() * 0.2) : 1.0;
+        const bulletId = `${player.role}_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 6)}`;
+
+        const bOpts = {
           deflected: false,
-          clientTs: Date.now()
-        }).catch(() => {});
+          damage: wCfg.damage,
+          speed: wCfg.bulletSpeed * spdJitter,
+          radius: wCfg.bulletRadius,
+          life: wCfg.bulletLife,
+          weaponType: wCfg.id
+        };
+
+        spawnBulletLocal(player.role, muzzleX, muzzleY, pelletAngle, bulletId, bOpts);
+
+        if (mode === "online" && roomId) {
+          const bulletsRef = ref(db, `${DB_ROOT}/${roomId}/bullets`);
+          push(bulletsRef, {
+            id: bulletId,
+            owner: player.role,
+            x: Math.round(muzzleX),
+            y: Math.round(muzzleY),
+            angle: Number(pelletAngle.toFixed(3)),
+            deflected: false,
+            damage: bOpts.damage,
+            speed: Math.round(bOpts.speed),
+            radius: bOpts.radius,
+            life: bOpts.life,
+            weaponType: bOpts.weaponType,
+            clientTs: Date.now()
+          }).catch(() => {});
+        }
+      }
+
+      sfx.play(wCfg.sfxType);
+
+      if (player.ammo <= 0) {
+        startReloadPrimary(player);
       }
     }
 
@@ -2225,8 +2439,10 @@
       }
     }
 
-    function spawnBulletLocal(owner, x, y, angle, id, deflected = false) {
-      const spd = deflected ? BULLET_SPEED * 1.25 : BULLET_SPEED;
+    function spawnBulletLocal(owner, x, y, angle, id, opts = {}) {
+      const deflected = opts.deflected || false;
+      const baseSpeed = opts.speed || BULLET_SPEED;
+      const spd = deflected ? baseSpeed * 1.25 : baseSpeed;
       state.bullets.push({
         id,
         owner,
@@ -2234,7 +2450,10 @@
         y,
         vx: Math.cos(angle) * spd,
         vy: Math.sin(angle) * spd,
-        life: 2.0,
+        life: opts.life || 2.0,
+        damage: opts.damage || 20,
+        radius: opts.radius || BULLET_RADIUS,
+        weaponType: opts.weaponType || "rifle",
         portalCooldown: 0,
         deflected,
         trail: []
@@ -2412,9 +2631,10 @@
     }
 
     function respawnPlayer(p) {
+      const wCfg = getPrimaryCfg(p.primaryWeapon);
       p.alive = true;
       p.hp = MAX_HP;
-      p.ammo = RIFLE_MAG_SIZE;
+      p.ammo = wCfg.magSize;
       p.reloadTimer = 0;
       p.katanaSpinTimer = 0;
       p.invulnTimer = 1.8;
@@ -2456,7 +2676,7 @@
     }
 
     // ==========================================
-    // 11. 智慧電腦機器人（支援開啟武士刀鋒狂旋轉！）
+    // 11. 智慧電腦機器人（會根據手上的武器調整交戰距離！）
     // ==========================================
     function updateAiBot(dt) {
       const bot = state.players.p2;
@@ -2464,6 +2684,7 @@
       if (!bot.alive) return;
 
       const diffCfg = BOT_DIFFICULTIES[selectedBotDifficulty] || BOT_DIFFICULTIES.normal;
+      const wCfg = getPrimaryCfg(bot.primaryWeapon);
 
       botBrain.decisionTimer -= dt;
       if (botBrain.decisionTimer <= 0) {
@@ -2512,7 +2733,6 @@
       const distToPlayer = Math.hypot(target.x - bot.x, target.y - bot.y);
       const angleToPlayer = Math.atan2(target.y - bot.y, target.x - bot.x);
 
-      // 🤖 機器人在近距離交鋒或遭到密集子彈射擊時，機率啟動武士刀鋒狂旋轉！
       if (bot.katanaSpinCooldown <= 0 && bot.katanaSpinTimer <= 0 && target.alive) {
         if ((distToPlayer < 170 || nearbyBullets >= 2) && Math.random() < diffCfg.katanaChance * dt * 2.5) {
           tryActivateKatanaSpin(bot);
@@ -2541,7 +2761,10 @@
       let moveX = 0;
       let moveY = 0;
 
-      // 如果機器人正在刀鋒狂轉，主動貼近玩家砍殺並反彈子彈！
+      // 依武器調整最佳交戰距離：散彈槍主動拉近、狙擊槍保持遠距
+      const idealMaxDist = wCfg.id === "shotgun" ? 210 : (wCfg.id === "sniper" ? 560 : 430);
+      const idealMinDist = wCfg.id === "shotgun" ? 110 : (wCfg.id === "sniper" ? 380 : 260);
+
       if (bot.katanaSpinTimer > 0 && target.alive) {
         moveX += Math.cos(angleToPlayer) * 1.25;
         moveY += Math.sin(angleToPlayer) * 1.25;
@@ -2556,10 +2779,10 @@
         moveX += Math.cos(coverAngle) * 0.9;
         moveY += Math.sin(coverAngle) * 0.9 + botBrain.strafeDir * 0.5;
       } else {
-        if (distToPlayer > 430) {
+        if (distToPlayer > idealMaxDist) {
           moveX += Math.cos(angleToPlayer) * 0.85;
           moveY += Math.sin(angleToPlayer) * 0.85;
-        } else if (distToPlayer < 260) {
+        } else if (distToPlayer < idealMinDist) {
           moveX -= Math.cos(angleToPlayer) * 0.85;
           moveY -= Math.sin(angleToPlayer) * 0.85;
         }
@@ -2586,7 +2809,7 @@
       checkPortalTeleportForPlayer(bot);
 
       if (target.alive) {
-        const flightTime = distToPlayer / BULLET_SPEED;
+        const flightTime = distToPlayer / wCfg.bulletSpeed;
         const aimX = target.x + Math.cos(target.angle) * diffCfg.predictLead * flightTime;
         const aimY = target.y + Math.sin(target.angle) * diffCfg.predictLead * flightTime;
         const jitter = (Math.sin(performance.now() / 160) * diffCfg.aimJitter);
@@ -2602,11 +2825,12 @@
         if (!clearShot && distToPlayer <= GRENADE_MAX_RANGE && bot.grenadeCooldown <= 0 && Math.random() < diffCfg.grenadeChance * dt * 2.5) {
           switchPlayerWeapon(bot, "grenade", true);
           tryThrowGrenade(bot, { x: target.x, y: target.y });
-          switchPlayerWeapon(bot, "rifle", true);
+          switchPlayerWeapon(bot, "primary", true);
         } else if (clearShot && Math.abs(diff) < diffCfg.aimTolerance) {
-          switchPlayerWeapon(bot, "rifle", true);
+          if (wCfg.id === "shotgun" && distToPlayer > 360) return;
+          switchPlayerWeapon(bot, "primary", true);
           if (bot.fireCooldown <= 0 && bot.reloadTimer <= 0) {
-            tryShootRifle(bot);
+            tryShootPrimary(bot);
             bot.fireCooldown += diffCfg.fireExtraDelay;
           }
         }
@@ -2660,6 +2884,8 @@
 
       ["p1", "p2"].forEach((r) => {
         const p = state.players[r];
+        const wCfg = getPrimaryCfg(p.primaryWeapon);
+
         if (p.fireCooldown > 0) p.fireCooldown -= dt;
         if (p.grenadeCooldown > 0) p.grenadeCooldown -= dt;
         if (p.dashCooldown > 0) p.dashCooldown -= dt;
@@ -2669,7 +2895,6 @@
         if (p.invulnTimer > 0) p.invulnTimer -= dt;
         if (p.muzzleFlash > 0) p.muzzleFlash -= dt;
 
-        // ⚔️ 武士刀鋒狂旋轉計時器與近戰範圍斬擊判定
         if (p.katanaSpinCooldown > 0) {
           p.katanaSpinCooldown = Math.max(0, p.katanaSpinCooldown - dt);
         }
@@ -2678,9 +2903,8 @@
         }
         if (p.katanaSpinTimer > 0) {
           p.katanaSpinTimer = Math.max(0, p.katanaSpinTimer - dt);
-          p.katanaVisualAngle += dt * 28; // 高速狂轉角速度
+          p.katanaVisualAngle += dt * 28;
 
-          // 旋轉風壓火花粒子
           if (Math.random() < 0.55) {
             const sparkAngle = p.katanaVisualAngle + (Math.random() - 0.5);
             const sx = p.x + Math.cos(sparkAngle) * (KATANA_SPIN_RADIUS - 6);
@@ -2697,7 +2921,6 @@
             });
           }
 
-          // 近戰刀鋒殺傷力判定：敵人踏入刀光範圍內會連續受到斬擊傷害！
           if (p.alive && !state.matchWinner && p.katanaSlashTimer <= 0) {
             const enemyRole = r === "p1" ? "p2" : "p1";
             const enemy = state.players[enemyRole];
@@ -2729,10 +2952,10 @@
           p.reloadTimer -= dt;
           if (p.reloadTimer <= 0) {
             p.reloadTimer = 0;
-            p.ammo = RIFLE_MAG_SIZE;
+            p.ammo = wCfg.magSize;
             if (mode === "local" || mode === "ai" || r === myRole) {
               sfx.play("reloadDone");
-              addFloatingText(p.x, p.y - 32, "✅ 換彈完成 (15/15)", "#34d399");
+              addFloatingText(p.x, p.y - 32, `✅ 換彈完成 (${wCfg.magSize}/${wCfg.magSize})`, "#34d399");
               if (mode === "online" && r === myRole) {
                 syncMyPlayerToRTDB(true);
               }
@@ -2785,7 +3008,6 @@
         my += moveStick.dy;
       }
 
-      // 刀鋒狂旋轉期間移動速度小幅提升 10%
       const moveSpeed = me.katanaSpinTimer > 0 ? PLAYER_SPEED * 1.1 : PLAYER_SPEED;
 
       if (me.dashTimer > 0) {
@@ -2813,7 +3035,7 @@
             x: me.x + Math.cos(me.angle) * throwDist,
             y: me.y + Math.sin(me.angle) * throwDist
           };
-          if (me.weapon === "rifle") {
+          if (me.weapon === "primary") {
             shouldAttack = stickMag > 0.35;
           } else {
             shouldAttack = false;
@@ -2910,7 +3132,7 @@
         if (b.portalCooldown > 0) b.portalCooldown -= dt;
 
         b.trail.push({ x: b.x, y: b.y });
-        if (b.trail.length > 6) b.trail.shift();
+        if (b.trail.length > (b.weaponType === "sniper" ? 10 : 6)) b.trail.shift();
 
         b.x += b.vx * dt;
         b.y += b.vy * dt;
@@ -2925,7 +3147,7 @@
 
         let hitWall = false;
         for (const obs of obstacles) {
-          if (circleRectCollide(b.x, b.y, BULLET_RADIUS, obs.x, obs.y, obs.w, obs.h)) {
+          if (circleRectCollide(b.x, b.y, b.radius, obs.x, obs.y, obs.w, obs.h)) {
             hitWall = true;
             spawnExplosion(b.x, b.y, b.deflected ? "#22d3ee" : (b.owner === "p1" ? "#fbbf24" : "#fb7185"), 6);
             break;
@@ -2941,15 +3163,14 @@
         if (target.alive) {
           const dist = Math.hypot(b.x - target.x, b.y - target.y);
 
-          // ⚔️ 優先判定：若目標正在「武士刀鋒狂旋轉」，在刀光半徑內直接反彈子彈！
-          if (target.katanaSpinTimer > 0 && dist < KATANA_SPIN_RADIUS + BULLET_RADIUS) {
+          // ⚔️ 武士刀鋒狂旋轉反彈子彈！
+          if (target.katanaSpinTimer > 0 && dist < KATANA_SPIN_RADIUS + b.radius) {
             const oldOwner = b.owner;
-            b.owner = targetRole; // 子彈擁有者反轉為反彈者！
+            b.owner = targetRole;
             b.deflected = true;
             b.life = 1.9;
             b.trail = [];
 
-            // 精準朝原射手（或徑向法線）高速反彈回去！
             const attacker = state.players[oldOwner];
             let reflectAngle;
             if (attacker && attacker.alive) {
@@ -2958,18 +3179,17 @@
               reflectAngle = Math.atan2(b.y - target.y, b.x - target.x);
             }
 
-            const deflectSpeed = BULLET_SPEED * 1.25;
+            const curSpd = Math.hypot(b.vx, b.vy) || BULLET_SPEED;
+            const deflectSpeed = curSpd * 1.25;
             b.vx = Math.cos(reflectAngle) * deflectSpeed;
             b.vy = Math.sin(reflectAngle) * deflectSpeed;
-            // 將子彈推出刀圈外避免重複觸發
-            b.x = target.x + Math.cos(reflectAngle) * (KATANA_SPIN_RADIUS + BULLET_RADIUS + 6);
-            b.y = target.y + Math.sin(reflectAngle) * (KATANA_SPIN_RADIUS + BULLET_RADIUS + 6);
+            b.x = target.x + Math.cos(reflectAngle) * (KATANA_SPIN_RADIUS + b.radius + 6);
+            b.y = target.y + Math.sin(reflectAngle) * (KATANA_SPIN_RADIUS + b.radius + 6);
 
             sfx.play("deflect");
             spawnExplosion(b.x, b.y, "#22d3ee", 12);
             addFloatingText(target.x, target.y - 36, "⚔️ 彈反！", "#22d3ee");
 
-            // 線上模式同步反彈子彈給對手
             if (mode === "online" && targetRole === myRole && roomId) {
               push(ref(db, `${DB_ROOT}/${roomId}/bullets`), {
                 id: `def_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
@@ -2978,16 +3198,20 @@
                 y: Math.round(b.y),
                 angle: Number(reflectAngle.toFixed(3)),
                 deflected: true,
+                damage: Math.round(b.damage * 1.2),
+                speed: Math.round(deflectSpeed),
+                radius: b.radius,
+                life: 1.9,
+                weaponType: b.weaponType,
                 clientTs: Date.now()
               }).catch(() => {});
             }
             continue;
           }
 
-          // 一般子彈命中玩家判定
-          if (dist < PLAYER_RADIUS + BULLET_RADIUS) {
+          if (dist < PLAYER_RADIUS + b.radius) {
             state.bullets.splice(i, 1);
-            const dmg = b.deflected ? 25 : 20; // 反彈回去的子彈威力更強！
+            const dmg = b.deflected ? Math.round(b.damage * 1.2) : b.damage;
 
             if (mode === "local" || mode === "ai") {
               applyDamageToLocalPlayer(targetRole, dmg, b.owner);
@@ -3068,13 +3292,14 @@
       for (const r of rolesToCheck) {
         const p = state.players[r];
         if (!p || !p.alive) continue;
+        const wCfg = getPrimaryCfg(p.primaryWeapon);
         if (Math.hypot(p.x - pw.x, p.y - pw.y) < PLAYER_RADIUS + 18) {
           if (pw.type === "heal") {
             p.hp = Math.min(MAX_HP, p.hp + 40);
             addFloatingText(p.x, p.y - 25, "✚ 生命 +40", "#34d399");
           } else if (pw.type === "rapid") {
             p.rapidTimer = 6.0;
-            p.ammo = RIFLE_MAG_SIZE;
+            p.ammo = wCfg.magSize;
             p.reloadTimer = 0;
             addFloatingText(p.x, p.y - 25, "⚡ 瞬滿彈匣＋極速射擊！", "#fbbf24");
           } else if (pw.type === "shield") {
@@ -3108,6 +3333,7 @@
         angle: Number(me.angle.toFixed(3)),
         hp: me.hp,
         alive: me.alive,
+        primaryWeapon: me.primaryWeapon,
         weapon: me.weapon,
         ammo: me.ammo,
         reloading: me.reloadTimer > 0,
@@ -3130,19 +3356,24 @@
 
       const p1 = state.players.p1;
       const p2 = state.players.p2;
+      const w1 = getPrimaryCfg(p1.primaryWeapon);
+      const w2 = getPrimaryCfg(p2.primaryWeapon);
+
       document.getElementById("hudP1Weapon").textContent = p1.katanaSpinTimer > 0
         ? `⚔️ 狂轉 ${p1.katanaSpinTimer.toFixed(1)}s`
-        : (p1.weapon === "grenade" ? "💣 手榴彈" : (p1.reloadTimer > 0 ? "🔄 換彈中" : `🔫 ${p1.ammo}/${RIFLE_MAG_SIZE}`));
+        : (p1.weapon === "grenade" ? "💣 手榴彈" : (p1.reloadTimer > 0 ? "🔄 換彈中" : `${w1.icon} ${p1.ammo}/${w1.magSize}`));
       document.getElementById("hudP2Weapon").textContent = p2.katanaSpinTimer > 0
         ? `⚔️ 狂轉 ${p2.katanaSpinTimer.toFixed(1)}s`
-        : (p2.weapon === "grenade" ? "💣 手榴彈" : (p2.reloadTimer > 0 ? "🔄 換彈中" : `🔫 ${p2.ammo}/${RIFLE_MAG_SIZE}`));
+        : (p2.weapon === "grenade" ? "💣 手榴彈" : (p2.reloadTimer > 0 ? "🔄 換彈中" : `${w2.icon} ${p2.ammo}/${w2.magSize}`));
 
       if ((mode === "online" || mode === "ai") && myRole) {
         const me = state.players[myRole];
-        const rifleBtn = document.getElementById("selectRifleBtn");
+        const myW = getPrimaryCfg(me.primaryWeapon);
+        const primaryBtn = document.getElementById("selectPrimaryBtn");
+        const primaryBtnLabel = document.getElementById("primaryBtnLabel");
         const grenadeBtn = document.getElementById("selectGrenadeBtn");
         const reloadOverlay = document.getElementById("reloadProgressOverlay");
-        const ammoText = document.getElementById("rifleAmmoText");
+        const ammoText = document.getElementById("primaryAmmoText");
         const cdOverlay = document.getElementById("grenadeCdOverlay");
         const cdText = document.getElementById("grenadeCdText");
         const aimHint = document.getElementById("aimStickHintText");
@@ -3152,12 +3383,14 @@
         const katanaText = document.getElementById("katanaCdText");
         const mobKatanaState = document.getElementById("mobileKatanaState");
 
-        if (me.weapon === "rifle") {
-          rifleBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
+        primaryBtnLabel.textContent = myW.shortName;
+
+        if (me.weapon === "primary") {
+          primaryBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
           grenadeBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
-          if (aimHint) aimHint.textContent = "🎯 推桿瞄準並連發";
+          if (aimHint) aimHint.textContent = "🎯 推桿瞄準並開火";
         } else {
-          rifleBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
+          primaryBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
           grenadeBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.2)] whitespace-nowrap";
           if (aimHint) aimHint.textContent = "💣 拖曳瞄準・放開投擲";
         }
@@ -3169,8 +3402,9 @@
           ammoText.className = "relative z-10 text-[11px] sm:text-xs text-amber-300 font-black";
         } else {
           reloadOverlay.style.transform = "scaleX(0)";
-          ammoText.textContent = `${me.ammo}/${RIFLE_MAG_SIZE}`;
-          ammoText.className = me.ammo <= 4
+          ammoText.textContent = `${me.ammo}/${myW.magSize}`;
+          const lowThreshold = Math.max(1, Math.floor(myW.magSize * 0.3));
+          ammoText.className = me.ammo <= lowThreshold
             ? "relative z-10 text-[11px] sm:text-xs text-rose-400 font-black animate-pulse"
             : "relative z-10 text-[11px] sm:text-xs text-emerald-300 font-black";
         }
@@ -3185,7 +3419,6 @@
           cdText.className = "relative z-10 text-[11px] text-emerald-400 font-bold";
         }
 
-        // ⚔️ 更新武士刀鋒狂旋轉按鈕狀態
         if (me.katanaSpinTimer > 0) {
           const activePct = Math.max(0, Math.min(1, me.katanaSpinTimer / KATANA_SPIN_DURATION));
           katanaBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border-2 border-cyan-300 bg-cyan-500/35 text-white font-black text-xs sm:text-sm transition shadow-[0_0_18px_rgba(34,211,238,0.55)] whitespace-nowrap";
@@ -3211,7 +3444,7 @@
     }
 
     // ==========================================
-    // 13. 霓虹競技場畫布渲染（含雙武士刀高速斬擊刀光特效）
+    // 13. 霓虹競技場畫布渲染（含狙擊雷射瞄準線＆專屬槍管外觀）
     // ==========================================
     function renderArena() {
       const map = getCurrentMap();
@@ -3348,24 +3581,28 @@
         ctx.restore();
       }
 
-      // 子彈渲染（被武士刀反彈的子彈會呈青藍色高能電弧）
+      // 子彈渲染（狙擊彈帶高能藍光、散彈帶橘火鋼珠、反彈彈帶青色電弧）
       for (const b of state.bullets) {
-        const color = b.deflected ? "#22d3ee" : (b.owner === "p1" ? "#fbbf24" : "#fb7185");
+        let color = b.owner === "p1" ? "#fbbf24" : "#fb7185";
+        if (b.deflected) color = "#22d3ee";
+        else if (b.weaponType === "sniper") color = "#38bdf8";
+        else if (b.weaponType === "shotgun") color = "#fb923c";
+
         for (let i = 0; i < b.trail.length; i++) {
           const t = b.trail[i];
           const alpha = ((i + 1) / b.trail.length) * 0.55;
-          ctx.fillStyle = b.deflected
-            ? `rgba(34, 211, 238, ${alpha})`
-            : (b.owner === "p1" ? `rgba(251, 191, 36, ${alpha})` : `rgba(251, 113, 133, ${alpha})`);
+          ctx.fillStyle = color;
+          ctx.globalAlpha = alpha;
           ctx.beginPath();
-          ctx.arc(t.x, t.y, (b.deflected ? BULLET_RADIUS * 1.3 : BULLET_RADIUS) * ((i + 1) / b.trail.length), 0, Math.PI * 2);
+          ctx.arc(t.x, t.y, b.radius * ((i + 1) / b.trail.length), 0, Math.PI * 2);
           ctx.fill();
         }
+        ctx.globalAlpha = 1;
         ctx.shadowColor = color;
-        ctx.shadowBlur = b.deflected ? 16 : 12;
-        ctx.fillStyle = b.deflected ? "#cffafe" : "#fffbeb";
+        ctx.shadowBlur = b.deflected || b.weaponType === "sniper" ? 16 : 10;
+        ctx.fillStyle = b.deflected ? "#cffafe" : (b.weaponType === "sniper" ? "#e0f2fe" : "#fffbeb");
         ctx.beginPath();
-        ctx.arc(b.x, b.y, b.deflected ? BULLET_RADIUS * 1.25 : BULLET_RADIUS, 0, Math.PI * 2);
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -3496,10 +3733,10 @@
             }
             ctx.restore();
           } else if (!isMobileMode) {
-            ctx.strokeStyle = "rgba(251, 191, 36, 0.75)";
+            ctx.strokeStyle = me.primaryWeapon === "sniper" ? "rgba(56, 189, 248, 0.85)" : "rgba(251, 191, 36, 0.75)";
             ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.arc(mouse.x, mouse.y, 11, 0, Math.PI * 2);
+            ctx.arc(mouse.x, mouse.y, me.primaryWeapon === "shotgun" ? 18 : 11, 0, Math.PI * 2);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(mouse.x - 16, mouse.y);
@@ -3537,6 +3774,7 @@
 
       const mainColor = p.role === "p1" ? "#fbbf24" : "#f43f5e";
       const darkColor = p.role === "p1" ? "#451a03" : "#4c0519";
+      const wCfg = getPrimaryCfg(p.primaryWeapon);
 
       ctx.save();
       ctx.translate(p.x, p.y);
@@ -3545,12 +3783,11 @@
         ctx.globalAlpha = 0.45;
       }
 
-      // ⚔️ 渲染武士刀鋒狂旋轉力場與雙刀殘影
+      // ⚔️ 武士刀鋒狂旋轉力場與雙刀殘影
       if (p.katanaSpinTimer > 0) {
         ctx.save();
         const spin = p.katanaVisualAngle || (performance.now() / 35);
 
-        // 青藍色刀鋒風暴氣場外環
         const auraGrad = ctx.createRadialGradient(0, 0, PLAYER_RADIUS, 0, 0, KATANA_SPIN_RADIUS);
         auraGrad.addColorStop(0, "rgba(34, 211, 238, 0.05)");
         auraGrad.addColorStop(0.75, "rgba(34, 211, 238, 0.22)");
@@ -3560,13 +3797,11 @@
         ctx.arc(0, 0, KATANA_SPIN_RADIUS, 0, Math.PI * 2);
         ctx.fill();
 
-        // 旋轉刀光弧線殘影
         ctx.rotate(spin);
         for (let b = 0; b < 2; b++) {
           ctx.save();
           ctx.rotate(b * Math.PI);
 
-          // 扇形劍氣拖尾
           ctx.strokeStyle = "rgba(34, 211, 238, 0.75)";
           ctx.lineWidth = 6;
           ctx.shadowColor = "#22d3ee";
@@ -3575,14 +3810,12 @@
           ctx.arc(0, 0, KATANA_SPIN_RADIUS - 4, -0.95, 0.12);
           ctx.stroke();
 
-          // 武士刀刀柄與雪亮刀身
           ctx.shadowBlur = 10;
           ctx.fillStyle = "#0f172a";
-          ctx.fillRect(PLAYER_RADIUS - 2, -2.5, 10, 5); // 刀柄
+          ctx.fillRect(PLAYER_RADIUS - 2, -2.5, 10, 5);
           ctx.fillStyle = "#f59e0b";
-          ctx.fillRect(PLAYER_RADIUS + 7, -5, 3, 10); // 刀鍔（護手）
+          ctx.fillRect(PLAYER_RADIUS + 7, -5, 3, 10);
 
-          // 鋒利銀白刀刃
           ctx.fillStyle = "#f8fafc";
           ctx.beginPath();
           ctx.moveTo(PLAYER_RADIUS + 10, -3);
@@ -3637,20 +3870,34 @@
         ctx.fill();
         ctx.stroke();
       } else {
-        ctx.fillStyle = "#e2e8f0";
+        // 🎯 狙擊槍專屬雷射瞄準線
+        if (wCfg.id === "sniper" && p.reloadTimer <= 0) {
+          ctx.save();
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(wCfg.barrelLen + 6, 0);
+          ctx.lineTo(380, 0);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 依主武器繪製不同長度與顏色的槍管
+        ctx.fillStyle = wCfg.barrelColor;
         ctx.strokeStyle = "#0f172a";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(6, -5, 22, 10, 3);
+        ctx.roundRect(6, -wCfg.barrelWidth / 2, wCfg.barrelLen, wCfg.barrelWidth, 3);
         ctx.fill();
         ctx.stroke();
 
         if (p.muzzleFlash > 0) {
-          ctx.fillStyle = "#fef08a";
-          ctx.shadowColor = "#facc15";
+          ctx.fillStyle = wCfg.id === "sniper" ? "#7dd3fc" : "#fef08a";
+          ctx.shadowColor = wCfg.id === "sniper" ? "#38bdf8" : "#facc15";
           ctx.shadowBlur = 15;
           ctx.beginPath();
-          ctx.arc(31, 0, 8, 0, Math.PI * 2);
+          ctx.arc(wCfg.barrelLen + 9, 0, wCfg.id === "shotgun" ? 11 : 8, 0, Math.PI * 2);
           ctx.fill();
           ctx.shadowBlur = 0;
         }
@@ -3685,7 +3932,7 @@
       ctx.fillStyle = mainColor;
       ctx.fillRect(-barW / 2, -PLAYER_RADIUS - 12, barW * (p.hp / MAX_HP), 4);
 
-      if (p.weapon === "rifle") {
+      if (p.weapon === "primary") {
         ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
         ctx.fillRect(-barW / 2, PLAYER_RADIUS + 7, barW, 3.5);
         if (p.reloadTimer > 0) {
@@ -3693,8 +3940,9 @@
           ctx.fillStyle = "#34d399";
           ctx.fillRect(-barW / 2, PLAYER_RADIUS + 7, barW * rPct, 3.5);
         } else {
-          const ammoPct = p.ammo / RIFLE_MAG_SIZE;
-          ctx.fillStyle = p.ammo <= 4 ? "#f43f5e" : "#38bdf8";
+          const ammoPct = p.ammo / wCfg.magSize;
+          const lowThreshold = Math.max(1, Math.floor(wCfg.magSize * 0.3));
+          ctx.fillStyle = p.ammo <= lowThreshold ? "#f43f5e" : "#38bdf8";
           ctx.fillRect(-barW / 2, PLAYER_RADIUS + 7, barW * ammoPct, 3.5);
         }
       }
