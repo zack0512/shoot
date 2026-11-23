@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>沙沙雙人射擊對決</title>
+  <title>霓虹雙人射擊對決</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -52,7 +52,6 @@
       position: relative;
       transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, border-color 0.16s ease;
     }
-    /* 🎯 瞄準時右搖桿自動放大並強化光暈 */
     .aim-zone-enlarged {
       transform: scale(1.18);
       border-color: #fb7185 !important;
@@ -359,7 +358,6 @@
         <!-- 左側：360° 移動虛擬搖桿（含防誤觸死區環） -->
         <div class="flex flex-col items-center">
           <div id="moveJoystickZone" class="joystick-zone w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-slate-950/90 border-2 border-amber-400/50 shadow-[inset_0_0_20px_rgba(251,191,36,0.15)] flex items-center justify-center">
-            <!-- 中心防誤觸死區視覺圓環 -->
             <div class="w-10 h-10 rounded-full border border-amber-400/30 bg-amber-400/5 pointer-events-none"></div>
             <div class="w-20 h-20 rounded-full border border-dashed border-slate-700 pointer-events-none absolute"></div>
             <div id="moveJoystickKnob" class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 border-2 border-white shadow-[0_0_15px_#fbbf24] pointer-events-none absolute" style="transform: translate(0px, 0px);"></div>
@@ -385,16 +383,16 @@
           </div>
         </div>
 
-        <!-- 右側：360° 瞄準搖桿（拖曳時自動放大，放開才射擊） -->
+        <!-- 右側：360° 瞄準搖桿（拖曳時放大搖桿＋畫面倍鏡，放開才射擊） -->
         <div class="flex flex-col items-center">
           <div id="aimJoystickZone" class="joystick-zone w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-slate-950/90 border-2 border-rose-500/55 shadow-[inset_0_0_20px_rgba(244,63,94,0.18)] flex items-center justify-center">
             <div class="w-10 h-10 rounded-full border border-rose-400/35 bg-rose-500/10 pointer-events-none"></div>
             <div class="w-20 h-20 rounded-full border border-dashed border-slate-700 pointer-events-none absolute"></div>
             <div id="aimJoystickKnob" class="w-12 h-12 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 border-2 border-white shadow-[0_0_15px_#f43f5e] pointer-events-none flex items-center justify-center text-white text-sm font-black absolute" style="transform: translate(0px, 0px);">
-              🎯
+              🔍
             </div>
           </div>
-          <span id="aimStickHintText" class="text-[10px] text-rose-300/85 font-bold mt-1.5">🎯 拖曳瞄準・放開射擊</span>
+          <span id="aimStickHintText" class="text-[10px] text-rose-300/85 font-bold mt-1.5">🔍 拖曳放大瞄準・放開射擊</span>
         </div>
       </div>
 
@@ -402,13 +400,13 @@
       <div class="w-full max-w-[1000px] mt-2.5 bg-slate-900/80 border border-slate-700/70 rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
         <div id="pcControlsLegend" class="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span><b class="text-slate-100">WASD / 方向鍵</b>：移動</span>
-          <span><b class="text-amber-300">左鍵 / 空白鍵</b>：開火 / 投擲</span>
-          <span><b class="text-cyan-300">E 鍵</b>：武士刀鋒狂轉（5秒反彈子彈＋近戰斬殺）</span>
+          <span><b class="text-amber-300">按住左鍵瞄準（倍鏡放大）・放開開火</b> / 空白鍵快射</span>
+          <span><b class="text-cyan-300">E 鍵</b>：武士刀鋒狂轉</span>
           <span><b class="text-emerald-300">R 鍵</b>：換彈</span>
-          <span><b class="text-sky-300">1 / 2 / Q</b>：切換主武器與手榴彈</span>
+          <span><b class="text-sky-300">1 / 2 / Q</b>：切換武器</span>
         </div>
         <div id="mobileControlsLegend" class="hidden flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-          <span><b class="text-rose-300">右搖桿瞄準</b>：拖曳放大瞄準區，放開瞬間擊發（拉回中心取消）</span>
+          <span><b class="text-rose-300">右搖桿瞄準</b>：拖曳放大搖桿＆局部倍鏡，放開瞬間擊發（拉回中心取消）</span>
           <span><b class="text-cyan-300">⚔️ 刀鋒狂轉</b>：5秒反彈子彈＋近戰斬擊</span>
         </div>
         <div id="localControlsLegend" class="hidden flex-wrap items-center gap-x-4 gap-y-1">
@@ -674,7 +672,6 @@
     const WIN_SCORE = 5;
     const PORTAL_RADIUS = 24;
 
-    // 🔫 三大主武器資料庫
     const PRIMARY_WEAPONS = {
       rifle: {
         id: "rifle",
@@ -757,7 +754,6 @@
     const GRENADE_MAX_DAMAGE = 65;
     const GRENADE_COOLDOWN = 2.4;
 
-    // ⚔️ 武士刀鋒狂旋轉技能常數
     const KATANA_SPIN_COOLDOWN = 30.0;
     const KATANA_SPIN_DURATION = 5.0;
     const KATANA_SPIN_RADIUS = 56;
@@ -2004,7 +2000,7 @@
     }
 
     // ==========================================
-    // 9. 輸入控制（主武器＆手榴彈皆改為「拖曳放大瞄準、放開才發射」＋ 移動搖桿防誤觸低靈敏度）
+    // 9. 輸入控制（按住瞄準＋倍鏡放大、放開才射擊 ＋ 移動搖桿防誤觸低靈敏度）
     // ==========================================
     const keys = {};
     const mouse = { x: ARENA_W / 2, y: ARENA_H / 2, down: false };
@@ -2012,10 +2008,9 @@
     const moveStick = { active: false, touchId: null, dx: 0, dy: 0 };
     const aimStick = { active: false, touchId: null, dx: 0, dy: 0, lastValidDx: 0, lastValidDy: 0 };
 
-    // 🕹️ 移動搖桿防誤觸死區與靈敏度參數
-    const MOVE_STICK_DEADZONE = 0.24;     // 24% 中心死區：手指放上去不會亂動
-    const MOVE_STICK_SENSITIVITY = 0.80;  // 整體移動敏感度調低 20%，微調走位更精準
-    const AIM_STICK_FIRE_THRESHOLD = 0.20; // 瞄準搖桿推出超過 20% 放開即發射，拉回中心內取消
+    const MOVE_STICK_DEADZONE = 0.24;
+    const MOVE_STICK_SENSITIVITY = 0.80;
+    const AIM_STICK_FIRE_THRESHOLD = 0.20;
 
     function setupVirtualJoystick(zoneId, knobId, stickState, options = {}) {
       const zone = document.getElementById(zoneId);
@@ -2110,13 +2105,11 @@
       zone.addEventListener("touchcancel", () => resetStick());
     }
 
-    // 左搖桿：移動（較大拖曳行程 + 中心防誤觸死區）
     setupVirtualJoystick("moveJoystickZone", "moveJoystickKnob", moveStick, {
       maxDist: 46,
       enlargeOnAim: false
     });
 
-    // 右搖桿：三種主武器＆手榴彈統一為「按住放大瞄準、放開瞬間射擊」
     setupVirtualJoystick("aimJoystickZone", "aimJoystickKnob", aimStick, {
       maxDist: 52,
       enlargeOnAim: true,
@@ -2126,7 +2119,6 @@
           if (!me || !me.alive) return;
 
           const mag = Math.hypot(releaseDx, releaseDy);
-          // 超過中心取消區才擊發
           if (mag >= AIM_STICK_FIRE_THRESHOLD) {
             me.angle = Math.atan2(releaseDy, releaseDx);
             if (me.weapon === "grenade") {
@@ -2137,7 +2129,6 @@
               };
               tryThrowGrenade(me, targetPt);
             } else {
-              // 三種主武器（步槍 / 散彈槍 / 狙擊槍）放開瞬間射擊！
               tryShootPrimary(me);
             }
           }
@@ -2197,6 +2188,7 @@
       mouse.y = (e.clientY - rect.top) * scaleY;
     });
 
+    // 桌機左鍵：按住開倍鏡放大瞄準、放開瞬間擊發
     canvas.addEventListener("mousedown", (e) => {
       sfx.init();
       if (e.button === 0) {
@@ -2207,12 +2199,21 @@
     });
 
     window.addEventListener("mouseup", (e) => {
-      if (e.button === 0) mouse.down = false;
+      if (e.button === 0) {
+        if (mouse.down && !isMobileMode && (mode === "online" || mode === "ai") && myRole && !state.matchWinner) {
+          const me = state.players[myRole];
+          if (me && me.alive) {
+            me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
+            tryAttack(me, { x: mouse.x, y: mouse.y });
+          }
+        }
+        mouse.down = false;
+      }
     });
 
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // 畫布直接觸控也統一為「按住瞄準、放開射擊」
+    // 畫布直接觸控：按住開倍鏡放大瞄準、放開射擊
     let canvasTouching = false;
     canvas.addEventListener("touchstart", (e) => {
       sfx.init();
@@ -3041,11 +3042,9 @@
       if (keys["KeyA"] || keys["ArrowLeft"]) mx -= 1;
       if (keys["KeyD"] || keys["ArrowRight"]) mx += 1;
 
-      // 🕹️ 移動搖桿防誤觸死區與柔和靈敏度曲線
       if (moveStick.active) {
         const rawMag = Math.hypot(moveStick.dx, moveStick.dy);
         if (rawMag > MOVE_STICK_DEADZONE) {
-          // 扣除死區後重新映射到 0 ~ 1，並使用二次曲線讓小幅度微調更細膩
           const normalized = (rawMag - MOVE_STICK_DEADZONE) / (1 - MOVE_STICK_DEADZONE);
           const easedMag = Math.pow(Math.min(1, normalized), 1.35) * MOVE_STICK_SENSITIVITY;
           mx += (moveStick.dx / rawMag) * easedMag;
@@ -3069,15 +3068,14 @@
       checkPortalTeleportForPlayer(me);
 
       let targetPoint = { x: mouse.x, y: mouse.y };
-      // 鍵盤空白鍵可觸發；手機觸控時按住只瞄準、放開（onReleaseCallback / touchend）才射擊
-      let shouldAttack = keys["Space"] || (!isMobileMode && mouse.down);
+      // 鍵盤空白鍵可快速連射；滑鼠與觸控搖桿皆改為「按住倍鏡瞄準、放開瞬間射擊」
+      let shouldAttack = keys["Space"];
 
       if (aimStick.active) {
         const stickMag = Math.hypot(aimStick.dx, aimStick.dy);
         if (stickMag > 0.10) {
           me.angle = Math.atan2(aimStick.dy, aimStick.dx);
         }
-        // 拖曳右搖桿期間只顯示放大瞄準與預覽線，不直接開槍
         shouldAttack = false;
       } else if (!isMobileMode) {
         me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
@@ -3423,11 +3421,11 @@
         if (me.weapon === "primary") {
           primaryBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-amber-400 bg-amber-500/20 text-amber-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,191,36,0.2)] whitespace-nowrap";
           grenadeBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
-          if (aimHint) aimHint.textContent = `${myW.icon} 拖曳瞄準・放開射擊`;
+          if (aimHint) aimHint.textContent = `🔍 拖曳倍鏡瞄準・放開射擊`;
         } else {
           primaryBtn.className = "col-span-4 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 sm:px-2.5 rounded-xl border border-slate-700 bg-slate-900/90 text-slate-300 font-black text-xs sm:text-sm transition whitespace-nowrap";
           grenadeBtn.className = "col-span-3 relative overflow-hidden flex items-center justify-center gap-1 py-2 px-1.5 rounded-xl border border-orange-400 bg-orange-500/20 text-orange-200 font-black text-xs sm:text-sm transition shadow-[0_0_12px_rgba(251,146,60,0.2)] whitespace-nowrap";
-          if (aimHint) aimHint.textContent = "💣 拖曳瞄準・放開投擲";
+          if (aimHint) aimHint.textContent = "💣 拖曳倍鏡瞄準・放開投擲";
         }
 
         if (me.reloadTimer > 0) {
@@ -3479,8 +3477,136 @@
     }
 
     // ==========================================
-    // 13. 霓虹競技場畫布渲染（含三種主武器專屬拖曳瞄準預覽線）
+    // 13. 霓虹競技場畫布渲染（含「被瞄準區域 2.1x 光學放大鏡」效果）
     // ==========================================
+    function drawAimMagnifierLens(focusX, focusY, zoomFactor, lensRadius, accentColor, statusText, isReady) {
+      // 智慧計算鏡片顯示位置，避免超出畫布四邊界
+      let lensX = focusX;
+      let lensY = focusY;
+
+      // 手機手指直接觸控畫布時，將放大鏡稍微往上偏移避免被手指遮住
+      if (canvasTouching) {
+        lensY = focusY - 88;
+      }
+
+      const margin = lensRadius + 14;
+      lensX = Math.max(margin, Math.min(ARENA_W - margin, lensX));
+      lensY = Math.max(margin + 12, Math.min(ARENA_H - margin - 14, lensY));
+
+      ctx.save();
+
+      // 若鏡片位置與實際落點有偏移，畫一條細連接導線
+      if (Math.hypot(lensX - focusX, lensY - focusY) > 12) {
+        ctx.strokeStyle = accentColor;
+        ctx.globalAlpha = 0.55;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(focusX, focusY);
+        ctx.lineTo(lensX, lensY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+      }
+
+      // 外圈陰影與光暈
+      ctx.save();
+      ctx.shadowColor = accentColor;
+      ctx.shadowBlur = 24;
+      ctx.beginPath();
+      ctx.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#0b0f19";
+      ctx.fill();
+      ctx.restore();
+
+      // 裁切圓形倍鏡區域並放大取樣當前畫布
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+      ctx.clip();
+
+      const srcHalf = lensRadius / zoomFactor;
+      const srcW = srcHalf * 2;
+      const srcH = srcHalf * 2;
+      let srcX = focusX - srcHalf;
+      let srcY = focusY - srcHalf;
+
+      // 邊界夾緊避免超出 canvas 取樣範圍
+      srcX = Math.max(0, Math.min(ARENA_W - srcW, srcX));
+      srcY = Math.max(0, Math.min(ARENA_H - srcH, srcY));
+
+      ctx.drawImage(
+        canvas,
+        srcX, srcY, srcW, srcH,
+        lensX - lensRadius, lensY - lensRadius, lensRadius * 2, lensRadius * 2
+      );
+
+      // 鏡片內部光學玻璃暗角與掃描微光
+      const glassGrad = ctx.createRadialGradient(
+        lensX, lensY, lensRadius * 0.45,
+        lensX, lensY, lensRadius
+      );
+      glassGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
+      glassGrad.addColorStop(0.85, "rgba(15, 23, 42, 0.22)");
+      glassGrad.addColorStop(1, "rgba(2, 6, 23, 0.65)");
+      ctx.fillStyle = glassGrad;
+      ctx.fillRect(lensX - lensRadius, lensY - lensRadius, lensRadius * 2, lensRadius * 2);
+
+      // 鏡片內高精密十字準心與刻度環
+      const crossX = lensX + (focusX - (srcX + srcHalf)) * zoomFactor;
+      const crossY = lensY + (focusY - (srcY + srcHalf)) * zoomFactor;
+
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(crossX, crossY, 16, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(crossX - 26, crossY);
+      ctx.lineTo(crossX - 8, crossY);
+      ctx.moveTo(crossX + 8, crossY);
+      ctx.lineTo(crossX + 26, crossY);
+      ctx.moveTo(crossX, crossY - 26);
+      ctx.lineTo(crossX, crossY - 8);
+      ctx.moveTo(crossX, crossY + 8);
+      ctx.lineTo(crossX, crossY + 26);
+      ctx.stroke();
+
+      // 中心雷射紅點
+      ctx.fillStyle = isReady ? "#f43f5e" : "#94a3b8";
+      ctx.beginPath();
+      ctx.arc(crossX, crossY, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // 鏡片金屬雙層外框與方位刻度
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(lensX, lensY, lensRadius - 4, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 倍率標籤（頂部）與擊發提示（底部）
+      ctx.font = "900 11px 'Noto Sans TC', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillStyle = accentColor;
+      ctx.fillText(`🔍 ${zoomFactor.toFixed(1)}x 倍鏡`, lensX, lensY - lensRadius - 7);
+
+      ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
+      ctx.fillStyle = isReady ? "#fef08a" : "#94a3b8";
+      ctx.fillText(statusText, lensX, lensY + lensRadius + 16);
+
+      ctx.restore();
+    }
+
     function renderArena() {
       const map = getCurrentMap();
       ctx.save();
@@ -3718,10 +3844,14 @@
       }
       ctx.globalAlpha = 1;
 
-      // 🎯 準星、手榴彈拋物範圍與三種主武器專屬「放開擊發」瞄準預覽
+      // 🎯 瞄準導引線 ＋ 局部光學放大鏡（倍鏡效果）
       if ((mode === "online" || mode === "ai") && myRole && state.players[myRole].alive) {
         const me = state.players[myRole];
         const wCfg = getPrimaryCfg(me.primaryWeapon);
+        const enemyRole = myRole === "p1" ? "p2" : "p1";
+        const enemy = state.players[enemyRole];
+
+        const isActivelyAiming = aimStick.active || canvasTouching || (!isMobileMode && mouse.down);
         const showAimPreview = !isMobileMode || aimStick.active || canvasTouching;
 
         if (showAimPreview) {
@@ -3731,9 +3861,13 @@
 
           if (aimStick.active) {
             stickMag = Math.hypot(aimStick.dx, aimStick.dy);
-            const dist = Math.max(90, stickMag * GRENADE_MAX_RANGE);
-            targetX = me.x + Math.cos(me.angle) * dist;
-            targetY = me.y + Math.sin(me.angle) * dist;
+            // 若敵人在視野內且有推出搖桿，將放大鏡焦點智慧對準瞄準線上接近敵人距離的位置
+            const distEnemy = enemy && enemy.alive ? Math.hypot(enemy.x - me.x, enemy.y - me.y) : 320;
+            const defaultFocusDist = me.weapon === "grenade"
+              ? Math.max(90, stickMag * GRENADE_MAX_RANGE)
+              : Math.max(140, Math.min(wCfg.id === "sniper" ? 640 : 460, distEnemy));
+            targetX = me.x + Math.cos(me.angle) * defaultFocusDist;
+            targetY = me.y + Math.sin(me.angle) * defaultFocusDist;
           }
 
           const isReadyToFire = !aimStick.active || stickMag >= AIM_STICK_FIRE_THRESHOLD;
@@ -3746,7 +3880,7 @@
             const aimY = Math.max(25, Math.min(ARENA_H - 25, me.y + Math.sin(me.angle) * clampedDist));
 
             ctx.save();
-            ctx.strokeStyle = isReadyToFire ? "rgba(251, 146, 60, 0.8)" : "rgba(148, 163, 184, 0.45)";
+            ctx.strokeStyle = isReadyToFire ? "rgba(251, 146, 60, 0.85)" : "rgba(148, 163, 184, 0.45)";
             ctx.lineWidth = 2;
             ctx.setLineDash([6, 5]);
             ctx.beginPath();
@@ -3760,18 +3894,23 @@
             ctx.arc(aimX, aimY, GRENADE_EXPLOSION_RADIUS, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-
-            if (isMobileMode && (aimStick.active || canvasTouching)) {
-              ctx.setLineDash([]);
-              ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
-              ctx.textAlign = "center";
-              ctx.fillStyle = isReadyToFire ? "#fdba74" : "#94a3b8";
-              ctx.fillText(isReadyToFire ? "放開投擲！" : "拉回中心取消", aimX, aimY - 6);
-            }
             ctx.restore();
+
+            // 手榴彈瞄準倍鏡：放大落點與周圍敵人動態
+            if (isActivelyAiming) {
+              drawAimMagnifierLens(
+                aimX,
+                aimY,
+                1.85,
+                68,
+                isReadyToFire ? "#fb923c" : "#94a3b8",
+                isReadyToFire ? "放開投擲！" : "拉回中心取消",
+                isReadyToFire
+              );
+            }
           } else {
-            // 桌機滑鼠準星
-            if (!isMobileMode) {
+            // 桌機未按住滑鼠時的標準準星
+            if (!isMobileMode && !mouse.down) {
               ctx.strokeStyle = wCfg.id === "sniper" ? "rgba(56, 189, 248, 0.85)" : "rgba(251, 191, 36, 0.75)";
               ctx.lineWidth = 1.5;
               ctx.beginPath();
@@ -3785,19 +3924,18 @@
               ctx.stroke();
             }
 
-            // 手機搖桿／觸控瞄準時的專屬武器彈道預覽區（按住瞄準、放開才發射）
-            if (isMobileMode && (aimStick.active || canvasTouching)) {
-              ctx.save();
-              const lineColor = !isReadyToFire
-                ? "rgba(148, 163, 184, 0.45)"
-                : (wCfg.id === "sniper" ? "rgba(56, 189, 248, 0.85)" : (wCfg.id === "shotgun" ? "rgba(251, 146, 60, 0.8)" : "rgba(251, 191, 36, 0.8)"));
+            // 按住瞄準時（手機右搖桿 / 觸控畫布 / 桌機按住左鍵）：顯示彈道導引＋被瞄準區域放大倍鏡
+            if (isActivelyAiming) {
+              const accentColor = !isReadyToFire
+                ? "#94a3b8"
+                : (wCfg.id === "sniper" ? "#38bdf8" : (wCfg.id === "shotgun" ? "#fb923c" : "#fbbf24"));
 
+              ctx.save();
               if (wCfg.id === "shotgun") {
-                // 散彈槍扇形散射預覽區
                 const coneRange = 360;
                 const halfSpread = wCfg.spread * 0.55;
                 ctx.fillStyle = isReadyToFire ? "rgba(251, 146, 60, 0.14)" : "rgba(148, 163, 184, 0.05)";
-                ctx.strokeStyle = lineColor;
+                ctx.strokeStyle = accentColor;
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(me.x, me.y);
@@ -3806,38 +3944,43 @@
                 ctx.fill();
                 ctx.stroke();
               } else {
-                // 突擊步槍 / 狙擊槍瞄準射線與準星圓環
-                const previewLen = wCfg.id === "sniper" ? 680 : 420;
+                const previewLen = wCfg.id === "sniper" ? 680 : 480;
                 const endX = me.x + Math.cos(me.angle) * previewLen;
                 const endY = me.y + Math.sin(me.angle) * previewLen;
 
-                ctx.strokeStyle = lineColor;
-                ctx.lineWidth = wCfg.id === "sniper" ? 2.5 : 2;
+                ctx.strokeStyle = accentColor;
+                ctx.lineWidth = wCfg.id === "sniper" ? 2.4 : 1.8;
                 ctx.setLineDash(wCfg.id === "sniper" ? [10, 5] : [6, 6]);
                 ctx.beginPath();
                 ctx.moveTo(me.x, me.y);
                 ctx.lineTo(endX, endY);
                 ctx.stroke();
-
                 ctx.setLineDash([]);
-                const focusDist = wCfg.id === "sniper" ? 320 : 230;
-                const fx = me.x + Math.cos(me.angle) * focusDist;
-                const fy = me.y + Math.sin(me.angle) * focusDist;
-                ctx.beginPath();
-                ctx.arc(fx, fy, 12, 0, Math.PI * 2);
-                ctx.stroke();
+              }
+              ctx.restore();
+
+              // 計算放大鏡焦點座標
+              let focusX = targetX;
+              let focusY = targetY;
+              if (wCfg.id === "shotgun") {
+                const distToFocus = Math.min(310, Math.hypot(targetX - me.x, targetY - me.y));
+                focusX = me.x + Math.cos(me.angle) * distToFocus;
+                focusY = me.y + Math.sin(me.angle) * distToFocus;
               }
 
-              // 提示文字
-              const labelDist = 115;
-              const lx = me.x + Math.cos(me.angle) * labelDist;
-              const ly = me.y + Math.sin(me.angle) * labelDist - 14;
-              ctx.setLineDash([]);
-              ctx.font = "bold 12px 'Noto Sans TC', sans-serif";
-              ctx.textAlign = "center";
-              ctx.fillStyle = isReadyToFire ? "#fef08a" : "#94a3b8";
-              ctx.fillText(isReadyToFire ? `放開開火 (${wCfg.shortName})` : "拉回中心取消", lx, ly);
-              ctx.restore();
+              // 狙擊槍倍率 2.4x，步槍 2.1x，散彈槍 1.9x
+              const zoomLevel = wCfg.id === "sniper" ? 2.4 : (wCfg.id === "shotgun" ? 1.9 : 2.1);
+              const lensR = wCfg.id === "sniper" ? 76 : 68;
+
+              drawAimMagnifierLens(
+                focusX,
+                focusY,
+                zoomLevel,
+                lensR,
+                accentColor,
+                isReadyToFire ? `放開開火 (${wCfg.shortName})` : "拉回中心取消",
+                isReadyToFire
+              );
             }
           }
         }
