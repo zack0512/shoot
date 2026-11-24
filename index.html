@@ -52,7 +52,6 @@
       position: relative;
       transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, border-color 0.16s ease;
     }
-    /* 🎯 瞄準時右搖桿自動放大並強化光暈 */
     .aim-zone-enlarged {
       transform: scale(1.18);
       border-color: #fb7185 !important;
@@ -359,7 +358,6 @@
         <!-- 左側：360° 移動虛擬搖桿（含防誤觸死區環） -->
         <div class="flex flex-col items-center">
           <div id="moveJoystickZone" class="joystick-zone w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-slate-950/90 border-2 border-amber-400/50 shadow-[inset_0_0_20px_rgba(251,191,36,0.15)] flex items-center justify-center">
-            <!-- 中心防誤觸死區視覺圓環 -->
             <div class="w-10 h-10 rounded-full border border-amber-400/30 bg-amber-400/5 pointer-events-none"></div>
             <div class="w-20 h-20 rounded-full border border-dashed border-slate-700 pointer-events-none absolute"></div>
             <div id="moveJoystickKnob" class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 border-2 border-white shadow-[0_0_15px_#fbbf24] pointer-events-none absolute" style="transform: translate(0px, 0px);"></div>
@@ -2004,7 +2002,7 @@
     }
 
     // ==========================================
-    // 9. 輸入控制（主武器＆手榴彈皆改為「拖曳放大瞄準、放開才發射」＋ 移動搖桿防誤觸低靈敏度）
+    // 9. 輸入控制（主武器＆手榴彈皆為「拖曳放大瞄準、放開才發射」＋ 移動搖桿防誤觸低靈敏度）
     // ==========================================
     const keys = {};
     const mouse = { x: ARENA_W / 2, y: ARENA_H / 2, down: false };
@@ -2012,10 +2010,9 @@
     const moveStick = { active: false, touchId: null, dx: 0, dy: 0 };
     const aimStick = { active: false, touchId: null, dx: 0, dy: 0, lastValidDx: 0, lastValidDy: 0 };
 
-    // 🕹️ 移動搖桿防誤觸死區與靈敏度參數
-    const MOVE_STICK_DEADZONE = 0.24;     // 24% 中心死區：手指放上去不會亂動
-    const MOVE_STICK_SENSITIVITY = 0.80;  // 整體移動敏感度調低 20%，微調走位更精準
-    const AIM_STICK_FIRE_THRESHOLD = 0.20; // 瞄準搖桿推出超過 20% 放開即發射，拉回中心內取消
+    const MOVE_STICK_DEADZONE = 0.24;
+    const MOVE_STICK_SENSITIVITY = 0.80;
+    const AIM_STICK_FIRE_THRESHOLD = 0.20;
 
     function setupVirtualJoystick(zoneId, knobId, stickState, options = {}) {
       const zone = document.getElementById(zoneId);
@@ -2110,13 +2107,11 @@
       zone.addEventListener("touchcancel", () => resetStick());
     }
 
-    // 左搖桿：移動（較大拖曳行程 + 中心防誤觸死區）
     setupVirtualJoystick("moveJoystickZone", "moveJoystickKnob", moveStick, {
       maxDist: 46,
       enlargeOnAim: false
     });
 
-    // 右搖桿：三種主武器＆手榴彈統一為「按住放大瞄準、放開瞬間射擊」
     setupVirtualJoystick("aimJoystickZone", "aimJoystickKnob", aimStick, {
       maxDist: 52,
       enlargeOnAim: true,
@@ -2126,7 +2121,6 @@
           if (!me || !me.alive) return;
 
           const mag = Math.hypot(releaseDx, releaseDy);
-          // 超過中心取消區才擊發
           if (mag >= AIM_STICK_FIRE_THRESHOLD) {
             me.angle = Math.atan2(releaseDy, releaseDx);
             if (me.weapon === "grenade") {
@@ -2137,7 +2131,6 @@
               };
               tryThrowGrenade(me, targetPt);
             } else {
-              // 三種主武器（步槍 / 散彈槍 / 狙擊槍）放開瞬間射擊！
               tryShootPrimary(me);
             }
           }
@@ -2212,7 +2205,6 @@
 
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // 畫布直接觸控也統一為「按住瞄準、放開射擊」
     let canvasTouching = false;
     canvas.addEventListener("touchstart", (e) => {
       sfx.init();
@@ -2273,7 +2265,7 @@
     });
 
     // ==========================================
-    // 10. 核心戰鬥機制
+    // 10. 核心戰鬥機制（含衝刺防穿牆步進移動）
     // ==========================================
     function findPairedPortal(portal) {
       const portals = getCurrentMap().portals;
@@ -2292,6 +2284,7 @@
           p.x = dest.x;
           p.y = dest.y;
           p.portalCooldown = 0.45;
+          resolvePlayerObstacles(p);
           spawnExplosion(dest.x, dest.y, dest.color, 16);
           sfx.play("portal");
           addFloatingText(dest.x, dest.y - 28, "🌀 空間傳送！", dest.color);
@@ -2354,6 +2347,28 @@
       player.dashDirY = Math.sin(player.angle);
       sfx.play("dash");
       spawnExplosion(player.x, player.y, player.role === "p1" ? "#fbbf24" : "#fb7185", 10);
+    }
+
+    // 🛡️ 分段步進位移＋雙重碰撞推擠，防止高速爆衝穿牆或卡進牆壁
+    function movePlayerSafely(p, totalDx, totalDy, checkPortal = true) {
+      const dist = Math.hypot(totalDx, totalDy);
+      if (dist <= 0) {
+        resolvePlayerObstacles(p);
+        return;
+      }
+      const maxStep = PLAYER_RADIUS * 0.45;
+      const steps = Math.max(1, Math.ceil(dist / maxStep));
+      const stepX = totalDx / steps;
+      const stepY = totalDy / steps;
+
+      for (let s = 0; s < steps; s++) {
+        p.x += stepX;
+        p.y += stepY;
+        resolvePlayerObstacles(p);
+        if (checkPortal) {
+          checkPortalTeleportForPlayer(p);
+        }
+      }
     }
 
     function tryAttack(player, targetPoint = null) {
@@ -2584,22 +2599,37 @@
       return true;
     }
 
+    // 雙重迭代障礙物與場地邊界推擠，確保玩家圓心永遠被推出矩形外（防止圓心穿過薄牆中心）
     function resolvePlayerObstacles(p) {
-      p.x = Math.max(PLAYER_RADIUS + 6, Math.min(ARENA_W - PLAYER_RADIUS - 6, p.x));
-      p.y = Math.max(PLAYER_RADIUS + 6, Math.min(ARENA_H - PLAYER_RADIUS - 6, p.y));
-
       const obstacles = getCurrentMap().obstacles;
-      for (const obs of obstacles) {
-        const closestX = Math.max(obs.x, Math.min(p.x, obs.x + obs.w));
-        const closestY = Math.max(obs.y, Math.min(p.y, obs.y + obs.h));
-        const dx = p.x - closestX;
-        const dy = p.y - closestY;
-        const distSq = dx * dx + dy * dy;
-        if (distSq < PLAYER_RADIUS * PLAYER_RADIUS) {
-          const dist = Math.sqrt(distSq) || 0.001;
-          const overlap = PLAYER_RADIUS - dist;
-          p.x += (dx / dist) * overlap;
-          p.y += (dy / dist) * overlap;
+      for (let iter = 0; iter < 2; iter++) {
+        p.x = Math.max(PLAYER_RADIUS + 6, Math.min(ARENA_W - PLAYER_RADIUS - 6, p.x));
+        p.y = Math.max(PLAYER_RADIUS + 6, Math.min(ARENA_H - PLAYER_RADIUS - 6, p.y));
+
+        for (const obs of obstacles) {
+          const closestX = Math.max(obs.x, Math.min(p.x, obs.x + obs.w));
+          const closestY = Math.max(obs.y, Math.min(p.y, obs.y + obs.h));
+          const dx = p.x - closestX;
+          const dy = p.y - closestY;
+          const distSq = dx * dx + dy * dy;
+
+          if (distSq === 0) {
+            // 若圓心因任何極端狀況落入矩形內，朝最近的一側邊緣推出
+            const leftPen = p.x - obs.x;
+            const rightPen = (obs.x + obs.w) - p.x;
+            const topPen = p.y - obs.y;
+            const bottomPen = (obs.y + obs.h) - p.y;
+            const minPen = Math.min(leftPen, rightPen, topPen, bottomPen);
+            if (minPen === leftPen) p.x = obs.x - PLAYER_RADIUS;
+            else if (minPen === rightPen) p.x = obs.x + obs.w + PLAYER_RADIUS;
+            else if (minPen === topPen) p.y = obs.y - PLAYER_RADIUS;
+            else p.y = obs.y + obs.h + PLAYER_RADIUS;
+          } else if (distSq < PLAYER_RADIUS * PLAYER_RADIUS) {
+            const dist = Math.sqrt(distSq);
+            const overlap = PLAYER_RADIUS - dist;
+            p.x += (dx / dist) * overlap;
+            p.y += (dy / dist) * overlap;
+          }
         }
       }
     }
@@ -2835,16 +2865,13 @@
 
       const botSpeed = PLAYER_SPEED * diffCfg.speedMult * (bot.katanaSpinTimer > 0 ? 1.12 : 1.0);
       if (bot.dashTimer > 0) {
-        bot.x += bot.dashDirX * DASH_SPEED * dt;
-        bot.y += bot.dashDirY * DASH_SPEED * dt;
+        movePlayerSafely(bot, bot.dashDirX * DASH_SPEED * dt, bot.dashDirY * DASH_SPEED * dt, true);
       } else if (moveX !== 0 || moveY !== 0) {
         const len = Math.hypot(moveX, moveY);
-        bot.x += (moveX / len) * botSpeed * dt;
-        bot.y += (moveY / len) * botSpeed * dt;
+        movePlayerSafely(bot, (moveX / len) * botSpeed * dt, (moveY / len) * botSpeed * dt, true);
+      } else {
+        resolvePlayerObstacles(bot);
       }
-
-      resolvePlayerObstacles(bot);
-      checkPortalTeleportForPlayer(bot);
 
       if (target.alive) {
         const flightTime = distToPlayer / wCfg.bulletSpeed;
@@ -3041,11 +3068,9 @@
       if (keys["KeyA"] || keys["ArrowLeft"]) mx -= 1;
       if (keys["KeyD"] || keys["ArrowRight"]) mx += 1;
 
-      // 🕹️ 移動搖桿防誤觸死區與柔和靈敏度曲線
       if (moveStick.active) {
         const rawMag = Math.hypot(moveStick.dx, moveStick.dy);
         if (rawMag > MOVE_STICK_DEADZONE) {
-          // 扣除死區後重新映射到 0 ~ 1，並使用二次曲線讓小幅度微調更細膩
           const normalized = (rawMag - MOVE_STICK_DEADZONE) / (1 - MOVE_STICK_DEADZONE);
           const easedMag = Math.pow(Math.min(1, normalized), 1.35) * MOVE_STICK_SENSITIVITY;
           mx += (moveStick.dx / rawMag) * easedMag;
@@ -3056,20 +3081,21 @@
       const moveSpeed = me.katanaSpinTimer > 0 ? PLAYER_SPEED * 1.1 : PLAYER_SPEED;
 
       if (me.dashTimer > 0) {
-        me.x += me.dashDirX * DASH_SPEED * dt;
-        me.y += me.dashDirY * DASH_SPEED * dt;
+        movePlayerSafely(me, me.dashDirX * DASH_SPEED * dt, me.dashDirY * DASH_SPEED * dt, true);
       } else if (mx !== 0 || my !== 0) {
         const len = Math.hypot(mx, my);
         const speedScale = Math.min(1, len);
-        me.x += (mx / len) * moveSpeed * speedScale * dt;
-        me.y += (my / len) * moveSpeed * speedScale * dt;
+        movePlayerSafely(
+          me,
+          (mx / len) * moveSpeed * speedScale * dt,
+          (my / len) * moveSpeed * speedScale * dt,
+          true
+        );
+      } else {
+        resolvePlayerObstacles(me);
       }
 
-      resolvePlayerObstacles(me);
-      checkPortalTeleportForPlayer(me);
-
       let targetPoint = { x: mouse.x, y: mouse.y };
-      // 鍵盤空白鍵可觸發；手機觸控時按住只瞄準、放開（onReleaseCallback / touchend）才射擊
       let shouldAttack = keys["Space"] || (!isMobileMode && mouse.down);
 
       if (aimStick.active) {
@@ -3077,7 +3103,6 @@
         if (stickMag > 0.10) {
           me.angle = Math.atan2(aimStick.dy, aimStick.dx);
         }
-        // 拖曳右搖桿期間只顯示放大瞄準與預覽線，不直接開槍
         shouldAttack = false;
       } else if (!isMobileMode) {
         me.angle = Math.atan2(mouse.y - me.y, mouse.x - me.x);
@@ -3108,6 +3133,7 @@
         enemy.x += (state.remoteTarget.x - enemy.x) * lerpFactor;
         enemy.y += (state.remoteTarget.y - enemy.y) * lerpFactor;
       }
+      resolvePlayerObstacles(enemy);
 
       let diff = state.remoteTarget.angle - enemy.angle;
       while (diff < -Math.PI) diff += Math.PI * 2;
@@ -3125,16 +3151,14 @@
           p1.angle = Math.atan2(my, mx);
           const len = Math.hypot(mx, my);
           if (p1.dashTimer <= 0) {
-            p1.x += (mx / len) * spd * dt;
-            p1.y += (my / len) * spd * dt;
+            movePlayerSafely(p1, (mx / len) * spd * dt, (my / len) * spd * dt, true);
           }
         }
         if (p1.dashTimer > 0) {
-          p1.x += p1.dashDirX * DASH_SPEED * dt;
-          p1.y += p1.dashDirY * DASH_SPEED * dt;
+          movePlayerSafely(p1, p1.dashDirX * DASH_SPEED * dt, p1.dashDirY * DASH_SPEED * dt, true);
+        } else if (mx === 0 && my === 0) {
+          resolvePlayerObstacles(p1);
         }
-        resolvePlayerObstacles(p1);
-        checkPortalTeleportForPlayer(p1);
         if (keys["KeyF"] || keys["Space"]) tryAttack(p1);
       }
 
@@ -3147,16 +3171,14 @@
           p2.angle = Math.atan2(my, mx);
           const len = Math.hypot(mx, my);
           if (p2.dashTimer <= 0) {
-            p2.x += (mx / len) * spd * dt;
-            p2.y += (my / len) * spd * dt;
+            movePlayerSafely(p2, (mx / len) * spd * dt, (my / len) * spd * dt, true);
           }
         }
         if (p2.dashTimer > 0) {
-          p2.x += p2.dashDirX * DASH_SPEED * dt;
-          p2.y += p2.dashDirY * DASH_SPEED * dt;
+          movePlayerSafely(p2, p2.dashDirX * DASH_SPEED * dt, p2.dashDirY * DASH_SPEED * dt, true);
+        } else if (mx === 0 && my === 0) {
+          resolvePlayerObstacles(p2);
         }
-        resolvePlayerObstacles(p2);
-        checkPortalTeleportForPlayer(p2);
         if (keys["Enter"] || keys["KeyM"]) tryAttack(p2);
       }
     }
@@ -3479,7 +3501,7 @@
     }
 
     // ==========================================
-    // 13. 霓虹競技場畫布渲染（含三種主武器專屬拖曳瞄準預覽線）
+    // 13. 霓虹競技場畫布渲染
     // ==========================================
     function renderArena() {
       const map = getCurrentMap();
@@ -3718,7 +3740,6 @@
       }
       ctx.globalAlpha = 1;
 
-      // 🎯 準星、手榴彈拋物範圍與三種主武器專屬「放開擊發」瞄準預覽
       if ((mode === "online" || mode === "ai") && myRole && state.players[myRole].alive) {
         const me = state.players[myRole];
         const wCfg = getPrimaryCfg(me.primaryWeapon);
@@ -3770,7 +3791,6 @@
             }
             ctx.restore();
           } else {
-            // 桌機滑鼠準星
             if (!isMobileMode) {
               ctx.strokeStyle = wCfg.id === "sniper" ? "rgba(56, 189, 248, 0.85)" : "rgba(251, 191, 36, 0.75)";
               ctx.lineWidth = 1.5;
@@ -3785,7 +3805,6 @@
               ctx.stroke();
             }
 
-            // 手機搖桿／觸控瞄準時的專屬武器彈道預覽區（按住瞄準、放開才發射）
             if (isMobileMode && (aimStick.active || canvasTouching)) {
               ctx.save();
               const lineColor = !isReadyToFire
@@ -3793,7 +3812,6 @@
                 : (wCfg.id === "sniper" ? "rgba(56, 189, 248, 0.85)" : (wCfg.id === "shotgun" ? "rgba(251, 146, 60, 0.8)" : "rgba(251, 191, 36, 0.8)"));
 
               if (wCfg.id === "shotgun") {
-                // 散彈槍扇形散射預覽區
                 const coneRange = 360;
                 const halfSpread = wCfg.spread * 0.55;
                 ctx.fillStyle = isReadyToFire ? "rgba(251, 146, 60, 0.14)" : "rgba(148, 163, 184, 0.05)";
@@ -3806,7 +3824,6 @@
                 ctx.fill();
                 ctx.stroke();
               } else {
-                // 突擊步槍 / 狙擊槍瞄準射線與準星圓環
                 const previewLen = wCfg.id === "sniper" ? 680 : 420;
                 const endX = me.x + Math.cos(me.angle) * previewLen;
                 const endY = me.y + Math.sin(me.angle) * previewLen;
@@ -3828,7 +3845,6 @@
                 ctx.stroke();
               }
 
-              // 提示文字
               const labelDist = 115;
               const lx = me.x + Math.cos(me.angle) * labelDist;
               const ly = me.y + Math.sin(me.angle) * labelDist - 14;
